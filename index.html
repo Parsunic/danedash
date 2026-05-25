@@ -701,7 +701,13 @@ body::after {
 <body>
 <div class="page-wrap">
 
-  <h1 class="dash-title">Dane's Dashboard</h1>
+  <div class="title-row">
+    <h1 class="dash-title">Dane's Dashboard</h1>
+    <div class="sync-status" id="syncStatus">
+      <span class="sync-dot" id="syncDot"></span>
+      <span class="sync-label" id="syncLabel">Offline</span>
+    </div>
+  </div>
 
   <!-- GOAL TICKER -->
   <div class="ticker-row">
