@@ -810,20 +810,28 @@ body::after {
 
   <!-- RECURRING TASKS -->
   <div class="section">
-    <div class="section-title">Recurring Tasks</div>
-    <div class="gm-card">
-      <ul id="recurringList" class="goal-list"></ul>
-      <div id="recurringEmptyState" class="empty-state">No recurring tasks yet — add one below.</div>
-      <div class="recurring-form">
-        <input type="text" id="recurringInput" class="recurring-text-input" placeholder="Add a recurring task…">
-        <div class="freq-tabs" id="freqTabs">
-          <button class="freq-tab active" data-freq="daily">Daily</button>
-          <button class="freq-tab" data-freq="weekly">Weekly</button>
-          <button class="freq-tab" data-freq="monthly">Monthly</button>
+    <div class="section-title">
+      <button class="recurring-toggle" id="recurringToggle">
+        Recurring
+        <span class="recurring-count-badge" id="recurringCountBadge"></span>
+        <span class="recurring-chevron" id="recurringChevron">▸</span>
+      </button>
+    </div>
+    <div class="recurring-section-body" id="recurringBody">
+      <div class="gm-card" style="margin-bottom:0">
+        <ul id="recurringList" class="goal-list"></ul>
+        <div id="recurringEmptyState" class="empty-state">No recurring tasks yet — add one below.</div>
+        <div class="recurring-form">
+          <input type="text" id="recurringInput" class="recurring-text-input" placeholder="Add a recurring task…">
+          <div class="freq-tabs" id="freqTabs">
+            <button class="freq-tab active" data-freq="daily">Daily</button>
+            <button class="freq-tab" data-freq="weekly">Weekly</button>
+            <button class="freq-tab" data-freq="monthly">Monthly</button>
+          </div>
+          <div id="weekdayPicker" class="day-picker-wrap" style="display:none"></div>
+          <div id="monthdayPicker" class="day-picker-wrap" style="display:none"></div>
+          <button class="btn-recurring-add" id="recurringAddBtn">+ Add Recurring Task</button>
         </div>
-        <div id="weekdayPicker" class="day-picker-wrap" style="display:none"></div>
-        <div id="monthdayPicker" class="day-picker-wrap" style="display:none"></div>
-        <button class="btn-recurring-add" id="recurringAddBtn">+ Add Recurring Task</button>
       </div>
     </div>
   </div>
