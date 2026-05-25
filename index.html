@@ -852,6 +852,95 @@ function storeListKeys(prefix) {
   return keys;
 }
 
+// ── SUPABASE SYNC ──
+let supabaseClient = null;
+let syncDebounceTimer = null;
+let isSyncingFromRemote = false;
+let syncInitialized = false;
+
+function setSyncStatus(state) {
+  const dot = document.getElementById('syncDot');
+  const label = document.getElementById('syncLabel');
+  if (!dot || !label) return;
+  dot.className = 'sync-dot ' + state;
+  const labels = { syncing: 'Syncing…', synced: 'Synced', error: 'Error', offline: 'Offline' };
+  label.textContent = labels[state] || state;
+}
+
+function getLocalPayload() {
+  const payload = {};
+  const today = getActiveDateString();
+  const tomorrow = getTomorrowDateString();
+  ['goals:' + today, 'goals:' + tomorrow, 'recurring_tasks', 'goal_streak_v1'].forEach(k => {
+    const v = localStorage.getItem(k);
+    if (v !== null) { try { payload[k] = JSON.parse(v); } catch {} }
+  });
+  return payload;
+}
+
+function applyRemotePayload(payload) {
+  if (!payload) return;
+  isSyncingFromRemote = true;
+  try {
+    Object.entries(payload).forEach(([k, v]) => localStorage.setItem(k, JSON.stringify(v)));
+    loadToday();
+    loadTomorrow();
+    renderStreak();
+    if (window.renderRecurringList) window.renderRecurringList();
+    window.dispatchEvent(new CustomEvent('goals-changed'));
+  } finally {
+    isSyncingFromRemote = false;
+  }
+}
+
+async function pushToSupabase() {
+  if (!supabaseClient || isSyncingFromRemote) return;
+  setSyncStatus('syncing');
+  const payload = getLocalPayload();
+  const { error } = await supabaseClient
+    .from('dashboard_sync')
+    .upsert({ id: SYNC_ROW_ID, payload, updated_at: new Date().toISOString() });
+  setSyncStatus(error ? 'error' : 'synced');
+  if (error) console.warn('Sync push failed:', error);
+}
+
+async function pullFromSupabase() {
+  if (!supabaseClient) return;
+  setSyncStatus('syncing');
+  const { data, error } = await supabaseClient
+    .from('dashboard_sync').select('payload').eq('id', SYNC_ROW_ID).single();
+  if (error) {
+    if (error.code === 'PGRST116') { pushToSupabase(); return; } // no row yet — push ours
+    console.warn('Sync pull failed:', error);
+    setSyncStatus('error');
+    return;
+  }
+  if (data?.payload) applyRemotePayload(data.payload);
+  setSyncStatus('synced');
+}
+
+function schedulePush() {
+  if (isSyncingFromRemote || !syncInitialized) return;
+  clearTimeout(syncDebounceTimer);
+  syncDebounceTimer = setTimeout(pushToSupabase, 1500);
+}
+
+async function initSync() {
+  try {
+    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    await pullFromSupabase();
+    supabaseClient.channel('dashboard-sync')
+      .on('postgres_changes', {
+        event: '*', schema: 'public', table: 'dashboard_sync', filter: `id=eq.${SYNC_ROW_ID}`
+      }, change => { if (change.new?.payload) applyRemotePayload(change.new.payload); })
+      .subscribe();
+    syncInitialized = true;
+  } catch (e) {
+    console.warn('Sync init failed:', e);
+    setSyncStatus('offline');
+  }
+}
+
 // ── DATE HELPERS ──
 function getActiveDateString() {
   const now = new Date();
