@@ -7,7 +7,25 @@
       "Bash(git remote *)",
       "Bash(git add *)",
       "Bash(git commit -m ' *)",
-      "Bash(git branch *)"
+      "Bash(git commit -m \"*)",
+      "Bash(git branch *)",
+      "Bash(git push *)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd C:/Projects/UltraDash && git add -A && git commit -m \"Auto-deploy: update dashboard\" && git push",
+            "shell": "bash",
+            "statusMessage": "Pushing to GitHub…",
+            "async": true
+          }
+        ]
+      }
     ]
   }
 }
