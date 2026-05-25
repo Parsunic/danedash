@@ -1578,6 +1578,23 @@ function updateDayBar() {
   renderRecurringList();
 })();
 
+// ── RECURRING TOGGLE ──
+function initRecurringToggle() {
+  const toggle = document.getElementById('recurringToggle');
+  const body = document.getElementById('recurringBody');
+  const chevron = document.getElementById('recurringChevron');
+  if (!toggle || !body || !chevron) return;
+  let isOpen = localStorage.getItem('ui_recurring_open') === 'true';
+  function setOpen(open) {
+    isOpen = open;
+    body.classList.toggle('open', open);
+    chevron.classList.toggle('open', open);
+    localStorage.setItem('ui_recurring_open', open);
+  }
+  setOpen(isOpen);
+  toggle.addEventListener('click', () => setOpen(!isOpen));
+}
+
 // ── INIT ──
 doRollover();
 injectRecurringTasks();
