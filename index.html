@@ -1430,15 +1430,17 @@ function updateDayBar() {
     const item = items[cycleIdx];
     cycleIdx = (cycleIdx + 1) % items.length;
     const stage = document.getElementById('goalTickerStage');
-    const existing = stage.querySelector('.goal-ticker-row');
     const newRow = buildRow(item);
-    if (first || !existing) { stage.innerHTML = ''; stage.appendChild(newRow); }
-    else {
-      existing.classList.add('is-leaving');
-      newRow.classList.add('is-entering');
-      stage.appendChild(newRow);
-      setTimeout(() => { if (existing.parentNode) existing.remove(); }, 460);
-    }
+    if (first) { stage.innerHTML = ''; stage.appendChild(newRow); return; }
+    // Purge stale leaving rows to prevent multiple rows stacking up
+    stage.querySelectorAll('.is-leaving').forEach(r => r.remove());
+    const existing = stage.querySelector('.goal-ticker-row');
+    if (!existing) { stage.appendChild(newRow); return; }
+    // Clear any in-progress entering animation before starting leave
+    existing.className = 'goal-ticker-row is-leaving';
+    newRow.classList.add('is-entering');
+    stage.appendChild(newRow);
+    setTimeout(() => { if (existing.parentNode) existing.remove(); }, 460);
   }
   window.addEventListener('goals-changed', () => { cycleIdx = 0; tick(false); });
   tick(true);
