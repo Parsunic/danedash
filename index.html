@@ -826,9 +826,12 @@ body::after {
 
 <script>
 const ANTHROPIC_API_KEY = '';
-const WAKE_HOUR = 8;
-const SLEEP_HOUR = 24;
+const WAKE_HOUR = 6.5;   // 6:30 AM
+const SLEEP_HOUR = 21.5; // 9:30 PM
 const DAY_NAMES = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+const SUPABASE_URL = 'https://wlrdwrlxkjgubdmntfxl.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_yUHmrdeFSaKfY-AMGp3r9Q_Q2Mbqh7Y';
+const SYNC_ROW_ID = 'dane';
 
 // ── STORAGE ──
 function storeGet(key) {
