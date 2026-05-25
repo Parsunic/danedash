@@ -1524,6 +1524,8 @@ function updateDayBar() {
     const emptyEl = document.getElementById('recurringEmptyState');
     listEl.innerHTML = '';
     emptyEl.style.display = recurring.length === 0 ? 'block' : 'none';
+    const badge = document.getElementById('recurringCountBadge');
+    if (badge) badge.textContent = recurring.length > 0 ? String(recurring.length) : '';
     recurring.forEach((task, idx) => {
       const li = document.createElement('li');
       li.className = 'goal-row';
