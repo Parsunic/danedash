@@ -1617,8 +1617,10 @@ makeAddHandlers(
 loadToday();
 loadTomorrow();
 renderStreak();
+initRecurringToggle();
 updateDayBar();
 setInterval(updateDayBar, 60 * 1000);
+initSync();
 </script>
 </body>
 </html>
