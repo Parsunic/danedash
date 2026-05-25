@@ -989,10 +989,10 @@ function applyRemotePayload(payload) {
 async function pushToSupabase() {
   if (!supabaseClient || isSyncingFromRemote) return;
   setSyncStatus('syncing');
-  const payload = getLocalPayload();
+  const data = getLocalPayload();
   const { error } = await supabaseClient
-    .from('dashboard_sync')
-    .upsert({ id: SYNC_ROW_ID, payload, updated_at: new Date().toISOString() });
+    .from('app_state')
+    .upsert({ key: SYNC_ROW_ID, data, updated_at: new Date().toISOString() });
   setSyncStatus(error ? 'error' : 'synced');
   if (error) console.warn('Sync push failed:', error);
 }
@@ -1000,15 +1000,15 @@ async function pushToSupabase() {
 async function pullFromSupabase() {
   if (!supabaseClient) return;
   setSyncStatus('syncing');
-  const { data, error } = await supabaseClient
-    .from('dashboard_sync').select('payload').eq('id', SYNC_ROW_ID).single();
+  const { data: row, error } = await supabaseClient
+    .from('app_state').select('data').eq('key', SYNC_ROW_ID).single();
   if (error) {
     if (error.code === 'PGRST116') { pushToSupabase(); return; } // no row yet — push ours
     console.warn('Sync pull failed:', error);
     setSyncStatus('error');
     return;
   }
-  if (data?.payload) applyRemotePayload(data.payload);
+  if (row?.data) applyRemotePayload(row.data);
   setSyncStatus('synced');
 }
 
