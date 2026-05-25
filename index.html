@@ -1572,6 +1572,7 @@ function updateDayBar() {
     if (e.key === 'Enter') document.getElementById('recurringAddBtn').click();
   });
 
+  window.renderRecurringList = renderRecurringList;
   renderRecurringList();
 })();
 
