@@ -840,6 +840,7 @@ function storeGet(key) {
 function storeSet(key, value) {
   localStorage.setItem(key, JSON.stringify(value));
   if (key.startsWith('goals:')) window.dispatchEvent(new CustomEvent('goals-changed'));
+  schedulePush();
 }
 function storeDelete(key) { localStorage.removeItem(key); }
 function storeListKeys(prefix) {
