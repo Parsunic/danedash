@@ -673,6 +673,84 @@ body::after {
   color: var(--text-primary);
 }
 
+/* ── TITLE ROW ── */
+.title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  gap: 12px;
+}
+.title-row .dash-title { margin-bottom: 0; }
+
+/* ── SYNC STATUS ── */
+.sync-status {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+.sync-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-tertiary);
+  transition: background 0.4s;
+}
+.sync-dot.syncing { background: var(--warning); animation: ledPulse 1s ease-in-out infinite; }
+.sync-dot.synced { background: var(--success); }
+.sync-dot.error { background: var(--danger); }
+
+/* ── RECURRING COLLAPSIBLE ── */
+.recurring-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  color: var(--text-tertiary);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.2s;
+}
+.recurring-toggle:hover { color: var(--text-secondary); }
+
+.recurring-count-badge {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  background: rgba(255,255,255,0.07);
+  padding: 2px 7px;
+  border-radius: 999px;
+  color: var(--text-tertiary);
+}
+.recurring-count-badge:empty { display: none; }
+
+.recurring-chevron {
+  font-size: 9px;
+  transition: transform 0.3s cubic-bezier(0.22,1,0.36,1);
+  display: inline-block;
+}
+.recurring-chevron.open { transform: rotate(90deg); }
+
+.recurring-section-body {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.4s cubic-bezier(0.22,1,0.36,1);
+}
+.recurring-section-body.open { max-height: 1400px; }
+
 /* ── RESPONSIVE ── */
 @media (max-width: 600px) {
   body { padding: max(env(safe-area-inset-top, 16px), 16px) 14px 40px; }
