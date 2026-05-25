@@ -1024,8 +1024,8 @@ async function initSync() {
     await pullFromSupabase();
     supabaseClient.channel('dashboard-sync')
       .on('postgres_changes', {
-        event: '*', schema: 'public', table: 'dashboard_sync', filter: `id=eq.${SYNC_ROW_ID}`
-      }, change => { if (change.new?.payload) applyRemotePayload(change.new.payload); })
+        event: '*', schema: 'public', table: 'app_state', filter: `key=eq.${SYNC_ROW_ID}`
+      }, change => { if (change.new?.data) applyRemotePayload(change.new.data); })
       .subscribe();
     syncInitialized = true;
   } catch (e) {
