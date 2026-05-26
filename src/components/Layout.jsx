@@ -62,11 +62,38 @@ function SyncStatus({ onSettings }) {
 
 export default function Layout({ children }) {
   const [showSettings, setShowSettings] = useState(false)
+  const navigate = useNavigate()
+  const location = useLocation()
+  const touchStartX = useRef(null)
+  const touchStartY = useRef(null)
+
+  const handleTouchStart = useCallback((e) => {
+    touchStartX.current = e.touches[0].clientX
+    touchStartY.current = e.touches[0].clientY
+  }, [])
+
+  const handleTouchEnd = useCallback((e) => {
+    if (touchStartX.current === null) return
+    const dx = e.changedTouches[0].clientX - touchStartX.current
+    const dy = e.changedTouches[0].clientY - touchStartY.current
+    touchStartX.current = null
+    touchStartY.current = null
+    // Only fire if more horizontal than vertical and above threshold
+    if (Math.abs(dx) < 50 || Math.abs(dy) > Math.abs(dx)) return
+    const idx = modules.findIndex(m => m.path === location.pathname)
+    if (dx < 0 && idx < modules.length - 1) navigate(modules[idx + 1].path)
+    else if (dx > 0 && idx > 0) navigate(modules[idx - 1].path)
+  }, [navigate, location.pathname])
 
   return (
     <>
       <Sidebar />
-      <main className="main-content">
+      <main
+        className="main-content"
+        style={{ touchAction: 'pan-y' }}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
         <div className="page-wrap">
           {children}
         </div>
