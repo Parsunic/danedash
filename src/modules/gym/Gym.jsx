@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 import { storeGet, storeSet } from '../../lib/storage.js'
 import { getActiveDateString } from '../../lib/dateHelpers.js'
-import { gymUUID, calcE1RM, parseRepRange, weightInc } from './gymUtils.js'
+import { gymUUID, calcE1RM, parseRepRange } from './gymUtils.js'
 import TemplatesView from './components/TemplatesView.jsx'
 import PlannerView from './components/PlannerView.jsx'
 import AICoachView from './components/AICoachView.jsx'
