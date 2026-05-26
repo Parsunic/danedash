@@ -3,6 +3,7 @@ import Layout from './components/Layout.jsx'
 import Dashboard from './modules/dashboard/index.jsx'
 import Todo from './modules/todo/index.jsx'
 import Gym from './modules/gym/index.jsx'
+import Calendar from './modules/calendar/index.jsx'
 import { SyncProvider } from './contexts/SyncContext.jsx'
 
 export const modules = [
