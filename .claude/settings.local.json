@@ -16,7 +16,8 @@
       "Bash(Get-ChildItem -Path \"c:\\\\Projects\\\\UltraDash\" -Recurse -Force)",
       "Bash(Select-Object FullName, PSIsContainer)",
       "Bash(Sort-Object FullName)",
-      "Bash(Format-List)"
+      "Bash(Format-List)",
+      "Bash(npx vite *)"
     ]
   },
   "hooks": {

@@ -250,25 +250,26 @@ export default function TimeGrid({
           </div>
         </div>
 
-        {/* Mini month overlay */}
-        {showMiniMonth && (
-          <div className="cal-mini-month-panel">
-            <MiniMonth
-              currentDate={currentDate}
-              events={events}
-              gymPlanned={gymPlanned}
-              onSelect={onDateSelect}
-            />
-          </div>
-        )}
-        <button
-          className="cal-mini-toggle-btn"
-          onClick={onToggleMiniMonth}
-          title={showMiniMonth ? 'Hide calendar' : 'Show mini calendar'}
-        >
-          {showMiniMonth ? '◀' : '▶'}
-        </button>
       </div>
+
+      {/* Mini month — positioned absolutely within cal-timegrid-wrap, outside scroll */}
+      {showMiniMonth && (
+        <div className="cal-mini-month-panel">
+          <MiniMonth
+            currentDate={currentDate}
+            events={events}
+            gymPlanned={gymPlanned}
+            onSelect={onDateSelect}
+          />
+        </div>
+      )}
+      <button
+        className="cal-mini-toggle-btn"
+        onClick={onToggleMiniMonth}
+        title={showMiniMonth ? 'Hide calendar' : 'Show mini calendar'}
+      >
+        {showMiniMonth ? '◀' : '▶'}
+      </button>
     </div>
   )
 }
