@@ -2654,6 +2654,8 @@ initSync();
     sel.onchange = () => {
       customField.style.display = sel.value === '__custom__' ? 'block' : 'none';
     };
+    const _sb = document.getElementById('plannerStartWorkoutBtn');
+    if (_sb) _sb.style.display = (existing && existing.status !== 'completed' && existing.exercises && existing.exercises.length) ? 'block' : 'none';
     document.getElementById('plannerDayModal').classList.add('open');
   }
   function closeDayModal() {
