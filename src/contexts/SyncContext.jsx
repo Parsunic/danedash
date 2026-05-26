@@ -21,6 +21,7 @@ function getLocalPayload() {
     'goals:' + today, 'goals:' + tomorrow,
     'recurring_tasks', 'goal_streak_v1',
     'gym_templates', 'gym_planned', 'gym_week_tpls', 'gym_workout_logs', 'gym_exercise_history',
+    'calendar_events',
   ]
   keys.forEach(k => {
     const v = localStorage.getItem(k)
