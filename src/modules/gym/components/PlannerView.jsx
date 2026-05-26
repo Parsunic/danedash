@@ -216,9 +216,9 @@ export default function PlannerView({ weekOffset = 0, onWeekOffsetChange = () =>
   return (
     <div>
       <div className="planner-week-nav">
-        <button className="planner-nav-btn" onClick={() => setWeekOffset(o => o - 1)}>‹</button>
+        <button className="planner-nav-btn" onClick={() => onWeekOffsetChange(weekOffset - 1)}>‹</button>
         <span className="planner-week-label">{weekLabel}</span>
-        <button className="planner-nav-btn" onClick={() => setWeekOffset(o => o + 1)}>›</button>
+        <button className="planner-nav-btn" onClick={() => onWeekOffsetChange(weekOffset + 1)}>›</button>
       </div>
 
       <div className="planner-grid">
