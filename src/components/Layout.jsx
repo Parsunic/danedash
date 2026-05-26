@@ -1,7 +1,9 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
 import Sidebar from './Sidebar.jsx'
 import BottomNav from './BottomNav.jsx'
 import { useSyncStatus } from '../contexts/SyncContext.jsx'
+import { modules } from '../App.jsx'
 
 function SettingsModal({ onClose }) {
   const [key, setKey] = useState(() => localStorage.getItem('anthropic_api_key') || '')
