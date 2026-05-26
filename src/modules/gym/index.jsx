@@ -1,3 +1,1 @@
-export default function Gym() {
-  return <div className="dash-title">Gym</div>
-}
+export { default } from './Gym.jsx'
