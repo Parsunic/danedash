@@ -1213,8 +1213,7 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
   border: 1px solid rgba(255,255,255,0.07);
   backdrop-filter: blur(24px) saturate(1.2);
   box-shadow: 0 12px 40px rgba(0,0,0,0.45);
-  overflow: hidden;
-  position: relative;
+  position: relative; /* mini month anchors here */
 }
 
 /* All-day strip */
