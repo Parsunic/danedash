@@ -1403,6 +1403,32 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
   </div>
 </div>
 
+<!-- ── REST TIMER ── -->
+<div class="rest-timer-overlay" id="restTimerOverlay">
+  <div class="rest-timer-header">
+    <span class="rest-timer-label">Rest Timer</span>
+    <button class="rest-timer-dismiss" id="restTimerDismiss" title="Dismiss">&#215;</button>
+  </div>
+  <div class="rest-timer-ring-wrap" id="restTimerRing">
+    <svg viewBox="0 0 96 96" width="96" height="96">
+      <circle class="rest-timer-ring-bg" cx="48" cy="48" r="42"/>
+      <circle class="rest-timer-ring-fg" cx="48" cy="48" r="42"/>
+    </svg>
+    <div class="rest-timer-ring-label">
+      <span class="rest-timer-time" id="restTimerTime">1:30</span>
+      <span class="rest-timer-sub" id="restTimerSub">REST</span>
+    </div>
+  </div>
+  <div class="rest-timer-presets">
+    <button class="rest-preset-btn" data-secs="30">30s</button>
+    <button class="rest-preset-btn" data-secs="60">60s</button>
+    <button class="rest-preset-btn" data-secs="90">90s</button>
+    <button class="rest-preset-btn" data-secs="120">2m</button>
+    <button class="rest-preset-btn" data-secs="180">3m</button>
+    <button class="rest-preset-btn" data-secs="240">4m</button>
+  </div>
+</div>
+
 <!-- ── BOTTOM TAB BAR (mobile) ── -->
 <nav class="bottom-tabbar" id="bottomTabbar">
   <button class="tab-btn active" data-tab="dashboard">
