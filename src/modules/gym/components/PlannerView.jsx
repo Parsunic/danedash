@@ -116,8 +116,7 @@ function DayModal({ ds, existing, templates, onClose, onSave, onRemove, onStartW
   )
 }
 
-export default function PlannerView({ weekOffset = 0, onWeekOffsetChange, onStartWorkout }) {
-  const setWeekOffset = onWeekOffsetChange || (() => {})
+export default function PlannerView({ weekOffset = 0, onWeekOffsetChange = () => {}, onStartWorkout }) {
   const [planned, setPlanned] = useState(() => storeGet('gym_planned') || [])
   const [weekTpls, setWeekTpls] = useState(() => storeGet('gym_week_tpls') || [])
   const [templates, setTemplates] = useState(() => storeGet('gym_templates') || [])
