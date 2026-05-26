@@ -10,7 +10,8 @@
       "Bash(git commit -m \"*)",
       "Bash(git branch *)",
       "Bash(git push *)",
-      "Bash(git -C \"C:/Projects/UltraDash\" log --oneline -5)"
+      "Bash(git -C \"C:/Projects/UltraDash\" log --oneline -5)",
+      "Bash(git show *)"
     ]
   },
   "hooks": {
