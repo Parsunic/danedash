@@ -3,6 +3,7 @@ import Layout from './components/Layout.jsx'
 import Dashboard from './modules/dashboard/index.jsx'
 import Todo from './modules/todo/index.jsx'
 import Gym from './modules/gym/index.jsx'
+import { SyncProvider } from './contexts/SyncContext.jsx'
 
 export const modules = [
   {
@@ -47,12 +48,14 @@ export const modules = [
 
 export default function App() {
   return (
-    <Layout>
-      <Routes>
-        {modules.map(({ path, component: Component }) => (
-          <Route key={path} path={path} element={<Component />} />
-        ))}
-      </Routes>
-    </Layout>
+    <SyncProvider>
+      <Layout>
+        <Routes>
+          {modules.map(({ path, component: Component }) => (
+            <Route key={path} path={path} element={<Component />} />
+          ))}
+        </Routes>
+      </Layout>
+    </SyncProvider>
   )
 }
