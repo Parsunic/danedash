@@ -45,6 +45,20 @@ export const modules = [
     ),
     component: Gym,
   },
+  {
+    path: '/calendar',
+    label: 'Calendar',
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <rect x="2" y="3" width="14" height="13" rx="2" stroke="currentColor" strokeWidth="1.5" fill="none" />
+        <path d="M2 7h14" stroke="currentColor" strokeWidth="1.5" />
+        <path d="M6 1v3M12 1v3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+        <rect x="5" y="10" width="2.5" height="2.5" rx="0.5" fill="currentColor" opacity="0.7" />
+        <rect x="10.5" y="10" width="2.5" height="2.5" rx="0.5" fill="currentColor" opacity="0.7" />
+      </svg>
+    ),
+    component: Calendar,
+  },
 ]
 
 export default function App() {
