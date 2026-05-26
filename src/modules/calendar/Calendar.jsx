@@ -134,14 +134,8 @@ export default function Calendar() {
         </div>
       </div>
 
-      {/* Body */}
+      {/* Body — mini month lives as an overlay inside TimeGrid */}
       <div className="cal-body-wrap">
-        {/* Sidebar: mini month (week/day views only, desktop) */}
-        {(view === 'week' || view === 'day') && showMiniMonth && (
-          <div className="cal-sidebar" />
-          // Mini month is rendered inside TimeGrid as an overlay for better positioning
-        )}
-
         <div className="cal-main">
           {(view === 'week' || view === 'day') && (
             <TimeGrid
