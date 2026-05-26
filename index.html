@@ -631,6 +631,205 @@ body::after {
 .gym-placeholder-title { font-size: 14px; font-weight: 600; color: var(--text-secondary); }
 .gym-placeholder-sub { font-size: 12px; color: var(--text-tertiary); max-width: 260px; line-height: 1.6; }
 
+/* ── GYM FEATURE STYLES ── */
+.gym-section-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+.btn-gym-primary {
+  padding:10px 18px; border-radius:12px; border:none;
+  background:linear-gradient(180deg,#F2C063 0%,#E0A840 100%);
+  color:#0A0A0B; font-family:var(--font-body); font-size:13px; font-weight:700;
+  cursor:pointer; white-space:nowrap;
+  box-shadow:0 1px 3px rgba(0,0,0,0.3),0 4px 12px rgba(0,0,0,0.2);
+  transition:transform 0.15s;
+}
+.btn-gym-primary:hover { transform:translateY(-1px); }
+.btn-gym-secondary {
+  padding:8px 14px; border-radius:10px; border:1px solid rgba(255,255,255,0.10);
+  background:rgba(255,255,255,0.04); color:var(--text-secondary);
+  font-family:var(--font-body); font-size:12px; font-weight:600;
+  cursor:pointer; transition:background 0.15s,color 0.15s;
+}
+.btn-gym-secondary:hover { background:rgba(255,255,255,0.08); color:var(--text-primary); }
+.btn-gym-danger {
+  padding:6px 10px; border-radius:8px; border:none;
+  background:rgba(255,107,107,0.10); color:var(--danger);
+  font-size:12px; font-weight:600; cursor:pointer; font-family:var(--font-body);
+  transition:background 0.15s;
+}
+.btn-gym-danger:hover { background:rgba(255,107,107,0.22); }
+
+.template-card {
+  background:var(--card-bg); border-radius:var(--card-radius);
+  border:1px solid rgba(255,255,255,0.06); padding:16px; margin-bottom:12px;
+  backdrop-filter:blur(24px) saturate(1.2); box-shadow:0 8px 30px rgba(0,0,0,0.35);
+}
+.template-card-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.template-card-name { font-size:15px; font-weight:700; color:var(--text-primary); }
+.template-card-actions { display:flex; gap:6px; }
+.template-exercise-list { list-style:none; display:flex; flex-direction:column; gap:6px; }
+.template-exercise-row {
+  display:flex; align-items:center; gap:10px; padding:8px 10px; flex-wrap:wrap;
+  background:rgba(255,255,255,0.03); border-radius:8px; border:1px solid rgba(255,255,255,0.05);
+}
+.template-exercise-name { flex:1; min-width:100px; font-size:13px; color:var(--text-primary); font-weight:600; }
+.template-exercise-meta {
+  font-family:var(--font-mono); font-size:11px; color:var(--text-secondary);
+  background:rgba(255,255,255,0.05); padding:3px 8px; border-radius:999px; white-space:nowrap;
+}
+.template-exercise-notes { font-size:11px; color:var(--text-tertiary); font-style:italic; width:100%; margin-top:2px; }
+
+.gym-modal-overlay {
+  display:none; position:fixed; inset:0; background:rgba(0,0,0,0.78);
+  backdrop-filter:blur(8px); z-index:500; align-items:flex-end; justify-content:center;
+}
+.gym-modal-overlay.open { display:flex; }
+@media (min-width:601px) { .gym-modal-overlay { align-items:center; } }
+.gym-modal {
+  background:#111113; border-radius:20px 20px 0 0; width:100%; max-width:600px;
+  max-height:90vh; overflow-y:auto; padding:24px 20px;
+  border:1px solid rgba(255,255,255,0.08); box-shadow:0 -20px 60px rgba(0,0,0,0.6);
+}
+@media (min-width:601px) { .gym-modal { border-radius:20px; max-height:85vh; } }
+.gym-modal-title {
+  font-size:18px; font-weight:700; color:var(--text-primary); margin-bottom:20px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.gym-modal-close {
+  background:none; border:none; color:var(--text-tertiary); font-size:22px;
+  cursor:pointer; padding:2px 8px; border-radius:8px; transition:color 0.15s; line-height:1;
+}
+.gym-modal-close:hover { color:var(--text-primary); }
+.gym-field { margin-bottom:14px; }
+.gym-field label {
+  display:block; font-size:11px; font-weight:700; letter-spacing:0.10em;
+  text-transform:uppercase; color:var(--text-tertiary); margin-bottom:6px;
+}
+.gym-input {
+  width:100%; padding:11px 14px; border-radius:12px;
+  border:1px solid rgba(255,255,255,0.08); background:rgba(255,255,255,0.04);
+  color:var(--text-primary); font-family:var(--font-body); font-size:14px;
+  outline:none; transition:border-color 0.2s;
+}
+.gym-input::placeholder { color:var(--text-tertiary); }
+.gym-input:focus { border-color:rgba(242,192,99,0.4); }
+select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
+
+.gym-exercise-editor-list { display:flex; flex-direction:column; gap:8px; margin-bottom:12px; }
+.gym-ex-edit-row {
+  display:flex; flex-wrap:wrap; gap:6px; align-items:center; padding:8px 10px;
+  background:rgba(255,255,255,0.03); border-radius:10px; border:1px solid rgba(255,255,255,0.05);
+}
+.gym-ex-edit-row .gym-input { width:auto; padding:8px 10px; font-size:13px; }
+.gym-ex-name  { flex:1 1 180px; min-width:0; }
+.gym-ex-sets  { flex:0 0 58px; text-align:center; }
+.gym-ex-reps  { flex:0 0 78px; }
+.gym-ex-notes { flex:1 1 140px; min-width:0; }
+.gym-ex-delete {
+  background:none; border:none; color:var(--text-tertiary); font-size:18px;
+  cursor:pointer; padding:2px 6px; border-radius:6px; transition:color 0.15s; line-height:1;
+}
+.gym-ex-delete:hover { color:var(--danger); }
+.btn-add-exercise {
+  width:100%; padding:10px 14px; border-radius:10px;
+  border:1px dashed rgba(255,255,255,0.14); background:none;
+  color:var(--text-tertiary); font-size:13px; cursor:pointer; font-family:var(--font-body);
+  transition:border-color 0.2s,color 0.2s;
+}
+.btn-add-exercise:hover { border-color:rgba(242,192,99,0.4); color:var(--accent); }
+
+.planner-week-nav { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+.planner-week-label { font-size:13px; font-weight:700; color:var(--text-primary); font-family:var(--font-mono); }
+.planner-nav-btn {
+  background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08);
+  border-radius:8px; color:var(--text-secondary); cursor:pointer;
+  padding:6px 14px; font-size:16px; transition:background 0.15s; font-family:var(--font-body);
+}
+.planner-nav-btn:hover { background:rgba(255,255,255,0.10); }
+.planner-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:5px; margin-bottom:24px; }
+.planner-day-col { display:flex; flex-direction:column; gap:4px; min-width:0; }
+.planner-day-header {
+  text-align:center; font-family:var(--font-mono); font-size:10px; font-weight:700;
+  letter-spacing:0.06em; color:var(--text-tertiary); text-transform:uppercase; padding:4px 0;
+}
+.planner-day-header.is-today { color:var(--accent); }
+.planner-day-cell {
+  min-height:68px; border-radius:10px; padding:6px 4px;
+  background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.05);
+  cursor:pointer; transition:border-color 0.15s,background 0.15s;
+  display:flex; flex-direction:column; align-items:center;
+}
+.planner-day-cell:hover { border-color:rgba(242,192,99,0.3); background:rgba(242,192,99,0.04); }
+.planner-day-cell.is-today { border-color:rgba(242,192,99,0.4); background:rgba(242,192,99,0.06); }
+.planner-day-cell.is-completed { background:rgba(107,227,164,0.05); border-color:rgba(107,227,164,0.22); }
+.planner-day-cell.has-workout { border-color:rgba(242,192,99,0.22); }
+.planner-day-num {
+  font-family:var(--font-mono); font-size:11px; font-weight:700;
+  color:var(--text-tertiary); margin-bottom:5px; text-align:center; width:100%;
+}
+.planner-day-num.is-today { color:var(--accent); }
+.planner-workout-chip {
+  width:100%; background:rgba(242,192,99,0.10); border-radius:5px;
+  padding:3px 4px; text-align:center; font-size:9px; font-weight:700; color:var(--accent);
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  border:1px solid rgba(242,192,99,0.18); line-height:1.4;
+}
+.planner-workout-chip.is-completed { background:rgba(107,227,164,0.10); color:var(--success); border-color:rgba(107,227,164,0.22); }
+.planner-add-plus { color:var(--text-tertiary); font-size:16px; opacity:0.35; margin:auto; }
+.template-select {
+  width:100%; padding:11px 14px; border-radius:12px;
+  border:1px solid rgba(255,255,255,0.08); background:rgba(255,255,255,0.04);
+  color:var(--text-primary); font-family:var(--font-body); font-size:14px;
+  outline:none; cursor:pointer; -webkit-appearance:none; appearance:none;
+}
+.template-select:focus { border-color:rgba(242,192,99,0.4); }
+.template-select option { background:#111113; color:var(--text-primary); }
+
+.week-template-card {
+  display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;
+  padding:12px 14px; background:var(--card-bg); border-radius:12px;
+  border:1px solid rgba(255,255,255,0.06); margin-bottom:8px;
+}
+.week-template-name { font-size:13px; font-weight:600; color:var(--text-primary); }
+.week-template-meta { font-size:11px; color:var(--text-tertiary); font-family:var(--font-mono); margin-top:2px; }
+.week-template-actions { display:flex; gap:6px; align-items:center; }
+
+.ai-coach-card {
+  background:var(--card-bg); border-radius:var(--card-radius);
+  padding:20px; backdrop-filter:blur(24px) saturate(1.2); box-shadow:0 12px 40px rgba(0,0,0,0.45);
+}
+.ai-coach-title { font-size:18px; font-weight:700; color:var(--text-primary); margin-bottom:4px; }
+.ai-coach-sub { font-size:12px; color:var(--text-tertiary); margin-bottom:20px; line-height:1.7; }
+.ai-coach-form { display:flex; flex-direction:column; gap:14px; }
+.ai-days-picker { display:flex; flex-wrap:wrap; gap:6px; }
+.ai-day-toggle {
+  padding:8px 12px; border:1px solid rgba(255,255,255,0.10); border-radius:8px;
+  background:transparent; color:var(--text-tertiary); font-family:var(--font-mono);
+  font-size:11px; font-weight:700; cursor:pointer; min-width:44px; text-align:center;
+  transition:background 0.15s,color 0.15s,border-color 0.15s;
+}
+.ai-day-toggle.active { background:rgba(242,192,99,0.12); border-color:rgba(242,192,99,0.4); color:var(--accent); }
+.ai-generate-btn {
+  padding:14px 20px; border-radius:14px; border:none;
+  background:linear-gradient(135deg,#F2C063 0%,#E07B3B 100%);
+  color:#0A0A0B; font-family:var(--font-body); font-size:15px; font-weight:700;
+  cursor:pointer; transition:transform 0.15s,box-shadow 0.15s;
+  box-shadow:0 4px 20px rgba(242,192,99,0.25);
+}
+.ai-generate-btn:hover:not(:disabled) { transform:translateY(-1px); box-shadow:0 6px 24px rgba(242,192,99,0.35); }
+.ai-generate-btn:disabled { opacity:0.5; cursor:not-allowed; }
+.ai-status { font-size:12px; color:var(--text-tertiary); text-align:center; min-height:18px; }
+.ai-status.error { color:var(--danger); }
+.ai-status.success { color:var(--success); }
+
+@media (max-width:600px) {
+  .planner-grid { gap:3px; }
+  .planner-day-cell { min-height:56px; padding:4px 2px; }
+  .planner-workout-chip { font-size:8px; padding:2px; }
+  .planner-day-num { font-size:10px; }
+  .planner-day-header { font-size:9px; }
+  .gym-ex-sets { flex:0 0 50px; }
+  .gym-ex-reps { flex:0 0 65px; }
+}
+
 /* ── RESPONSIVE ── */
 @media (max-width: 600px) {
   .sidebar { display: none; }
@@ -845,27 +1044,90 @@ body::after {
     <!-- MODULE: Gym -->
     <div class="module" id="mod-gym">
       <h1 class="dash-title">Gym</h1>
-      <div class="gym-subnav" id="gymSubnav">
+      <div class="gym-subnav" id="gymSubnav" style="overflow-x:auto">
         <button class="gym-subnav-btn active" data-view="templates">Templates</button>
         <button class="gym-subnav-btn" data-view="planner">Planner</button>
-        <button class="gym-subnav-btn" data-view="log">Log Workout</button>
+        <button class="gym-subnav-btn" data-view="ai-coach">AI Coach</button>
+        <button class="gym-subnav-btn" data-view="log">Log</button>
         <button class="gym-subnav-btn" data-view="history">History</button>
       </div>
 
+      <!-- TEMPLATES -->
       <div class="gym-view active" id="gym-templates">
-        <div class="gym-placeholder">
-          <div class="gym-placeholder-icon">📋</div>
-          <div class="gym-placeholder-title">No Templates Yet</div>
-          <div class="gym-placeholder-sub">Create reusable workout templates to quickly plan your sessions.</div>
+        <div class="gym-section-header">
+          <div class="section-title" style="margin-bottom:0">Workout Templates</div>
+          <button class="btn-gym-primary" id="btnNewTemplate">+ New</button>
         </div>
+        <div id="templateList"></div>
+        <div class="empty-state" id="templateEmpty">No templates yet — create one to get started.</div>
       </div>
+
+      <!-- PLANNER -->
       <div class="gym-view" id="gym-planner">
-        <div class="gym-placeholder">
-          <div class="gym-placeholder-icon">📅</div>
-          <div class="gym-placeholder-title">Planner</div>
-          <div class="gym-placeholder-sub">Schedule upcoming workouts and see what's on deck for the week.</div>
+        <div class="planner-week-nav">
+          <button class="planner-nav-btn" id="plannerPrevWeek">&#8249;</button>
+          <span class="planner-week-label" id="plannerWeekLabel">—</span>
+          <button class="planner-nav-btn" id="plannerNextWeek">&#8250;</button>
+        </div>
+        <div class="planner-grid" id="plannerGrid"></div>
+        <div class="section-title">Week Templates</div>
+        <div class="gym-section-header" style="margin-bottom:12px">
+          <div style="font-size:12px;color:var(--text-tertiary)">Save or apply a full weekly split</div>
+          <button class="btn-gym-secondary" id="btnSaveWeekTemplate">Save This Week</button>
+        </div>
+        <div id="weekTemplateList"></div>
+        <div class="empty-state" id="weekTemplateEmpty">No week templates saved yet.</div>
+      </div>
+
+      <!-- AI COACH -->
+      <div class="gym-view" id="gym-ai-coach">
+        <div class="ai-coach-card">
+          <div class="ai-coach-title">Progressive Overload Coach</div>
+          <div class="ai-coach-sub">Tell the AI your goals and schedule — it'll generate a structured weekly plan with exercises, sets, rep ranges, and RPE targets. The plan loads directly into your Planner.</div>
+          <div class="ai-coach-form">
+            <div class="gym-field">
+              <label>Primary Goal</label>
+              <select class="gym-input" id="aiGoal">
+                <option value="muscle gain">Muscle Gain (Hypertrophy)</option>
+                <option value="strength">Strength (1RM Focus)</option>
+                <option value="fat loss">Fat Loss &amp; Conditioning</option>
+                <option value="general fitness">General Fitness</option>
+                <option value="athletic performance">Athletic Performance</option>
+              </select>
+            </div>
+            <div class="gym-field">
+              <label>Days Per Week Available</label>
+              <select class="gym-input" id="aiDaysPerWeek">
+                <option value="2">2 days</option>
+                <option value="3">3 days</option>
+                <option value="4" selected>4 days</option>
+                <option value="5">5 days</option>
+                <option value="6">6 days</option>
+              </select>
+            </div>
+            <div class="gym-field">
+              <label>Preferred Training Days</label>
+              <div class="ai-days-picker" id="aiDaysPicker"></div>
+            </div>
+            <div class="gym-field">
+              <label>Weeks to Plan Ahead</label>
+              <select class="gym-input" id="aiWeeksAhead">
+                <option value="1">1 week</option>
+                <option value="2" selected>2 weeks</option>
+                <option value="4">4 weeks</option>
+              </select>
+            </div>
+            <div class="gym-field">
+              <label>Additional Notes (optional)</label>
+              <input type="text" class="gym-input" id="aiNotes" placeholder="e.g. no barbell, focus on upper body…">
+            </div>
+            <button class="ai-generate-btn" id="aiGenerateBtn">Generate My Plan</button>
+            <div class="ai-status" id="aiStatus"></div>
+          </div>
         </div>
       </div>
+
+      <!-- LOG -->
       <div class="gym-view" id="gym-log">
         <div class="gym-placeholder">
           <div class="gym-placeholder-icon">🏋</div>
@@ -873,6 +1135,8 @@ body::after {
           <div class="gym-placeholder-sub">Track sets, reps, and weight as you train.</div>
         </div>
       </div>
+
+      <!-- HISTORY -->
       <div class="gym-view" id="gym-history">
         <div class="gym-placeholder">
           <div class="gym-placeholder-icon">📈</div>
@@ -884,6 +1148,101 @@ body::after {
 
   </div><!-- /page-wrap -->
 </div><!-- /main-content -->
+
+<!-- ── SETTINGS MODAL ── -->
+<div class="gym-modal-overlay" id="settingsModal">
+  <div class="gym-modal" style="max-width:440px">
+    <div class="gym-modal-title">
+      <span>Settings</span>
+      <button class="gym-modal-close" id="settingsModalClose">&#215;</button>
+    </div>
+    <div class="gym-field">
+      <label>Anthropic API Key</label>
+      <div style="display:flex;gap:8px">
+        <input type="password" class="gym-input" id="apiKeyInput" placeholder="sk-ant-api03-…" style="flex:1;font-family:var(--font-mono);font-size:12px">
+        <button class="btn-gym-secondary" id="apiKeyToggle">Show</button>
+      </div>
+      <div style="font-size:11px;color:var(--text-tertiary);margin-top:8px;line-height:1.6">Powers ✨ Polish and AI Coach. Stored in your browser only — never sent to any server except Anthropic directly.</div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:16px">
+      <button class="btn-gym-secondary" id="settingsModalCancel" style="flex:1">Cancel</button>
+      <button class="btn-gym-primary" id="settingsModalSave" style="flex:2">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── TEMPLATE MODAL ── -->
+<div class="gym-modal-overlay" id="templateModal">
+  <div class="gym-modal">
+    <div class="gym-modal-title">
+      <span id="templateModalTitle">New Template</span>
+      <button class="gym-modal-close" id="templateModalClose">&#215;</button>
+    </div>
+    <div class="gym-field">
+      <label>Template Name</label>
+      <input type="text" class="gym-input" id="templateNameInput" placeholder="e.g. Push Day A">
+    </div>
+    <div class="gym-field">
+      <label>Exercises</label>
+      <div class="gym-exercise-editor-list" id="exerciseEditorList"></div>
+      <button class="btn-add-exercise" id="btnAddExercise">+ Add Exercise</button>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:16px">
+      <button class="btn-gym-secondary" id="templateModalCancel" style="flex:1">Cancel</button>
+      <button class="btn-gym-primary" id="templateModalSave" style="flex:2">Save Template</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── PLANNER DAY MODAL ── -->
+<div class="gym-modal-overlay" id="plannerDayModal">
+  <div class="gym-modal" style="max-width:500px">
+    <div class="gym-modal-title">
+      <span id="plannerDayModalTitle">—</span>
+      <button class="gym-modal-close" id="plannerDayModalClose">&#215;</button>
+    </div>
+    <div class="gym-field">
+      <label>Assign Template</label>
+      <select class="template-select" id="plannerTemplateSelect">
+        <option value="">— Rest Day —</option>
+      </select>
+    </div>
+    <div class="gym-field" id="plannerCustomNameField" style="display:none">
+      <label>Workout Name</label>
+      <input type="text" class="gym-input" id="plannerCustomName" placeholder="Custom Workout">
+    </div>
+    <div class="gym-field" id="plannerStatusField" style="display:none">
+      <label>Status</label>
+      <div style="display:flex;gap:8px">
+        <button class="btn-gym-secondary" id="plannerMarkUpcoming" style="flex:1">Upcoming</button>
+        <button class="btn-gym-secondary" id="plannerMarkComplete" style="flex:1">&#10003; Completed</button>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap">
+      <button class="btn-gym-danger" id="plannerDayRemove" style="display:none">Remove</button>
+      <button class="btn-gym-secondary" id="plannerDayModalCancel" style="flex:1">Cancel</button>
+      <button class="btn-gym-primary" id="plannerDayModalSave" style="flex:2">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── WEEK TEMPLATE MODAL ── -->
+<div class="gym-modal-overlay" id="weekTemplateModal">
+  <div class="gym-modal" style="max-width:420px">
+    <div class="gym-modal-title">
+      <span>Save Week Template</span>
+      <button class="gym-modal-close" id="weekTemplateModalClose">&#215;</button>
+    </div>
+    <div class="gym-field">
+      <label>Template Name</label>
+      <input type="text" class="gym-input" id="weekTemplateNameInput" placeholder="e.g. PPL Split, Upper/Lower">
+    </div>
+    <div style="display:flex;gap:10px;margin-top:16px">
+      <button class="btn-gym-secondary" id="weekTemplateModalCancel" style="flex:1">Cancel</button>
+      <button class="btn-gym-primary" id="weekTemplateModalSave" style="flex:2">Save</button>
+    </div>
+  </div>
+</div>
 
 <!-- ── BOTTOM TAB BAR (mobile) ── -->
 <nav class="bottom-tabbar" id="bottomTabbar">
@@ -929,11 +1288,12 @@ body::after {
 <div class="sync-status" id="syncStatus">
   <span class="sync-dot" id="syncDot"></span>
   <span class="sync-label" id="syncLabel">Offline</span>
+  <button id="settingsBtn" title="Settings" style="background:none;border:none;cursor:pointer;color:inherit;font-size:13px;padding:0 0 0 6px;opacity:0.7;pointer-events:all;transition:opacity 0.15s" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7">⚙</button>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
-const ANTHROPIC_API_KEY = '';
+let ANTHROPIC_API_KEY = localStorage.getItem('anthropic_api_key') || '';
 const WAKE_HOUR = 6.5;
 const SLEEP_HOUR = 21.5;
 const DAY_NAMES = ['Su','Mo','Tu','We','Th','Fr','Sa'];
@@ -979,7 +1339,7 @@ function getLocalPayload() {
   const payload = {};
   const today = getActiveDateString();
   const tomorrow = getTomorrowDateString();
-  ['goals:' + today, 'goals:' + tomorrow, 'recurring_tasks', 'goal_streak_v1'].forEach(k => {
+  ['goals:' + today, 'goals:' + tomorrow, 'recurring_tasks', 'goal_streak_v1', 'gym_templates', 'gym_planned', 'gym_week_tpls'].forEach(k => {
     const v = localStorage.getItem(k);
     if (v !== null) { try { payload[k] = JSON.parse(v); } catch {} }
   });
@@ -995,6 +1355,7 @@ function applyRemotePayload(payload) {
     loadTomorrow();
     renderStreak();
     if (window.renderRecurringList) window.renderRecurringList();
+    if (window.gymRenderAll) window.gymRenderAll();
     window.dispatchEvent(new CustomEvent('goals-changed'));
   } finally {
     isSyncingFromRemote = false;
@@ -1838,6 +2199,548 @@ initRecurringToggle();
 updateDayBar();
 setInterval(updateDayBar, 60 * 1000);
 initSync();
+
+// ── SETTINGS ──
+(function() {
+  const modal    = document.getElementById('settingsModal');
+  const keyInput = document.getElementById('apiKeyInput');
+  const toggle   = document.getElementById('apiKeyToggle');
+
+  function open() {
+    keyInput.value = localStorage.getItem('anthropic_api_key') || '';
+    keyInput.type  = 'password';
+    toggle.textContent = 'Show';
+    modal.classList.add('open');
+    setTimeout(() => keyInput.focus(), 80);
+  }
+  function close() { modal.classList.remove('open'); }
+
+  document.getElementById('settingsBtn').addEventListener('click', open);
+  document.getElementById('settingsModalClose').addEventListener('click', close);
+  document.getElementById('settingsModalCancel').addEventListener('click', close);
+  modal.addEventListener('click', e => { if (e.target === modal) close(); });
+
+  toggle.addEventListener('click', () => {
+    const isPw = keyInput.type === 'password';
+    keyInput.type = isPw ? 'text' : 'password';
+    toggle.textContent = isPw ? 'Hide' : 'Show';
+  });
+
+  document.getElementById('settingsModalSave').addEventListener('click', () => {
+    const key = keyInput.value.trim();
+    if (key) { localStorage.setItem('anthropic_api_key', key); ANTHROPIC_API_KEY = key; }
+    else      { localStorage.removeItem('anthropic_api_key');   ANTHROPIC_API_KEY = ''; }
+    close();
+  });
+})();
+
+// ── GYM MODULE ──
+(function() {
+  const DSHORT = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const DFULL  = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  function gymUUID() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+      const r = Math.random() * 16 | 0;
+      return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+    });
+  }
+  function esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function getTpls()     { return storeGet('gym_templates')  || []; }
+  function saveTpls(a)   { storeSet('gym_templates', a); }
+  function getPlanned()  { return storeGet('gym_planned')    || []; }
+  function savePlanned(a){ storeSet('gym_planned', a); }
+  function getWeekTpls() { return storeGet('gym_week_tpls') || []; }
+  function saveWeekTpls(a){ storeSet('gym_week_tpls', a); }
+
+  function dateToStr(d) { return d.toISOString().slice(0, 10); }
+
+  // ── TEMPLATE MODAL ──
+  let editTplId = null;
+  let exRows    = [];
+
+  function openTplModal(tpl) {
+    editTplId = tpl ? tpl.id : null;
+    document.getElementById('templateModalTitle').textContent = tpl ? 'Edit Template' : 'New Template';
+    document.getElementById('templateNameInput').value = tpl ? tpl.name : '';
+    exRows = tpl ? tpl.exercises.map(e => ({...e})) : [];
+    renderExEditor();
+    document.getElementById('templateModal').classList.add('open');
+    setTimeout(() => document.getElementById('templateNameInput').focus(), 80);
+  }
+  function closeTplModal() {
+    document.getElementById('templateModal').classList.remove('open');
+    editTplId = null; exRows = [];
+  }
+  function renderExEditor() {
+    const list = document.getElementById('exerciseEditorList');
+    list.innerHTML = '';
+    exRows.forEach((ex, i) => {
+      const row = document.createElement('div');
+      row.className = 'gym-ex-edit-row';
+      row.innerHTML =
+        `<input class="gym-input gym-ex-name"  placeholder="Exercise name"     value="${esc(ex.name||'')}"          data-f="name"     data-i="${i}">` +
+        `<input class="gym-input gym-ex-sets"  placeholder="Sets" type="number" value="${esc(String(ex.sets||3))}"   data-f="sets"     data-i="${i}" min="1" max="30">` +
+        `<input class="gym-input gym-ex-reps"  placeholder="8–10"               value="${esc(ex.repRange||'')}"      data-f="repRange" data-i="${i}">` +
+        `<input class="gym-input gym-ex-notes" placeholder="Notes / intensity"  value="${esc(ex.notes||'')}"         data-f="notes"    data-i="${i}">` +
+        `<button class="gym-ex-delete" data-i="${i}" title="Remove">&#215;</button>`;
+      list.appendChild(row);
+    });
+    list.querySelectorAll('[data-f]').forEach(inp => {
+      inp.addEventListener('input', () => {
+        const i = +inp.dataset.i, f = inp.dataset.f;
+        exRows[i][f] = f === 'sets' ? (parseInt(inp.value) || 1) : inp.value;
+      });
+    });
+    list.querySelectorAll('.gym-ex-delete').forEach(btn => {
+      btn.addEventListener('click', () => { exRows.splice(+btn.dataset.i, 1); renderExEditor(); });
+    });
+  }
+
+  document.getElementById('btnAddExercise').addEventListener('click', () => {
+    exRows.push({ name:'', sets:3, repRange:'8–10', notes:'' });
+    renderExEditor();
+    setTimeout(() => {
+      const inputs = document.querySelectorAll('#exerciseEditorList .gym-ex-name');
+      if (inputs.length) inputs[inputs.length-1].focus();
+    }, 40);
+  });
+  document.getElementById('templateModalClose').addEventListener('click', closeTplModal);
+  document.getElementById('templateModalCancel').addEventListener('click', closeTplModal);
+  document.getElementById('templateModal').addEventListener('click', e => { if (e.target.id === 'templateModal') closeTplModal(); });
+  document.getElementById('templateModalSave').addEventListener('click', () => {
+    const name = document.getElementById('templateNameInput').value.trim();
+    if (!name) { document.getElementById('templateNameInput').focus(); return; }
+    const tpls = getTpls();
+    const exercises = exRows.filter(e => e.name.trim());
+    if (editTplId) {
+      const idx = tpls.findIndex(t => t.id === editTplId);
+      if (idx >= 0) tpls[idx] = { ...tpls[idx], name, exercises };
+    } else {
+      tpls.push({ id: gymUUID(), name, exercises });
+    }
+    saveTpls(tpls);
+    closeTplModal();
+    renderTemplates();
+  });
+
+  // ── RENDER TEMPLATES ──
+  function renderTemplates() {
+    const tpls  = getTpls();
+    const list  = document.getElementById('templateList');
+    const empty = document.getElementById('templateEmpty');
+    if (!list) return;
+    list.innerHTML = '';
+    empty.style.display = tpls.length === 0 ? 'block' : 'none';
+    tpls.forEach(tpl => {
+      const card = document.createElement('div');
+      card.className = 'template-card';
+      const exHtml = tpl.exercises.length === 0
+        ? '<li style="color:var(--text-tertiary);font-size:12px;padding:4px 0">No exercises — edit to add some.</li>'
+        : tpl.exercises.map(ex =>
+            `<li class="template-exercise-row">` +
+              `<span class="template-exercise-name">${esc(ex.name)}</span>` +
+              `<span class="template-exercise-meta">${esc(String(ex.sets))}×${esc(ex.repRange||'—')}</span>` +
+              (ex.notes ? `<span class="template-exercise-notes">${esc(ex.notes)}</span>` : '') +
+            `</li>`
+          ).join('');
+      card.innerHTML =
+        `<div class="template-card-header">` +
+          `<div class="template-card-name">${esc(tpl.name)}</div>` +
+          `<div class="template-card-actions">` +
+            `<button class="btn-gym-secondary" data-edit="${tpl.id}">Edit</button>` +
+            `<button class="btn-gym-danger"    data-del="${tpl.id}">Delete</button>` +
+          `</div></div>` +
+        `<ul class="template-exercise-list">${exHtml}</ul>`;
+      card.querySelector('[data-edit]').addEventListener('click', () => openTplModal(tpl));
+      card.querySelector('[data-del]').addEventListener('click', () => {
+        if (!confirm(`Delete "${tpl.name}"?`)) return;
+        saveTpls(getTpls().filter(t => t.id !== tpl.id));
+        renderTemplates();
+      });
+      list.appendChild(card);
+    });
+  }
+  document.getElementById('btnNewTemplate').addEventListener('click', () => openTplModal(null));
+
+  // ── PLANNER ──
+  let plannerWeekOffset = 0;
+  let plannerEditDate   = null;
+  let plannerCurStatus  = 'upcoming';
+
+  function getWeekStart(offset) {
+    const now = new Date();
+    const sun = new Date(now);
+    sun.setDate(now.getDate() - now.getDay() + offset * 7);
+    sun.setHours(0, 0, 0, 0);
+    return sun;
+  }
+
+  function renderPlanner() {
+    const ws      = getWeekStart(plannerWeekOffset);
+    const we      = new Date(ws); we.setDate(ws.getDate() + 6);
+    const todayStr = getActiveDateString();
+    document.getElementById('plannerWeekLabel').textContent =
+      `${MONTHS[ws.getMonth()]} ${ws.getDate()} – ${MONTHS[we.getMonth()]} ${we.getDate()}, ${we.getFullYear()}`;
+    const planned = getPlanned();
+    const grid    = document.getElementById('plannerGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    for (let d = 0; d < 7; d++) {
+      const date    = new Date(ws); date.setDate(ws.getDate() + d);
+      const ds      = dateToStr(date);
+      const isToday = ds === todayStr;
+      const pw      = planned.find(p => p.date === ds);
+      const isDone  = pw && pw.status === 'completed';
+
+      const col  = document.createElement('div'); col.className = 'planner-day-col';
+      const hdr  = document.createElement('div');
+      hdr.className = 'planner-day-header' + (isToday ? ' is-today' : '');
+      hdr.textContent = DSHORT[d];
+      col.appendChild(hdr);
+
+      const cell = document.createElement('div');
+      cell.className = 'planner-day-cell'
+        + (isToday ? ' is-today' : '')
+        + (isDone  ? ' is-completed' : '')
+        + (pw && !isDone ? ' has-workout' : '');
+
+      const num = document.createElement('div');
+      num.className = 'planner-day-num' + (isToday ? ' is-today' : '');
+      num.textContent = date.getDate();
+      cell.appendChild(num);
+
+      if (pw) {
+        const chip = document.createElement('div');
+        chip.className = 'planner-workout-chip' + (isDone ? ' is-completed' : '');
+        chip.textContent = pw.name || 'Workout';
+        cell.appendChild(chip);
+      } else {
+        const plus = document.createElement('div');
+        plus.className = 'planner-add-plus';
+        plus.textContent = '+';
+        cell.appendChild(plus);
+      }
+      cell.addEventListener('click', () => openDayModal(ds, pw));
+      col.appendChild(cell);
+      grid.appendChild(col);
+    }
+    renderWeekTemplates();
+  }
+
+  document.getElementById('plannerPrevWeek').addEventListener('click', () => { plannerWeekOffset--; renderPlanner(); });
+  document.getElementById('plannerNextWeek').addEventListener('click', () => { plannerWeekOffset++; renderPlanner(); });
+
+  // ── PLANNER DAY MODAL ──
+  function openDayModal(ds, existing) {
+    plannerEditDate  = ds;
+    plannerCurStatus = existing ? (existing.status || 'upcoming') : 'upcoming';
+    const [y, m, d]  = ds.split('-').map(Number);
+    const date       = new Date(y, m - 1, d);
+    document.getElementById('plannerDayModalTitle').textContent =
+      DFULL[date.getDay()] + ', ' + MONTHS[m - 1] + ' ' + d;
+
+    const sel = document.getElementById('plannerTemplateSelect');
+    sel.innerHTML = '<option value="">— Rest Day —</option><option value="__custom__">Custom Workout</option>';
+    getTpls().forEach(t => {
+      const opt = document.createElement('option');
+      opt.value = t.id; opt.textContent = t.name; sel.appendChild(opt);
+    });
+    const customField  = document.getElementById('plannerCustomNameField');
+    const statusField  = document.getElementById('plannerStatusField');
+    const removeBtn    = document.getElementById('plannerDayRemove');
+    if (existing) {
+      sel.value = existing.templateId || (existing.name ? '__custom__' : '');
+      document.getElementById('plannerCustomName').value = existing.name || '';
+      customField.style.display = (!existing.templateId && existing.name) ? 'block' : 'none';
+      statusField.style.display = 'block';
+      removeBtn.style.display   = 'inline-block';
+      highlightStatus(plannerCurStatus);
+    } else {
+      sel.value = '';
+      document.getElementById('plannerCustomName').value = '';
+      customField.style.display = 'none';
+      statusField.style.display = 'none';
+      removeBtn.style.display   = 'none';
+    }
+    sel.onchange = () => {
+      customField.style.display = sel.value === '__custom__' ? 'block' : 'none';
+    };
+    document.getElementById('plannerDayModal').classList.add('open');
+  }
+  function closeDayModal() {
+    document.getElementById('plannerDayModal').classList.remove('open');
+    plannerEditDate = null;
+  }
+  function highlightStatus(s) {
+    document.getElementById('plannerMarkUpcoming').style.background =
+      s !== 'completed' ? 'rgba(242,192,99,0.14)' : '';
+    document.getElementById('plannerMarkComplete').style.background =
+      s === 'completed' ? 'rgba(107,227,164,0.14)' : '';
+  }
+  document.getElementById('plannerMarkUpcoming').addEventListener('click', () => {
+    plannerCurStatus = 'upcoming'; highlightStatus('upcoming');
+  });
+  document.getElementById('plannerMarkComplete').addEventListener('click', () => {
+    plannerCurStatus = 'completed'; highlightStatus('completed');
+  });
+  document.getElementById('plannerDayModalClose').addEventListener('click', closeDayModal);
+  document.getElementById('plannerDayModalCancel').addEventListener('click', closeDayModal);
+  document.getElementById('plannerDayModal').addEventListener('click', e => { if (e.target.id === 'plannerDayModal') closeDayModal(); });
+  document.getElementById('plannerDayRemove').addEventListener('click', () => {
+    if (!plannerEditDate) return;
+    savePlanned(getPlanned().filter(p => p.date !== plannerEditDate));
+    closeDayModal(); renderPlanner();
+  });
+  document.getElementById('plannerDayModalSave').addEventListener('click', () => {
+    if (!plannerEditDate) return;
+    const sel = document.getElementById('plannerTemplateSelect');
+    const val = sel.value;
+    if (val === '') {
+      savePlanned(getPlanned().filter(p => p.date !== plannerEditDate));
+      closeDayModal(); renderPlanner(); return;
+    }
+    let name, templateId, exercises;
+    if (val === '__custom__') {
+      name = document.getElementById('plannerCustomName').value.trim() || 'Custom Workout';
+      templateId = null; exercises = [];
+    } else {
+      const tpl = getTpls().find(t => t.id === val);
+      name = tpl ? tpl.name : 'Workout';
+      templateId = val;
+      exercises  = tpl ? tpl.exercises : [];
+    }
+    const existing = getPlanned().find(p => p.date === plannerEditDate);
+    const pw = {
+      id: existing ? existing.id : gymUUID(),
+      date: plannerEditDate, name, templateId, exercises,
+      status: existing ? plannerCurStatus : 'upcoming'
+    };
+    savePlanned([...getPlanned().filter(p => p.date !== plannerEditDate), pw]);
+    closeDayModal(); renderPlanner();
+  });
+
+  // ── WEEK TEMPLATES ──
+  function renderWeekTemplates() {
+    const wts  = getWeekTpls();
+    const list = document.getElementById('weekTemplateList');
+    const empty= document.getElementById('weekTemplateEmpty');
+    if (!list) return;
+    list.innerHTML = '';
+    empty.style.display = wts.length === 0 ? 'block' : 'none';
+    wts.forEach(wt => {
+      const card = document.createElement('div');
+      card.className = 'week-template-card';
+      const cnt = Object.values(wt.days).filter(Boolean).length;
+      card.innerHTML =
+        `<div><div class="week-template-name">${esc(wt.name)}</div>` +
+        `<div class="week-template-meta">${cnt} workout day${cnt!==1?'s':''}</div></div>` +
+        `<div class="week-template-actions">` +
+          `<button class="btn-gym-secondary" data-apply="${wt.id}">Apply to Week</button>` +
+          `<button class="btn-gym-danger"    data-wdel="${wt.id}">Del</button>` +
+        `</div>`;
+      card.querySelector('[data-apply]').addEventListener('click', () => applyWeekTpl(wt.id));
+      card.querySelector('[data-wdel]').addEventListener('click', () => {
+        if (!confirm(`Delete week template "${wt.name}"?`)) return;
+        saveWeekTpls(getWeekTpls().filter(w => w.id !== wt.id));
+        renderWeekTemplates();
+      });
+      list.appendChild(card);
+    });
+  }
+
+  document.getElementById('btnSaveWeekTemplate').addEventListener('click', () => {
+    document.getElementById('weekTemplateNameInput').value = '';
+    document.getElementById('weekTemplateModal').classList.add('open');
+    setTimeout(() => document.getElementById('weekTemplateNameInput').focus(), 80);
+  });
+  function closeWeekTplModal() { document.getElementById('weekTemplateModal').classList.remove('open'); }
+  document.getElementById('weekTemplateModalClose').addEventListener('click',  closeWeekTplModal);
+  document.getElementById('weekTemplateModalCancel').addEventListener('click', closeWeekTplModal);
+  document.getElementById('weekTemplateModal').addEventListener('click', e => { if (e.target.id === 'weekTemplateModal') closeWeekTplModal(); });
+  document.getElementById('weekTemplateModalSave').addEventListener('click', () => {
+    const name = document.getElementById('weekTemplateNameInput').value.trim();
+    if (!name) { document.getElementById('weekTemplateNameInput').focus(); return; }
+    const ws      = getWeekStart(plannerWeekOffset);
+    const planned = getPlanned();
+    const days    = {};
+    for (let d = 0; d < 7; d++) {
+      const date = new Date(ws); date.setDate(ws.getDate() + d);
+      const pw   = planned.find(p => p.date === dateToStr(date));
+      if (pw) days[d] = { name: pw.name, templateId: pw.templateId, exercises: pw.exercises };
+    }
+    const wts = getWeekTpls();
+    wts.push({ id: gymUUID(), name, days });
+    saveWeekTpls(wts);
+    closeWeekTplModal();
+    renderWeekTemplates();
+  });
+
+  function applyWeekTpl(wtId) {
+    const wt = getWeekTpls().find(w => w.id === wtId);
+    if (!wt) return;
+    const ws      = getWeekStart(plannerWeekOffset);
+    const planned = getPlanned();
+    for (let d = 0; d < 7; d++) {
+      const date = new Date(ws); date.setDate(ws.getDate() + d);
+      const ds   = dateToStr(date);
+      const idx  = planned.findIndex(p => p.date === ds);
+      if (idx >= 0) planned.splice(idx, 1);
+      const dayData = wt.days[d];
+      if (dayData) {
+        let { name, templateId, exercises } = dayData;
+        if (templateId) {
+          const tpl = getTpls().find(t => t.id === templateId);
+          if (tpl) { name = tpl.name; exercises = tpl.exercises; }
+        }
+        planned.push({ id: gymUUID(), date: ds, name, templateId: templateId || null, exercises: exercises || [], status: 'upcoming' });
+      }
+    }
+    savePlanned(planned);
+    renderPlanner();
+  }
+
+  // ── AI COACH ──
+  (function() {
+    const picker = document.getElementById('aiDaysPicker');
+    const selectedDays = new Set();
+    DSHORT.forEach((name, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'ai-day-toggle'; btn.textContent = name;
+      btn.addEventListener('click', () => {
+        btn.classList.toggle('active');
+        btn.classList.contains('active') ? selectedDays.add(i) : selectedDays.delete(i);
+      });
+      picker.appendChild(btn);
+    });
+
+    document.getElementById('aiGenerateBtn').addEventListener('click', async () => {
+      if (!ANTHROPIC_API_KEY) {
+        setAIStatus('API key not set — add ANTHROPIC_API_KEY to the script.', 'error'); return;
+      }
+      const goal        = document.getElementById('aiGoal').value;
+      const daysPerWeek = document.getElementById('aiDaysPerWeek').value;
+      const weeksAhead  = parseInt(document.getElementById('aiWeeksAhead').value);
+      const notes       = document.getElementById('aiNotes').value.trim();
+      const prefDays    = selectedDays.size > 0
+        ? [...selectedDays].sort().map(i => DSHORT[i]).join(', ')
+        : 'Any days';
+
+      const btn = document.getElementById('aiGenerateBtn');
+      btn.disabled = true; btn.textContent = 'Generating…';
+      setAIStatus('Calling Progressive Overload Coach…', '');
+
+      const prompt =
+        `You are an expert strength and conditioning coach. Generate a ${weeksAhead}-week progressive workout program.\n\n` +
+        `User details:\n- Goal: ${goal}\n- Training days/week: ${daysPerWeek}\n- Preferred days: ${prefDays}\n- Notes: ${notes || 'none'}\n\n` +
+        `Return ONLY raw JSON — no markdown fences, no explanations:\n` +
+        `{"weeks":[{"week":1,"workouts":[{"day":"Mon","name":"Push Day A","exercises":[{"name":"Barbell Bench Press","sets":4,"rep_range":"6-8","intensity":"RPE 8","notes":""}]}]}]}\n\n` +
+        `Rules:\n` +
+        `- NEVER use absolute weights — only RPE (e.g. "RPE 7-8") or % of 1RM (e.g. "75% 1RM")\n` +
+        `- Progressive overload each week (increase sets, reps, or intensity)\n` +
+        `- 3-6 exercises per session, 1-2 warm-up notes if helpful\n` +
+        `- Use only days from the preferred list if specified\n` +
+        `- rep_range must be a string like "6-8" or "10-12"`;
+
+      try {
+        const resp = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': ANTHROPIC_API_KEY,
+            'anthropic-version': '2023-06-01',
+            'anthropic-dangerous-direct-browser-access': 'true'
+          },
+          body: JSON.stringify({
+            model: 'claude-sonnet-4-20250514',
+            max_tokens: 1000,
+            messages: [{ role: 'user', content: prompt }]
+          })
+        });
+        const data = await resp.json();
+        if (data.error) throw new Error(data.error.message);
+        let text = data.content[0].text.trim().replace(/^```(?:json)?\s*/i,'').replace(/\s*```$/,'');
+        const plan = JSON.parse(text);
+        populatePlanner(plan, weeksAhead);
+        setAIStatus(`✓ ${weeksAhead}-week plan loaded into Planner — navigate there to review.`, 'success');
+      } catch(e) {
+        console.error('AI coach:', e);
+        setAIStatus('Generation failed: ' + (e.message || 'unknown error'), 'error');
+      } finally {
+        btn.disabled = false; btn.textContent = 'Generate My Plan';
+      }
+    });
+
+    function setAIStatus(msg, cls) {
+      const el = document.getElementById('aiStatus');
+      el.textContent = msg; el.className = 'ai-status' + (cls ? ' ' + cls : '');
+    }
+
+    function populatePlanner(plan, weeksAhead) {
+      if (!plan || !Array.isArray(plan.weeks)) return;
+      const dayMap = { Sun:0, Mon:1, Tue:2, Wed:3, Thu:4, Fri:5, Sat:6 };
+      const planned = getPlanned();
+
+      // Find next Monday
+      const now  = new Date();
+      const dow  = now.getDay();
+      const toMon = dow === 0 ? 1 : (8 - dow) % 7 || 7;
+      const nextMon = new Date(now);
+      nextMon.setDate(now.getDate() + toMon);
+      nextMon.setHours(0, 0, 0, 0);
+
+      plan.weeks.forEach((week, wi) => {
+        (week.workouts || []).forEach(wo => {
+          const di = dayMap[wo.day];
+          if (di === undefined) return;
+          // offset from Monday (day 1): Mon=0, Tue=1, ... Sun=6
+          const offsetFromMon = (di - 1 + 7) % 7;
+          const date = new Date(nextMon);
+          date.setDate(nextMon.getDate() + wi * 7 + offsetFromMon);
+          const ds = dateToStr(date);
+          const exercises = (wo.exercises || []).map(ex => ({
+            name: ex.name || '',
+            sets: ex.sets || 3,
+            repRange: ex.rep_range || '8–10',
+            notes: [ex.intensity, ex.notes].filter(Boolean).join(' — ')
+          }));
+          const idx = planned.findIndex(p => p.date === ds);
+          if (idx >= 0) planned.splice(idx, 1);
+          planned.push({ id: gymUUID(), date: ds, name: wo.name || 'Workout', templateId: null, exercises, status: 'upcoming' });
+        });
+      });
+      savePlanned(planned);
+
+      // Navigate planner to the week containing nextMon
+      const thisSun = new Date(now); thisSun.setDate(now.getDate() - dow); thisSun.setHours(0,0,0,0);
+      const diffDays = Math.round((nextMon - thisSun) / 86400000);
+      plannerWeekOffset = Math.floor(diffDays / 7);
+
+      // Switch to planner view
+      document.querySelectorAll('.gym-subnav-btn').forEach(b => b.classList.toggle('active', b.dataset.view === 'planner'));
+      document.querySelectorAll('.gym-view').forEach(v => v.classList.toggle('active', v.id === 'gym-planner'));
+      renderPlanner();
+    }
+  })();
+
+  // Re-render on subnav switch
+  document.getElementById('gymSubnav').addEventListener('click', e => {
+    const btn = e.target.closest('.gym-subnav-btn');
+    if (!btn) return;
+    const view = btn.dataset.view;
+    if (view === 'planner')   renderPlanner();
+    if (view === 'templates') renderTemplates();
+  });
+
+  // Init
+  renderTemplates();
+  renderPlanner();
+
+  window.gymRenderAll = function() { renderTemplates(); renderPlanner(); };
+})();
 </script>
 </body>
 </html>
