@@ -3,7 +3,7 @@ import { storeGet, storeSet } from '../../lib/storage.js'
 import TimeGrid from './TimeGrid.jsx'
 import MonthView from './MonthView.jsx'
 import EventModal from './EventModal.jsx'
-import { getWeekDays, formatMonthYear, isSameDay } from './calendarUtils.js'
+import { getWeekDays, formatMonthYear } from './calendarUtils.js'
 
 const STORAGE_KEY = 'calendar_events'
 
