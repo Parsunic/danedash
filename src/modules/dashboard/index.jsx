@@ -1,3 +1,1 @@
-export default function Dashboard() {
-  return <div className="dash-title">Dashboard</div>
-}
+export { default } from './Dashboard.jsx'
