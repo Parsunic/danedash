@@ -2913,6 +2913,416 @@ initSync();
     }
   })();
 
+  // ── PROGRESSIVE OVERLOAD ENGINE ──
+  function getExHistory()     { return storeGet('gym_exercise_history') || {}; }
+  function saveExHistory(h)   { storeSet('gym_exercise_history', h); }
+  function getWorkoutLogs()   { return storeGet('gym_workout_logs') || []; }
+  function saveWorkoutLogs(a) { storeSet('gym_workout_logs', a); }
+
+  function calcE1RM(weight, reps) {
+    return Math.round(weight * (1 + reps / 30) * 10) / 10;
+  }
+
+  const COMPOUND_RE = /squat|deadlift|bench\s*(press)?|overhead\s*press|\bohp\b|barbell\s*row|bent.over|rdl|hip\s*thrust/i;
+  function weightInc(name) { return COMPOUND_RE.test(name) ? 5 : 2.5; }
+
+  function parseRepRange(str) {
+    const m = String(str || '').match(/(\d+)\s*[-–—]\s*(\d+)/);
+    if (m) return { lo: +m[1], hi: +m[2] };
+    const n = parseInt(str);
+    return isNaN(n) ? { lo: 8, hi: 10 } : { lo: n, hi: n };
+  }
+
+  function getExRec(exName, repRange) {
+    const h = getExHistory()[exName];
+    if (!h || !h.sessions || !h.sessions.length)
+      return { html: '<span class="po-seed">No history — enter a working weight to seed the engine</span>', suggest: null };
+    const s = h.sessions, last = s[s.length - 1];
+    const { lo, hi } = parseRepRange(repRange);
+    const e1rmStr = last.e1rm ? `e1RM <strong>${last.e1rm}</strong> · ` : '';
+    const lastStr = `Last: ${last.weight} lbs × ${last.reps}/${hi} @ RPE ${last.rpe}`;
+    const deload = s.length >= 2 && s[s.length-1].rpe >= 9 && s[s.length-2].rpe >= 9 && s[s.length-1].weight === s[s.length-2].weight;
+    let sW = last.weight, sR = lo, tag = '', tc = '';
+    if (deload) {
+      sW = Math.round(last.weight * 0.875 / 2.5) * 2.5; tag = '⚠ Deload'; tc = 'deload';
+    } else if (last.allHitTop && last.rpe <= 8) {
+      sW = last.weight + weightInc(exName); tag = 'Double Progression';
+    } else if (last.allHitTop && last.rpe >= 9) {
+      sR = hi; tag = 'Hold — RPE High'; tc = 'hold';
+    } else {
+      sR = Math.min(last.reps + 2, hi); tag = 'Add Reps'; tc = 'hold';
+    }
+    const sugHtml = `→ Try <strong>${sW} lbs × ${sR}</strong> <span class="po-tag ${tc}">${tag}</span>`;
+    return {
+      html: `${e1rmStr}${lastStr}<br><span class="po-suggest">${sugHtml}</span>`,
+      suggest: { weight: sW, reps: sR }
+    };
+  }
+
+  // ── ACTIVE SESSION STATE ──
+  let activeSession = null;
+  let sessionTimerInterval = null;
+  let newSetState = {};
+  let restInterval = null;
+  let restRemaining = 0, restTotal = 0, restPaused = false, lastRestSecs = 90;
+  const RT_CIRC = 2 * Math.PI * 42;
+
+  function startWorkout(exList, plannedId, name) {
+    activeSession = {
+      id: gymUUID(), plannedId: plannedId || null,
+      name: name || 'Workout', date: getActiveDateString(), startedAt: Date.now(),
+      exercises: exList.filter(ex => ex.name).map(ex => ({
+        name: ex.name, repRange: ex.repRange || '8-10',
+        notes: ex.notes || '', targetSets: ex.sets || 3, sets: []
+      }))
+    };
+    newSetState = {};
+    document.querySelectorAll('.gym-subnav-btn').forEach(b => b.classList.toggle('active', b.dataset.view === 'log'));
+    document.querySelectorAll('.gym-view').forEach(v => v.classList.toggle('active', v.id === 'gym-log'));
+    closeDayModal();
+    renderLogger();
+  }
+
+  function fmtElapsed(ms) {
+    const s = Math.floor(ms / 1000), m = Math.floor(s / 60), h = Math.floor(m / 60);
+    return h > 0 ? `${h}h ${String(m % 60).padStart(2,'0')}m` : `${m}:${String(s % 60).padStart(2,'0')}`;
+  }
+
+  function renderLogger() {
+    const con = document.getElementById('gymLogContent');
+    if (!con) return;
+    con.innerHTML = '';
+    if (!activeSession) { renderLogIdle(con); return; }
+
+    const hdr = document.createElement('div'); hdr.className = 'gym-session-header';
+    const info = document.createElement('div');
+    info.innerHTML = `<div class="gym-session-name">${esc(activeSession.name)}</div><div class="gym-session-timer" id="sessionTimer">0:00</div>`;
+    const finBtn = document.createElement('button'); finBtn.className = 'btn-finish-workout';
+    finBtn.textContent = '✓ Finish'; finBtn.addEventListener('click', finishWorkout);
+    hdr.appendChild(info); hdr.appendChild(finBtn); con.appendChild(hdr);
+
+    clearInterval(sessionTimerInterval);
+    sessionTimerInterval = setInterval(() => {
+      const el = document.getElementById('sessionTimer');
+      if (el && activeSession) el.textContent = fmtElapsed(Date.now() - activeSession.startedAt);
+    }, 1000);
+
+    activeSession.exercises.forEach((ex, ei) => con.appendChild(buildExCard(ex, ei)));
+  }
+
+  function buildExCard(ex, ei) {
+    const card = document.createElement('div');
+    card.className = 'gym-log-exercise-card'; card.id = `gym-ex-card-${ei}`;
+    const nm = document.createElement('div'); nm.className = 'gym-log-ex-name'; nm.textContent = ex.name;
+    card.appendChild(nm);
+    const rec = getExRec(ex.name, ex.repRange);
+    const recDiv = document.createElement('div'); recDiv.className = 'gym-log-po-rec'; recDiv.innerHTML = rec.html;
+    card.appendChild(recDiv);
+    refreshSetTable(card, ei);
+    refreshNewSetRow(card, ei, rec.suggest);
+    return card;
+  }
+
+  function refreshSetTable(card, ei) {
+    const old = card.querySelector('.gym-sets-table'); if (old) old.remove();
+    const ex = activeSession.exercises[ei];
+    if (!ex.sets.length) return;
+    const t = document.createElement('table'); t.className = 'gym-sets-table';
+    t.innerHTML = '<thead><tr><th>Set</th><th>Weight</th><th>Reps</th><th>RPE</th><th></th></tr></thead>';
+    const tb = document.createElement('tbody');
+    ex.sets.forEach((s, si) => {
+      const tr = document.createElement('tr'); tr.className = 'gym-set-row' + (s.isPR ? ' is-pr' : '');
+      tr.innerHTML = `<td class="gym-set-num">${si+1}</td><td class="gym-set-val">${s.weight}</td><td class="gym-set-val">${s.reps}</td><td class="gym-set-val"><span class="gym-set-rpe-badge">${s.rpe}</span></td><td class="gym-set-val">${s.isPR ? '<span class="gym-set-pr-badge">★ PR</span>' : ''}</td>`;
+      tb.appendChild(tr);
+    });
+    t.appendChild(tb);
+    const nr = card.querySelector('.gym-new-set-row');
+    if (nr) card.insertBefore(t, nr); else card.appendChild(t);
+  }
+
+  function refreshNewSetRow(card, ei, suggest) {
+    const old = card.querySelector('.gym-new-set-row'); if (old) old.remove();
+    const ex = activeSession.exercises[ei];
+    if (!newSetState[ei]) newSetState[ei] = { weight: suggest ? String(suggest.weight) : '', reps: suggest ? String(suggest.reps) : '', rpe: null };
+    const state = newSetState[ei];
+    const setNum = ex.sets.length + 1;
+    const row = document.createElement('div'); row.className = 'gym-new-set-row';
+
+    // Weight field
+    const wf = document.createElement('div'); wf.className = 'gym-new-set-field';
+    wf.innerHTML = `<div class="gym-new-set-label">Set ${setNum} · lbs</div>`;
+    const wi = document.createElement('input');
+    wi.type = 'number'; wi.className = 'gym-new-set-input'; wi.placeholder = '135';
+    wi.value = state.weight; wi.inputMode = 'decimal';
+    wi.addEventListener('input', () => { state.weight = wi.value; });
+    wf.appendChild(wi); row.appendChild(wf);
+
+    // Reps field
+    const rf = document.createElement('div'); rf.className = 'gym-new-set-field';
+    rf.innerHTML = '<div class="gym-new-set-label">Reps</div>';
+    const ri = document.createElement('input');
+    ri.type = 'number'; ri.className = 'gym-new-set-input'; ri.placeholder = '8';
+    ri.value = state.reps; ri.inputMode = 'numeric';
+    ri.addEventListener('input', () => { state.reps = ri.value; });
+    rf.appendChild(ri); row.appendChild(rf);
+
+    // RPE strip
+    const rpef = document.createElement('div'); rpef.className = 'gym-new-set-field';
+    rpef.innerHTML = '<div class="gym-new-set-label">RPE</div>';
+    const strip = document.createElement('div'); strip.className = 'rpe-strip';
+    for (let r = 1; r <= 10; r++) {
+      const b = document.createElement('button'); b.className = 'rpe-btn' + (state.rpe === r ? ' selected' : ''); b.textContent = r;
+      b.addEventListener('click', () => { state.rpe = r; strip.querySelectorAll('.rpe-btn').forEach((x, xi) => x.classList.toggle('selected', xi + 1 === r)); });
+      strip.appendChild(b);
+    }
+    rpef.appendChild(strip); row.appendChild(rpef);
+
+    // Log Set button
+    const lb = document.createElement('button'); lb.className = 'btn-log-set'; lb.textContent = '✓ Log';
+    lb.addEventListener('click', () => {
+      const w = parseFloat(state.weight), r = parseInt(state.reps);
+      if (!w || w <= 0) { wi.focus(); return; }
+      if (!r || r <= 0) { ri.focus(); return; }
+      if (!state.rpe) {
+        strip.querySelectorAll('.rpe-btn').forEach(b => b.style.outline = '');
+        strip.firstChild.style.outline = '2px solid var(--danger)';
+        setTimeout(() => { if (strip.firstChild) strip.firstChild.style.outline = ''; }, 1400);
+        return;
+      }
+      logSet(ei, w, r, state.rpe);
+    });
+    row.appendChild(lb);
+    card.appendChild(row);
+  }
+
+  function logSet(ei, weight, reps, rpe) {
+    const ex = activeSession.exercises[ei];
+    const hist = getExHistory();
+    const isPR = weight > (hist[ex.name]?.allTimePR || 0);
+    ex.sets.push({ weight, reps, rpe, isPR, e1rm: calcE1RM(weight, reps) });
+    newSetState[ei] = { weight: String(weight), reps: '', rpe: null };
+    const card = document.getElementById(`gym-ex-card-${ei}`);
+    if (card) { refreshSetTable(card, ei); refreshNewSetRow(card, ei, null); }
+    startRestTimer(lastRestSecs);
+    card?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function finishWorkout() {
+    if (!activeSession) return;
+    if (!activeSession.exercises.some(ex => ex.sets.length) && !confirm('No sets logged. Finish anyway?')) return;
+    clearInterval(sessionTimerInterval);
+
+    // Update exercise history
+    const hist = getExHistory();
+    activeSession.exercises.forEach(ex => {
+      if (!ex.sets.length) return;
+      const { hi } = parseRepRange(ex.repRange);
+      const best = ex.sets.reduce((a, b) => (b.e1rm || 0) > (a.e1rm || 0) ? b : a);
+      const avgRpe = parseFloat((ex.sets.reduce((s, x) => s + x.rpe, 0) / ex.sets.length).toFixed(1));
+      const allHitTop = ex.sets.every(s => s.reps >= hi);
+      if (!hist[ex.name]) hist[ex.name] = { sessions: [], allTimePR: 0 };
+      const exH = hist[ex.name];
+      ex.sets.forEach(s => { if (s.weight > (exH.allTimePR || 0)) exH.allTimePR = s.weight; });
+      exH.sessions = exH.sessions || [];
+      exH.sessions.push({ date: activeSession.date, weight: best.weight, reps: best.reps, rpe: avgRpe, e1rm: best.e1rm, allHitTop });
+      if (exH.sessions.length > 20) exH.sessions = exH.sessions.slice(-20);
+    });
+    saveExHistory(hist);
+
+    // Save workout log
+    const logs = getWorkoutLogs();
+    logs.push({
+      id: activeSession.id, date: activeSession.date, name: activeSession.name,
+      plannedId: activeSession.plannedId, startedAt: activeSession.startedAt,
+      completedAt: new Date().toISOString(), duration: Date.now() - activeSession.startedAt,
+      exercises: activeSession.exercises.map(ex => ({
+        name: ex.name, e1rm: ex.sets.length ? Math.max(...ex.sets.map(s => s.e1rm || 0)) : null, sets: ex.sets
+      }))
+    });
+    if (logs.length > 200) logs.splice(0, logs.length - 200);
+    saveWorkoutLogs(logs);
+
+    // Mark planned workout completed
+    if (activeSession.plannedId) {
+      const planned = getPlanned();
+      const pi = planned.findIndex(p => p.id === activeSession.plannedId);
+      if (pi >= 0) { planned[pi].status = 'completed'; savePlanned(planned); }
+    }
+
+    const sName = activeSession.name;
+    activeSession = null; newSetState = {};
+    const con = document.getElementById('gymLogContent');
+    if (con) con.innerHTML = `<div class="gym-log-idle"><div class="gym-log-idle-title">✓ Workout Complete!</div><div class="gym-log-idle-sub">${esc(sName)} saved to history.</div></div>`;
+
+    setTimeout(() => {
+      document.querySelectorAll('.gym-subnav-btn').forEach(b => b.classList.toggle('active', b.dataset.view === 'history'));
+      document.querySelectorAll('.gym-view').forEach(v => v.classList.toggle('active', v.id === 'gym-history'));
+      renderHistory(); renderPlanner();
+    }, 1200);
+  }
+
+  function renderLogIdle(con) {
+    const todayStr = getActiveDateString();
+    const pw = getPlanned().find(p => p.date === todayStr);
+    const card = document.createElement('div'); card.className = 'gym-log-idle';
+
+    if (pw && pw.status !== 'completed') {
+      card.innerHTML = `<div class="gym-log-idle-title">${esc(pw.name)}</div><div class="gym-log-idle-sub">Today's planned workout</div>`;
+      if (pw.exercises.length) {
+        const ul = document.createElement('ul'); ul.className = 'gym-log-planned-exercises';
+        pw.exercises.forEach(ex => {
+          const li = document.createElement('li'); li.className = 'gym-log-planned-ex';
+          li.innerHTML = `<span>${esc(ex.name)}</span><span class="gym-log-planned-ex-meta">${esc(String(ex.sets))}×${esc(ex.repRange || '—')}</span>`;
+          ul.appendChild(li);
+        });
+        card.appendChild(ul);
+      }
+      const btn = document.createElement('button'); btn.className = 'btn-gym-primary';
+      btn.style.cssText = 'width:100%;padding:14px;font-size:15px';
+      btn.textContent = '▶ Start Workout';
+      btn.addEventListener('click', () => startWorkout(pw.exercises, pw.id, pw.name));
+      card.appendChild(btn);
+    } else if (pw && pw.status === 'completed') {
+      card.innerHTML = `<div class="gym-log-idle-title">✓ ${esc(pw.name)}</div><div class="gym-log-idle-sub">Today's workout already logged.</div>`;
+      const btn = document.createElement('button'); btn.className = 'btn-gym-secondary'; btn.style.marginTop = '12px';
+      btn.textContent = 'Log Another Session';
+      btn.addEventListener('click', () => startWorkout(pw.exercises, null, pw.name + ' (extra)'));
+      card.appendChild(btn);
+    } else {
+      card.innerHTML = `<div class="gym-log-idle-title">No workout scheduled today</div><div class="gym-log-idle-sub">Check the Planner or pick a template below.</div>`;
+      const tpls = getTpls();
+      if (tpls.length) {
+        const sel = document.createElement('select'); sel.className = 'gym-input'; sel.style.cssText = 'margin:12px 0';
+        sel.innerHTML = '<option value="">— Pick a template —</option>';
+        tpls.forEach(t => { const o = document.createElement('option'); o.value = t.id; o.textContent = t.name; sel.appendChild(o); });
+        card.appendChild(sel);
+        const btn = document.createElement('button'); btn.className = 'btn-gym-primary';
+        btn.style.cssText = 'width:100%;padding:14px;font-size:15px';
+        btn.textContent = '▶ Start Workout';
+        btn.addEventListener('click', () => { const t = getTpls().find(x => x.id === sel.value); if (t) startWorkout(t.exercises, null, t.name); });
+        card.appendChild(btn);
+      }
+    }
+    con.appendChild(card);
+  }
+
+  // ── PLANNER START WORKOUT BUTTON ──
+  document.getElementById('plannerStartWorkoutBtn').addEventListener('click', () => {
+    if (!plannerEditDate) return;
+    const pw = getPlanned().find(p => p.date === plannerEditDate);
+    if (pw && pw.status !== 'completed' && pw.exercises.length) startWorkout(pw.exercises, pw.id, pw.name);
+  });
+
+  // ── REST TIMER ──
+  function startRestTimer(secs) {
+    lastRestSecs = secs;
+    clearInterval(restInterval);
+    restRemaining = restTotal = secs; restPaused = false;
+    document.querySelectorAll('.rest-preset-btn').forEach(b => b.classList.toggle('active', +b.dataset.secs === secs));
+    updateRestDisplay();
+    document.getElementById('restTimerOverlay').classList.add('visible');
+    restInterval = setInterval(tickRest, 1000);
+  }
+
+  function tickRest() {
+    if (restPaused || restRemaining <= 0) return;
+    restRemaining--;
+    updateRestDisplay();
+    if (restRemaining <= 0) {
+      clearInterval(restInterval);
+      if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+      try {
+        const ac = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ac.createOscillator(), gain = ac.createGain();
+        osc.connect(gain); gain.connect(ac.destination);
+        osc.frequency.setValueAtTime(880, ac.currentTime);
+        osc.frequency.setValueAtTime(660, ac.currentTime + 0.15);
+        gain.gain.setValueAtTime(0.20, ac.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.7);
+        osc.start(); osc.stop(ac.currentTime + 0.7);
+      } catch(e) {}
+    }
+  }
+
+  function updateRestDisplay() {
+    const r = Math.max(restRemaining, 0);
+    const el = document.getElementById('restTimerTime');
+    if (el) el.textContent = `${Math.floor(r / 60)}:${String(r % 60).padStart(2,'0')}`;
+    const sub = document.getElementById('restTimerSub');
+    if (sub) sub.textContent = restRemaining <= 0 ? 'DONE' : (restPaused ? 'PAUSED' : 'REST');
+    const fg = document.querySelector('.rest-timer-ring-fg');
+    if (fg) {
+      const pct = restTotal > 0 ? r / restTotal : 0;
+      fg.style.strokeDasharray = RT_CIRC;
+      fg.style.strokeDashoffset = RT_CIRC * (1 - pct);
+      fg.style.stroke = restRemaining <= 0 ? 'var(--success)' : 'var(--accent)';
+      fg.style.transition = restRemaining > 0 ? 'stroke-dashoffset 1s linear' : 'none';
+    }
+  }
+
+  document.getElementById('restTimerRing').addEventListener('click', () => {
+    if (restRemaining > 0) { restPaused = !restPaused; updateRestDisplay(); }
+  });
+  document.getElementById('restTimerDismiss').addEventListener('click', () => {
+    clearInterval(restInterval);
+    document.getElementById('restTimerOverlay').classList.remove('visible');
+  });
+  document.getElementById('restTimerOverlay').addEventListener('click', e => {
+    const pb = e.target.closest('.rest-preset-btn');
+    if (pb) startRestTimer(+pb.dataset.secs);
+  });
+
+  // ── WORKOUT HISTORY ──
+  function renderHistory() {
+    const con = document.getElementById('gymHistoryContent');
+    if (!con) return;
+    con.innerHTML = '';
+    const logs = getWorkoutLogs().slice().reverse();
+    if (!logs.length) {
+      con.innerHTML = '<div class="gym-placeholder"><div class="gym-placeholder-icon" style="font-size:30px;opacity:0.25">📈</div><div class="gym-placeholder-title">No history yet</div><div class="gym-placeholder-sub">Complete your first workout to see it here.</div></div>';
+      return;
+    }
+    logs.forEach(log => {
+      const prNames = (log.exercises || []).filter(ex => ex.sets?.some(s => s.isPR)).map(ex => ex.name);
+      const dur = log.duration ? ' · ' + fmtElapsed(log.duration) : '';
+      const exC = (log.exercises || []).filter(ex => ex.sets?.length).length;
+      const setC = (log.exercises || []).reduce((s, ex) => s + (ex.sets?.length || 0), 0);
+      const [y, m, d] = log.date.split('-').map(Number);
+      const dateStr = `${MONTHS[m - 1]} ${d}, ${y}`;
+
+      const item = document.createElement('div'); item.className = 'gym-history-session';
+      const hdr = document.createElement('div'); hdr.className = 'gym-history-session-hdr';
+      hdr.innerHTML = `
+        <div>
+          <div class="gym-history-session-name">${esc(log.name)}</div>
+          <div class="gym-history-session-date">${dateStr}${dur}</div>
+        </div>
+        <div style="text-align:right">
+          <div class="gym-history-session-meta">${exC} ex · ${setC} sets</div>
+          <div class="gym-history-session-prs">${prNames.map(n => `<span class="gym-history-session-pr-chip">★ ${esc(n)}</span>`).join('')}</div>
+        </div>`;
+      hdr.addEventListener('click', () => item.classList.toggle('expanded'));
+      item.appendChild(hdr);
+
+      const body = document.createElement('div'); body.className = 'gym-history-session-body';
+      (log.exercises || []).forEach(ex => {
+        if (!ex.sets?.length) return;
+        const exDiv = document.createElement('div'); exDiv.className = 'gym-history-ex';
+        const e1rmS = ex.e1rm ? ` <span class="gym-history-ex-e1rm">e1RM ${ex.e1rm} lbs</span>` : '';
+        exDiv.innerHTML = `<div class="gym-history-ex-name">${esc(ex.name)}${e1rmS}</div>`;
+        const sd = document.createElement('div'); sd.className = 'gym-history-sets';
+        ex.sets.forEach(s => {
+          const chip = document.createElement('span');
+          chip.className = 'gym-history-set-chip' + (s.isPR ? ' is-pr' : '');
+          chip.textContent = `${s.weight}×${s.reps} @${s.rpe}${s.isPR ? ' ★' : ''}`;
+          sd.appendChild(chip);
+        });
+        exDiv.appendChild(sd); body.appendChild(exDiv);
+      });
+      item.appendChild(body); con.appendChild(item);
+    });
+  }
+
   // Re-render on subnav switch
   document.getElementById('gymSubnav').addEventListener('click', e => {
     const btn = e.target.closest('.gym-subnav-btn');
@@ -2920,13 +3330,17 @@ initSync();
     const view = btn.dataset.view;
     if (view === 'planner')   renderPlanner();
     if (view === 'templates') renderTemplates();
+    if (view === 'history')   renderHistory();
+    if (view === 'log')       renderLogger();
   });
 
   // Init
   renderTemplates();
   renderPlanner();
+  renderLogger();
+  renderHistory();
 
-  window.gymRenderAll = function() { renderTemplates(); renderPlanner(); };
+  window.gymRenderAll = function() { renderTemplates(); renderPlanner(); renderHistory(); };
 })();
 </script>
 </body>
