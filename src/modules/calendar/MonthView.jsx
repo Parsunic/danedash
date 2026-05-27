@@ -1,4 +1,4 @@
-import { getMonthGrid, isSameDay, getDayEvents, TAG_STYLES, hasGymOnDay } from './calendarUtils.js'
+import { getMonthGrid, isSameDay, getDayEvents, getEventStyle, hasGymOnDay } from './calendarUtils.js'
 
 const DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const MAX_CHIPS = 3
