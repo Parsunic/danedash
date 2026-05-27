@@ -103,26 +103,35 @@ function TemplateModal({ tpl, onClose, onSave }) {
 }
 
 function TemplateCard({ tpl, onEdit, onDelete }) {
+  const [collapsed, setCollapsed] = useState(true)
   return (
     <div className="template-card">
-      <div className="template-card-header">
-        <div className="template-card-name">{tpl.name}</div>
-        <div className="template-card-actions">
+      <div className="template-card-header" onClick={() => setCollapsed(v => !v)}>
+        <div className="template-card-name-row">
+          <span className={`template-card-chevron${collapsed ? '' : ' open'}`}>›</span>
+          <span className="template-card-name">{tpl.name}</span>
+          {collapsed && (
+            <span className="template-card-count">{tpl.exercises.length} ex</span>
+          )}
+        </div>
+        <div className="template-card-actions" onClick={e => e.stopPropagation()}>
           <button className="btn-gym-secondary" onClick={() => onEdit(tpl)}>Edit</button>
           <button className="btn-gym-danger" onClick={() => onDelete(tpl)}>Delete</button>
         </div>
       </div>
-      <ul className="template-exercise-list">
-        {tpl.exercises.length === 0 ? (
-          <li style={{ color: 'var(--text-tertiary)', fontSize: '12px', padding: '4px 0' }}>No exercises — edit to add some.</li>
-        ) : tpl.exercises.map((ex, i) => (
-          <li key={i} className="template-exercise-row">
-            <span className="template-exercise-name">{ex.name}</span>
-            <span className="template-exercise-meta">{ex.sets}×{ex.repRange || '—'}</span>
-            {ex.notes && <span className="template-exercise-notes">{ex.notes}</span>}
-          </li>
-        ))}
-      </ul>
+      {!collapsed && (
+        <ul className="template-exercise-list">
+          {tpl.exercises.length === 0 ? (
+            <li style={{ color: 'var(--text-tertiary)', fontSize: '12px', padding: '4px 0' }}>No exercises — edit to add some.</li>
+          ) : tpl.exercises.map((ex, i) => (
+            <li key={i} className="template-exercise-row">
+              <span className="template-exercise-name">{ex.name}</span>
+              <span className="template-exercise-meta">{ex.sets}×{ex.repRange || '—'}</span>
+              {ex.notes && <span className="template-exercise-notes">{ex.notes}</span>}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   )
 }
