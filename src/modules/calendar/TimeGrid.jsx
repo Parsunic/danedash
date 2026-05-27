@@ -1,10 +1,17 @@
-import { useState, useRef, useEffect, useCallback } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import MiniMonth from './MiniMonth.jsx'
 import {
-  HOUR_HEIGHT, HOURS, TAG_STYLES,
+  HOUR_HEIGHT, HOURS, getEventStyle,
   isSameDay, getWeekDays, formatHour, formatTimeRange,
   isSleepHour, minutesFromMidnight, getDayEvents, hasGymOnDay,
+  snapToTen,
 } from './calendarUtils.js'
+
+const isDesktop = window.matchMedia('(min-width: 1024px)').matches
+
+function yToRawMins(y) {
+  return (y / HOUR_HEIGHT) * 60
+}
 
 export default function TimeGrid({
   view,
@@ -16,14 +23,27 @@ export default function TimeGrid({
   onDateSelect,
   onCreateEvent,
   onEventClick,
+  onEventUpdate,
   onSkipGymWorkout,
 }) {
   const days = view === 'week' ? getWeekDays(currentDate) : [currentDate]
   const scrollRef = useRef(null)
+  const colsWrapRef = useRef(null)
   const [now, setNow] = useState(new Date())
   const dragRef = useRef(null)
+  const didDragRef = useRef(false)
   const [dragState, setDragState] = useState(null)
   const today = new Date()
+
+  // Keep latest callbacks + data in refs so global effects don't re-bind
+  const onCreateRef = useRef(onCreateEvent)
+  const onUpdateRef = useRef(onEventUpdate)
+  const eventsRef   = useRef(events)
+  const daysRef     = useRef(days)
+  useEffect(() => { onCreateRef.current  = onCreateEvent }, [onCreateEvent])
+  useEffect(() => { onUpdateRef.current  = onEventUpdate }, [onEventUpdate])
+  useEffect(() => { eventsRef.current    = events }, [events])
+  useEffect(() => { daysRef.current      = days }, [days])
 
   // Scroll to current time on mount / view change
   useEffect(() => {
@@ -41,71 +61,210 @@ export default function TimeGrid({
 
   const nowMins = now.getHours() * 60 + now.getMinutes()
   const nowTop  = (nowMins / 60) * HOUR_HEIGHT
-  const todayIdx = days.findIndex(d => isSameDay(d, today))
 
-  const eventsPerDay = days.map(day => getDayEvents(day, events, gymPlanned))
-  const allDayEventsPerDay = eventsPerDay.map(dayEvs => dayEvs.filter(e => e.is_all_day))
-  const timedEventsPerDay  = eventsPerDay.map(dayEvs => dayEvs.filter(e => !e.is_all_day))
+  const eventsPerDay    = days.map(day => getDayEvents(day, events, gymPlanned))
+  const allDayPerDay    = eventsPerDay.map(d => d.filter(e => e.is_all_day))
+  const timedPerDay     = eventsPerDay.map(d => d.filter(e => !e.is_all_day))
+  const hasAnyAllDay    = allDayPerDay.some(d => d.length > 0)
 
-  const hasAnyAllDay = allDayEventsPerDay.some(d => d.length > 0)
+  // Convert clientY → snapped minutes from midnight (uses scrollRef)
+  const clientYToSnapped = (clientY) => {
+    const rect = scrollRef.current?.getBoundingClientRect()
+    const scrollTop = scrollRef.current?.scrollTop || 0
+    if (!rect) return 0
+    const y = (clientY - rect.top) + scrollTop
+    return Math.max(0, Math.min(24 * 60 - 10, snapToTen(yToRawMins(y))))
+  }
 
-  // Drag-to-create (mouse only — touch is reserved for swipe nav)
-  const handleMouseDown = useCallback((di, e) => {
-    if (e.button !== 0) return
+  // ── DESKTOP: column mouse-down → drag-to-create ──
+  const handleColumnMouseDown = (di, e) => {
+    if (!isDesktop || e.button !== 0) return
     e.preventDefault()
+    const snapped = clientYToSnapped(e.clientY)
+    dragRef.current = { type: 'create', dayIndex: di, startMin: snapped, endMin: snapped + 10 }
+    setDragState({ type: 'create', dayIndex: di, startMin: snapped, endMin: snapped + 10 })
+  }
+
+  // ── DESKTOP: event mouse-down → move / resize ──
+  const handleEventMouseDown = (ev, di, e) => {
+    if (!isDesktop || e.button !== 0 || ev.is_gym_planned) return
+    e.stopPropagation()
+    e.preventDefault()
+    didDragRef.current = false
+
     const rect = e.currentTarget.getBoundingClientRect()
-    const scrollTop = scrollRef.current?.scrollTop || 0
-    const y = e.clientY - rect.top + scrollTop
-    const slot = Math.max(0, Math.min(23, Math.floor(y / HOUR_HEIGHT)))
-    dragRef.current = { dayIndex: di, startSlot: slot, endSlot: slot + 1 }
-    setDragState({ dayIndex: di, startSlot: slot, endSlot: slot + 1 })
-  }, [])
+    const yInEvent = e.clientY - rect.top
+    const startMin = new Date(ev.start_time).getHours() * 60 + new Date(ev.start_time).getMinutes()
+    const endMin   = new Date(ev.end_time).getHours()   * 60 + new Date(ev.end_time).getMinutes()
 
-  const handleMouseMove = useCallback((di, e) => {
-    if (!dragRef.current || dragRef.current.dayIndex !== di) return
-    const rect = e.currentTarget.getBoundingClientRect()
-    const scrollTop = scrollRef.current?.scrollTop || 0
-    const y = e.clientY - rect.top + scrollTop
-    const slot = Math.max(0, Math.min(23, Math.floor(y / HOUR_HEIGHT)))
-    const endSlot = Math.max(slot + 1, dragRef.current.startSlot + 1)
-    dragRef.current.endSlot = endSlot
-    setDragState({ dayIndex: di, startSlot: dragRef.current.startSlot, endSlot })
-  }, [])
+    let type
+    if (yInEvent <= 8)              type = 'resize-top'
+    else if (yInEvent >= rect.height - 8) type = 'resize-bottom'
+    else                            type = 'move'
 
-  const handleMouseUp = useCallback((di, e) => {
-    if (!dragRef.current) return
-    const { dayIndex, startSlot, endSlot } = dragRef.current
-    dragRef.current = null
-    setDragState(null)
-    onCreateEvent({ date: days[dayIndex], startHour: startSlot, endHour: endSlot })
-  }, [days, onCreateEvent])
+    dragRef.current = {
+      type, dayIndex: di, eventId: ev.id,
+      origStart: startMin, origEnd: endMin,
+      grabOffset: type === 'move' ? yToRawMins(yInEvent) : 0,
+      currentStart: startMin, currentEnd: endMin,
+    }
+    setDragState({ type, dayIndex: di, eventId: ev.id, currentStart: startMin, currentEnd: endMin })
+  }
 
-  // Global mouseup to end drag even if cursor leaves column
+  // ── Global mouse-move (desktop drag) ──
   useEffect(() => {
-    const up = () => {
-      if (dragRef.current) {
-        const { dayIndex, startSlot, endSlot } = dragRef.current
-        dragRef.current = null
-        setDragState(null)
-        onCreateEvent({ date: days[dayIndex], startHour: startSlot, endHour: endSlot })
+    const onMove = (e) => {
+      if (!dragRef.current) return
+      const dr = dragRef.current
+      const snapped = clientYToSnapped(e.clientY)
+
+      if (dr.type === 'create') {
+        const endMin = snapped > dr.startMin ? snapped : dr.startMin + 10
+        dragRef.current.endMin = endMin
+        setDragState(p => p ? { ...p, endMin } : null)
+        return
+      }
+
+      // Compute raw mouse mins for move (unsnapped offset subtraction)
+      const rect = scrollRef.current?.getBoundingClientRect()
+      const scrollTop = scrollRef.current?.scrollTop || 0
+      const rawMins = rect ? yToRawMins((e.clientY - rect.top) + scrollTop) : snapped
+
+      if (dr.type === 'move') {
+        const duration  = dr.origEnd - dr.origStart
+        const newStart  = snapToTen(Math.max(0, Math.min(24 * 60 - duration, rawMins - dr.grabOffset)))
+        const newEnd    = newStart + duration
+        if (newStart !== dr.currentStart) didDragRef.current = true
+        dragRef.current.currentStart = newStart
+        dragRef.current.currentEnd   = newEnd
+        setDragState(p => p ? { ...p, currentStart: newStart, currentEnd: newEnd } : null)
+      } else if (dr.type === 'resize-bottom') {
+        const newEnd = Math.max(dr.origStart + 10, snapped)
+        if (newEnd !== dr.currentEnd) didDragRef.current = true
+        dragRef.current.currentEnd = newEnd
+        setDragState(p => p ? { ...p, currentEnd: newEnd } : null)
+      } else if (dr.type === 'resize-top') {
+        const newStart = Math.min(dr.origEnd - 10, snapped)
+        if (newStart !== dr.currentStart) didDragRef.current = true
+        dragRef.current.currentStart = newStart
+        setDragState(p => p ? { ...p, currentStart: newStart } : null)
       }
     }
-    window.addEventListener('mouseup', up)
-    return () => window.removeEventListener('mouseup', up)
-  }, [days, onCreateEvent])
+    window.addEventListener('mousemove', onMove)
+    return () => window.removeEventListener('mousemove', onMove)
+  }, []) // uses refs only
+
+  // ── Global mouse-up (desktop commit) ──
+  useEffect(() => {
+    const onUp = () => {
+      if (!dragRef.current) return
+      const dr = dragRef.current
+      dragRef.current = null
+      setDragState(null)
+
+      if (dr.type === 'create') {
+        onCreateRef.current({ date: daysRef.current[dr.dayIndex], startMin: dr.startMin, endMin: dr.endMin })
+        return
+      }
+
+      if (!didDragRef.current) return // pure click — onClick will handle it
+
+      const ev = eventsRef.current.find(e => e.id === dr.eventId)
+      if (ev && onUpdateRef.current) {
+        const base = new Date(ev.start_time)
+        const y = base.getFullYear(), mo = base.getMonth(), d = base.getDate()
+        const newStart = new Date(y, mo, d, Math.floor(dr.currentStart / 60), dr.currentStart % 60)
+        const newEnd   = new Date(y, mo, d, Math.floor(dr.currentEnd   / 60), dr.currentEnd   % 60)
+        onUpdateRef.current(dr.eventId, newStart.toISOString(), newEnd.toISOString())
+      }
+    }
+    window.addEventListener('mouseup', onUp)
+    return () => window.removeEventListener('mouseup', onUp)
+  }, []) // uses refs only
+
+  // ── Mobile: long-press to create ──
+  useEffect(() => {
+    if (isDesktop) return
+    const el = scrollRef.current
+    if (!el) return
+
+    let timer = null
+    let startX = 0, startY = 0
+    let active = false
+
+    const onTouchStart = (e) => {
+      const t = e.touches[0]
+      startX = t.clientX; startY = t.clientY
+      active = false
+
+      const containerRect = el.getBoundingClientRect()
+      const y = (t.clientY - containerRect.top) + el.scrollTop
+      const snapped = Math.max(0, Math.min(24 * 60 - 10, snapToTen(yToRawMins(y))))
+
+      const colsRect = colsWrapRef.current?.getBoundingClientRect()
+      let di = 0
+      if (colsRect && daysRef.current.length > 1) {
+        const colW = colsRect.width / daysRef.current.length
+        di = Math.max(0, Math.min(daysRef.current.length - 1, Math.floor((t.clientX - colsRect.left) / colW)))
+      }
+
+      timer = setTimeout(() => {
+        active = true
+        dragRef.current = { type: 'create', dayIndex: di, startMin: snapped, endMin: snapped + 30 }
+        setDragState({ type: 'create', dayIndex: di, startMin: snapped, endMin: snapped + 30 })
+      }, 400)
+    }
+
+    const onTouchMove = (e) => {
+      const t = e.touches[0]
+      if (timer && (Math.abs(t.clientX - startX) > 10 || Math.abs(t.clientY - startY) > 10)) {
+        clearTimeout(timer); timer = null
+      }
+      if (!active || !dragRef.current) return
+      e.preventDefault()
+      const containerRect = el.getBoundingClientRect()
+      const y = (t.clientY - containerRect.top) + el.scrollTop
+      const snapped = Math.max(0, Math.min(24 * 60 - 10, snapToTen(yToRawMins(y))))
+      const endMin = Math.max(snapped, dragRef.current.startMin + 10)
+      dragRef.current.endMin = endMin
+      setDragState(p => p ? { ...p, endMin } : null)
+    }
+
+    const onTouchEnd = () => {
+      clearTimeout(timer); timer = null
+      if (active && dragRef.current) {
+        const dr = dragRef.current
+        dragRef.current = null
+        setDragState(null)
+        active = false
+        onCreateRef.current({ date: daysRef.current[dr.dayIndex], startMin: dr.startMin, endMin: dr.endMin })
+      }
+      active = false
+    }
+
+    el.addEventListener('touchstart', onTouchStart, { passive: true })
+    el.addEventListener('touchmove',  onTouchMove,  { passive: false })
+    el.addEventListener('touchend',   onTouchEnd)
+    return () => {
+      clearTimeout(timer)
+      el.removeEventListener('touchstart', onTouchStart)
+      el.removeEventListener('touchmove',  onTouchMove)
+      el.removeEventListener('touchend',   onTouchEnd)
+    }
+  }, []) // uses refs only
 
   const nowStr = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
 
   return (
     <div className="cal-timegrid-wrap">
-      {/* All-day strip (only shown if there are all-day events) */}
+      {/* All-day strip */}
       {hasAnyAllDay && (
         <div className="cal-allday-row">
           <div className="cal-allday-gutter">all‑day</div>
           {days.map((day, di) => (
             <div key={di} className="cal-allday-cell">
-              {allDayEventsPerDay[di].map(ev => {
-                const s = TAG_STYLES[ev.module_tag] || TAG_STYLES.personal
+              {allDayPerDay[di].map(ev => {
+                const s = getEventStyle(ev)
                 return (
                   <div
                     key={ev.id}
@@ -159,19 +318,17 @@ export default function TimeGrid({
           </div>
 
           {/* Day columns */}
-          <div className="cal-columns-wrap">
+          <div className="cal-columns-wrap" ref={colsWrapRef}>
             {days.map((day, di) => {
               const isWeekend = day.getDay() === 0 || day.getDay() === 6
               const isToday   = isSameDay(day, today)
-              const dayEvents = timedEventsPerDay[di]
+              const dayEvs    = timedPerDay[di]
 
               return (
                 <div
                   key={di}
                   className={`cal-day-col${isWeekend ? ' weekend' : ''}${isToday ? ' today' : ''}`}
-                  onMouseDown={e => handleMouseDown(di, e)}
-                  onMouseMove={e => handleMouseMove(di, e)}
-                  onMouseUp={e => handleMouseUp(di, e)}
+                  onMouseDown={e => handleColumnMouseDown(di, e)}
                 >
                   {/* Hour rows — visual grid lines */}
                   {HOURS.map(h => (
@@ -183,19 +340,34 @@ export default function TimeGrid({
                   ))}
 
                   {/* Events */}
-                  {dayEvents.map(ev => {
-                    const start    = new Date(ev.start_time)
-                    const end      = new Date(ev.end_time)
-                    const topPx    = (minutesFromMidnight(start) / 60) * HOUR_HEIGHT
-                    const durMins  = Math.max((end - start) / 60000, 30)
-                    const heightPx = (durMins / 60) * HOUR_HEIGHT
-                    const s        = TAG_STYLES[ev.module_tag] || TAG_STYLES.personal
-                    const isTall   = heightPx > 42
+                  {dayEvs.map(ev => {
+                    const isDragging = dragState?.eventId === ev.id && dragState?.dayIndex === di
+                    const origStart = new Date(ev.start_time)
+                    const origEnd   = new Date(ev.end_time)
+
+                    let topPx, heightPx, displayStart, displayEnd
+                    if (isDragging) {
+                      topPx = (dragState.currentStart / 60) * HOUR_HEIGHT
+                      const durMins = Math.max(dragState.currentEnd - dragState.currentStart, 10)
+                      heightPx = (durMins / 60) * HOUR_HEIGHT
+                      const y = origStart.getFullYear(), mo = origStart.getMonth(), d = origStart.getDate()
+                      displayStart = new Date(y, mo, d, Math.floor(dragState.currentStart / 60), dragState.currentStart % 60)
+                      displayEnd   = new Date(y, mo, d, Math.floor(dragState.currentEnd   / 60), dragState.currentEnd   % 60)
+                    } else {
+                      topPx = (minutesFromMidnight(origStart) / 60) * HOUR_HEIGHT
+                      const durMins = Math.max((origEnd - origStart) / 60000, 30)
+                      heightPx = (durMins / 60) * HOUR_HEIGHT
+                      displayStart = origStart
+                      displayEnd   = origEnd
+                    }
+
+                    const s      = getEventStyle(ev)
+                    const isTall = heightPx > 42
 
                     return (
                       <div
                         key={ev.id}
-                        className={`cal-event${ev.is_gym_planned ? ' is-gym' : ''}`}
+                        className={`cal-event${ev.is_gym_planned ? ' is-gym' : ' user-event'}${isDragging ? ' is-dragging' : ''}`}
                         style={{
                           top: topPx + 1,
                           height: heightPx - 2,
@@ -203,14 +375,19 @@ export default function TimeGrid({
                           borderColor: s.border,
                           color: s.color,
                         }}
-                        onClick={e => { e.stopPropagation(); onEventClick(ev) }}
-                        title={`${ev.title}\n${formatTimeRange(start, end)}`}
+                        onMouseDown={e => handleEventMouseDown(ev, di, e)}
+                        onClick={e => {
+                          e.stopPropagation()
+                          if (!didDragRef.current) onEventClick(ev)
+                        }}
+                        title={`${ev.title}\n${formatTimeRange(displayStart, displayEnd)}`}
                       >
-                        <span className="cal-event-icon">{s.icon}</span>
+                        {isDesktop && !ev.is_gym_planned && <div className="cal-event-rz-top" />}
+                        {s.icon && <span className="cal-event-icon">{s.icon}</span>}
                         <div className="cal-event-body">
                           <div className="cal-event-title">{ev.title}</div>
                           {isTall && (
-                            <div className="cal-event-time">{formatTimeRange(start, end)}</div>
+                            <div className="cal-event-time">{formatTimeRange(displayStart, displayEnd)}</div>
                           )}
                         </div>
                         {ev.is_gym_planned && ev.gym_status !== 'completed' && isTall && (
@@ -221,22 +398,23 @@ export default function TimeGrid({
                             Skip
                           </button>
                         )}
+                        {isDesktop && !ev.is_gym_planned && <div className="cal-event-rz-bottom" />}
                       </div>
                     )
                   })}
 
-                  {/* Drag preview */}
-                  {dragState?.dayIndex === di && (
+                  {/* Drag-to-create preview */}
+                  {dragState?.type === 'create' && dragState?.dayIndex === di && (
                     <div
                       className="cal-drag-preview"
                       style={{
-                        top: dragState.startSlot * HOUR_HEIGHT,
-                        height: (dragState.endSlot - dragState.startSlot) * HOUR_HEIGHT,
+                        top:    (dragState.startMin / 60) * HOUR_HEIGHT,
+                        height: ((dragState.endMin - dragState.startMin) / 60) * HOUR_HEIGHT,
                       }}
                     />
                   )}
 
-                  {/* Now line (in today's column only) */}
+                  {/* Now line */}
                   {isToday && (
                     <div className="cal-now-line" style={{ top: nowTop }}>
                       <span className="cal-now-dot" />
@@ -249,10 +427,9 @@ export default function TimeGrid({
             })}
           </div>
         </div>
-
       </div>
 
-      {/* Mini month — positioned absolutely within cal-timegrid-wrap, outside scroll */}
+      {/* Mini month */}
       {showMiniMonth && (
         <div className="cal-mini-month-panel">
           <MiniMonth
