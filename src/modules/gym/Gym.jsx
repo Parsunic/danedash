@@ -19,7 +19,7 @@ const INIT_REST = { visible: false, remaining: 0, total: 0, paused: false, lastS
 const isDesktop = typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches
 
 export default function Gym() {
-  const [activeView, setActiveView] = useState(isDesktop ? 'ai-coach' : 'templates')
+  const [activeView, setActiveView] = useState(isDesktop ? 'templates' : 'templates')
   const [plannerWeekOffset, setPlannerWeekOffset] = useState(0)
   const [activeSession, setActiveSession] = useState(null)
   const [restState, setRestState] = useState(INIT_REST)
