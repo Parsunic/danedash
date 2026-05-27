@@ -1991,31 +1991,40 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
   background: linear-gradient(90deg, rgba(255,255,255,0.08), transparent);
 }
 
-/* ── GYM DESKTOP 3-COLUMN LAYOUT ── */
-.gym-desktop-three-col {
+/* ── GYM DESKTOP 2-COLUMN LAYOUT ── */
+.gym-desktop-two-col {
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: 20px;
 }
 @media (min-width: 1024px) {
-  .gym-desktop-three-col {
+  .gym-desktop-two-col {
     display: grid;
-    grid-template-columns: 240px 1fr 320px;
-    gap: 20px;
+    grid-template-columns: 1fr 360px;
+    gap: 24px;
     align-items: start;
   }
 }
-.gym-desktop-col--planner { min-width: 0; }
+.gym-desktop-planner-col { min-width: 0; }
 .gym-desktop-col--panel {
   min-width: 0;
   position: sticky;
   top: 20px;
+  max-height: calc(100vh - 80px);
+  display: flex;
+  flex-direction: column;
 }
 .gym-subnav--panel {
   margin-bottom: 14px;
   padding-bottom: 10px;
   border-bottom: 1px solid rgba(255,255,255,0.06);
   flex-wrap: wrap;
+  flex-shrink: 0;
+}
+.gym-panel-scroll {
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
 }
 .gym-panel-view { display: none; }
 .gym-panel-view.active { display: block; }
