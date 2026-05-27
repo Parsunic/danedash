@@ -1990,3 +1990,220 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
   height: 1px;
   background: linear-gradient(90deg, rgba(255,255,255,0.08), transparent);
 }
+
+/* ── GYM DESKTOP 3-COLUMN LAYOUT ── */
+.gym-desktop-three-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+@media (min-width: 1024px) {
+  .gym-desktop-three-col {
+    display: grid;
+    grid-template-columns: 240px 1fr 320px;
+    gap: 20px;
+    align-items: start;
+  }
+}
+.gym-desktop-col--planner { min-width: 0; }
+.gym-desktop-col--panel {
+  min-width: 0;
+  position: sticky;
+  top: 20px;
+}
+.gym-subnav--panel {
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  flex-wrap: wrap;
+}
+.gym-panel-view { display: none; }
+.gym-panel-view.active { display: block; }
+
+/* ── TEMPLATE CARD COLLAPSIBLE ── */
+.template-card-header { cursor: pointer; user-select: none; }
+.template-card-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.template-card-chevron {
+  color: var(--text-tertiary);
+  font-size: 14px;
+  flex-shrink: 0;
+  display: inline-block;
+  transition: transform 0.2s;
+  transform: rotate(0deg);
+  line-height: 1;
+}
+.template-card-chevron.open { transform: rotate(90deg); }
+.template-card-count {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-tertiary);
+  background: rgba(255,255,255,0.06);
+  border-radius: 999px;
+  padding: 2px 8px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.template-exercise-list { margin-top: 12px; }
+
+/* ── PLANNER DESKTOP MODE ── */
+.planner-grid--desktop .planner-day-cell {
+  min-height: 130px;
+  align-items: flex-start;
+}
+.planner-day-exercises {
+  width: 100%;
+  margin-top: 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.planner-day-ex-item {
+  font-size: 9px;
+  color: var(--text-secondary);
+  background: rgba(255,255,255,0.04);
+  border-radius: 4px;
+  padding: 2px 5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+  line-height: 1.5;
+}
+.planner-day-ex-more {
+  font-size: 9px;
+  color: var(--text-tertiary);
+  font-style: italic;
+  text-align: center;
+  padding: 2px 0;
+}
+
+/* ── PLANNER WEEK TEMPLATES COLLAPSIBLE ── */
+.planner-week-tpl-section { margin-top: 8px; }
+.planner-week-tpl-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+  margin-bottom: 4px;
+}
+.planner-week-tpl-chevron {
+  color: var(--text-tertiary);
+  font-size: 14px;
+  flex-shrink: 0;
+  display: inline-block;
+  transition: transform 0.2s;
+  transform: rotate(0deg);
+  line-height: 1;
+}
+.planner-week-tpl-chevron.open { transform: rotate(90deg); }
+
+/* ── STATS VIEW ── */
+.gym-stats-view { display: flex; flex-direction: column; gap: 0; }
+.gym-stats-search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.gym-stats-search-icon {
+  position: absolute;
+  left: 12px;
+  font-size: 16px;
+  color: var(--text-tertiary);
+  pointer-events: none;
+  line-height: 1;
+}
+.gym-stats-search {
+  width: 100%;
+  padding: 11px 36px 11px 36px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.04);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.gym-stats-search::placeholder { color: var(--text-tertiary); }
+.gym-stats-search:focus { border-color: rgba(242,192,99,0.4); }
+.gym-stats-search-clear {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  color: var(--text-tertiary);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 6px;
+  line-height: 1;
+  transition: color 0.15s;
+}
+.gym-stats-search-clear:hover { color: var(--text-primary); }
+.gym-stats-exercise-list { display: flex; flex-direction: column; gap: 10px; }
+.gym-stats-exercise-card {
+  background: var(--card-bg);
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.06);
+  padding: 14px 16px;
+  backdrop-filter: blur(24px) saturate(1.2);
+}
+.gym-stats-ex-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+.gym-stats-ex-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.gym-stats-ex-badges { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.gym-stats-ex-pr {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--accent);
+  background: rgba(242,192,99,0.10);
+  border: 1px solid rgba(242,192,99,0.22);
+  border-radius: 999px;
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+.gym-stats-ex-count {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-tertiary);
+  background: rgba(255,255,255,0.05);
+  border-radius: 999px;
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+.gym-stats-ex-last {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+  margin-bottom: 10px;
+}
+.gym-stats-chart-placeholder {
+  height: 52px;
+  border-radius: 8px;
+  border: 1px dashed rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.02);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-tertiary);
+  font-size: 11px;
+  font-style: italic;
+}
