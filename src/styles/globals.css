@@ -1400,7 +1400,7 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
   font-size: 11px;
   z-index: 2;
 }
-.cal-event:hover { filter: brightness(1.12); transform: scaleX(0.985); }
+.cal-event.is-gym:hover { filter: brightness(1.12); transform: scaleX(0.985); }
 .cal-event.is-gym { box-shadow: inset 3px 0 0 rgba(242,192,99,0.6); }
 .cal-event-icon { font-size: 10px; flex-shrink: 0; margin-top: 1px; }
 .cal-event-body { flex: 1; min-width: 0; }
