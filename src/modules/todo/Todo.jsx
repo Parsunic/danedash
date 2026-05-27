@@ -711,17 +711,19 @@ export default function Todo() {
   return (
     <div className="section">
       <div className="section-title">To Do List</div>
-      <TodayCard
-        goals={todayGoals}
-        goalKey={todayKey}
-        streak={streak}
-        onGoalsChange={reload}
-      />
-      <TomorrowCard
-        goals={tomorrowGoals}
-        goalKey={tomorrowKey}
-        onGoalsChange={reload}
-      />
+      <div className="todo-desktop-grid">
+        <TodayCard
+          goals={todayGoals}
+          goalKey={todayKey}
+          streak={streak}
+          onGoalsChange={reload}
+        />
+        <TomorrowCard
+          goals={tomorrowGoals}
+          goalKey={tomorrowKey}
+          onGoalsChange={reload}
+        />
+      </div>
       <RecurringSection />
     </div>
   )
