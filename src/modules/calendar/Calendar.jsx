@@ -7,6 +7,19 @@ import { getWeekDays, formatMonthYear } from './calendarUtils.js'
 
 const STORAGE_KEY = 'calendar_events'
 
+function dayDiff(date) {
+  const today = new Date()
+  const a = new Date(date.getFullYear(), date.getMonth(), date.getDate())
+  const b = new Date(today.getFullYear(), today.getMonth(), today.getDate())
+  return Math.round((a - b) / 86400000)
+}
+
+function ordinalSuffix(n) {
+  const s = ['th', 'st', 'nd', 'rd']
+  const v = n % 100
+  return n + (s[(v - 20) % 10] || s[v] || s[0])
+}
+
 function headerLabel(view, date) {
   if (view === 'month') return formatMonthYear(date)
   if (view === 'week') {
@@ -17,7 +30,13 @@ function headerLabel(view, date) {
     }
     return `${start.toLocaleDateString('en-US', { month: 'short' })} – ${end.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}`
   }
-  return date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })
+  // day view — relative labels
+  const diff = dayDiff(date)
+  if (diff === 0) return 'Today'
+  if (diff === -1) return 'Yesterday'
+  if (diff === 1) return 'Tomorrow'
+  if (diff > 1 && diff <= 7) return date.toLocaleDateString('en-US', { weekday: 'long' })
+  return `${date.toLocaleDateString('en-US', { month: 'long' })} ${ordinalSuffix(date.getDate())}`
 }
 
 export default function Calendar() {

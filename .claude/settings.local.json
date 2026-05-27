@@ -17,7 +17,16 @@
       "Bash(Select-Object FullName, PSIsContainer)",
       "Bash(Sort-Object FullName)",
       "Bash(Format-List)",
-      "Bash(npx vite *)"
+      "Bash(npx vite *)",
+      "Bash(curl -s http://localhost:5199/)",
+      "Bash(which chromium-browser chromium google-chrome 2>/dev/null || echo \"no chrome found\" *)",
+      "Read(//usr/**)",
+      "Bash(npx playwright *)",
+      "Bash(node -e \"require\\('playwright'\\)\")",
+      "Bash(npm install *)",
+      "Bash(node -e \"const {chromium} = require\\('playwright'\\); console.log\\('ok'\\)\")",
+      "Bash(node -e ' *)",
+      "PowerShell(node node_modules/playwright/cli.js install chromium 2>&1)"
     ]
   },
   "hooks": {
