@@ -1813,8 +1813,8 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
 @media (min-width: 1024px) {
   .dash-desktop-layout {
     display: grid;
-    grid-template-columns: 1fr 320px;
-    gap: 24px;
+    grid-template-columns: 1fr 380px;
+    gap: 28px;
     align-items: start;
   }
   .dash-side-col { margin-top: 0; }
