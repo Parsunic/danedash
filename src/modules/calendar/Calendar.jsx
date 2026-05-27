@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { storeGet, storeSet } from '../../lib/storage.js'
 import TimeGrid from './TimeGrid.jsx'
 import MonthView from './MonthView.jsx'
-import EventModal from './EventModal.jsx'
+import EventSidebar from './EventSidebar.jsx'
 import { getWeekDays, formatMonthYear } from './calendarUtils.js'
 
 const STORAGE_KEY = 'calendar_events'
@@ -30,7 +30,6 @@ function headerLabel(view, date) {
     }
     return `${start.toLocaleDateString('en-US', { month: 'short' })} – ${end.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}`
   }
-  // day view — relative labels
   const diff = dayDiff(date)
   if (diff === 0) return 'Today'
   if (diff === -1) return 'Yesterday'
@@ -45,11 +44,10 @@ export default function Calendar() {
   const [events, setEvents] = useState([])
   const [gymPlanned, setGymPlanned] = useState([])
   const [showMiniMonth, setShowMiniMonth] = useState(true)
-  const [showEventModal, setShowEventModal] = useState(false)
+  const [showSidebar, setShowSidebar] = useState(false)
   const [editEvent, setEditEvent] = useState(null)
   const [defaultSlot, setDefaultSlot] = useState(null)
 
-  // Load data from localStorage
   useEffect(() => {
     setEvents(storeGet(STORAGE_KEY) || [])
     setGymPlanned(storeGet('gym_planned') || [])
@@ -71,17 +69,18 @@ export default function Calendar() {
     setEvents(next)
   }, [])
 
+  // Called from TimeGrid drag-to-create — receives { date, startMin, endMin }
   const handleCreateEvent = useCallback((slot) => {
     setDefaultSlot(slot)
     setEditEvent(null)
-    setShowEventModal(true)
+    setShowSidebar(true)
   }, [])
 
   const handleEventClick = useCallback((ev) => {
     if (ev.is_gym_planned) return
     setEditEvent(ev)
     setDefaultSlot(null)
-    setShowEventModal(true)
+    setShowSidebar(true)
   }, [])
 
   const handleEventSave = useCallback((data) => {
@@ -90,12 +89,17 @@ export default function Calendar() {
     } else {
       saveEvents([...events, { id: crypto.randomUUID(), user_id: 'dane', ...data, created_at: new Date().toISOString() }])
     }
-    setShowEventModal(false)
+    setShowSidebar(false)
   }, [editEvent, events, saveEvents])
 
   const handleEventDelete = useCallback((id) => {
     saveEvents(events.filter(e => e.id !== id))
-    setShowEventModal(false)
+    setShowSidebar(false)
+  }, [events, saveEvents])
+
+  // Called from TimeGrid move/resize drag — direct time update, no sidebar
+  const handleEventUpdate = useCallback((eventId, startIso, endIso) => {
+    saveEvents(events.map(e => e.id === eventId ? { ...e, start_time: startIso, end_time: endIso } : e))
   }, [events, saveEvents])
 
   const handleSkipGymWorkout = useCallback((gymPlannedId) => {
@@ -107,9 +111,9 @@ export default function Calendar() {
   const navigate = useCallback((dir) => {
     setCurrentDate(prev => {
       const d = new Date(prev)
-      if (view === 'day')   d.setDate(d.getDate() + dir)
-      else if (view === 'week') d.setDate(d.getDate() + dir * 7)
-      else d.setMonth(d.getMonth() + dir)
+      if (view === 'day')        d.setDate(d.getDate() + dir)
+      else if (view === 'week')  d.setDate(d.getDate() + dir * 7)
+      else                       d.setMonth(d.getMonth() + dir)
       return d
     })
   }, [view])
@@ -146,14 +150,14 @@ export default function Calendar() {
           </div>
           <button
             className="cal-add-btn"
-            onClick={() => { setDefaultSlot(null); setEditEvent(null); setShowEventModal(true) }}
+            onClick={() => { setDefaultSlot(null); setEditEvent(null); setShowSidebar(true) }}
           >
             + New
           </button>
         </div>
       </div>
 
-      {/* Body — mini month lives as an overlay inside TimeGrid */}
+      {/* Body */}
       <div className="cal-body-wrap">
         <div className="cal-main">
           {(view === 'week' || view === 'day') && (
@@ -167,6 +171,7 @@ export default function Calendar() {
               onDateSelect={handleDateSelect}
               onCreateEvent={handleCreateEvent}
               onEventClick={handleEventClick}
+              onEventUpdate={handleEventUpdate}
               onSkipGymWorkout={handleSkipGymWorkout}
             />
           )}
@@ -182,14 +187,15 @@ export default function Calendar() {
         </div>
       </div>
 
-      {showEventModal && (
-        <EventModal
+      {showSidebar && (
+        <EventSidebar
           event={editEvent}
           defaultSlot={defaultSlot}
           currentDate={currentDate}
+          events={events}
           onSave={handleEventSave}
           onDelete={handleEventDelete}
-          onClose={() => setShowEventModal(false)}
+          onClose={() => setShowSidebar(false)}
         />
       )}
     </div>
