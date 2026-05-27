@@ -1786,6 +1786,125 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
   align-items: center;
 }
 
+/* ── EVENT SIDEBAR ── */
+.cal-sidebar-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(4px);
+  z-index: 598;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+}
+.cal-sidebar-backdrop.open { opacity: 1; pointer-events: auto; }
+.cal-event-sidebar {
+  position: fixed;
+  right: 0; top: 0;
+  width: 360px;
+  height: 100%;
+  background: #0d0d0f;
+  border-left: 1px solid rgba(255,255,255,0.09);
+  z-index: 599;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.25s ease;
+  box-shadow: -12px 0 40px rgba(0,0,0,0.55);
+}
+.cal-event-sidebar.open { transform: translateX(0); }
+.cal-sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  flex-shrink: 0;
+}
+.cal-sidebar-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.cal-sidebar-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px 20px;
+}
+.cal-sidebar-body::-webkit-scrollbar { width: 4px; }
+.cal-sidebar-body::-webkit-scrollbar-track { background: transparent; }
+.cal-sidebar-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.09); border-radius: 2px; }
+.cal-sidebar-footer {
+  display: flex;
+  gap: 10px;
+  padding: 14px 20px;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  justify-content: flex-end;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* Category picker */
+.cal-category-picker {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+.cal-category-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 11px;
+  border-radius: 9px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.03);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  text-align: left;
+}
+.cal-category-btn:hover { background: rgba(255,255,255,0.07); }
+.cal-category-btn.active {
+  border-color: var(--cat-color);
+  background: color-mix(in srgb, var(--cat-color) 15%, transparent);
+  color: var(--cat-color);
+}
+.cal-category-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+/* Event resize handles (desktop only) */
+.cal-event-rz-top {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 8px;
+  cursor: n-resize;
+  z-index: 3;
+  border-radius: 5px 5px 0 0;
+}
+.cal-event-rz-bottom {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 8px;
+  cursor: s-resize;
+  z-index: 3;
+  border-radius: 0 0 5px 5px;
+}
+.cal-event.user-event { cursor: grab; }
+.cal-event.user-event:hover { filter: brightness(1.12); transform: scaleX(0.985); }
+.cal-event.is-dragging {
+  opacity: 0.88;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.55);
+  z-index: 10;
+  cursor: grabbing !important;
+  transform: none !important;
+}
+
 /* ── CALENDAR RESPONSIVE ── */
 @media (max-width: 600px) {
   .cal-root { height: calc(100dvh - var(--tabbar-h) - 100px); }
@@ -1799,6 +1918,18 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
   .cal-month-date { font-size: 11px; }
   .cal-month-event-chip { font-size: 9px; }
   .cal-day-num { font-size: 14px; }
+  .cal-event-sidebar {
+    width: 100%;
+    top: auto;
+    bottom: 0;
+    height: 92dvh;
+    transform: translateY(100%);
+    border-left: none;
+    border-top: 1px solid rgba(255,255,255,0.09);
+    border-radius: 20px 20px 0 0;
+  }
+  .cal-event-sidebar.open { transform: translateY(0); }
+  .cal-category-picker { grid-template-columns: 1fr 1fr 1fr; }
 }
 
 /* ═══════════════════════════════════════════════════
