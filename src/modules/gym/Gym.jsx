@@ -163,15 +163,9 @@ export default function Gym() {
     return (
       <>
         <h1 className="dash-title">Gym</h1>
-        <div className="gym-desktop-three-col">
-          {/* Left: Templates */}
-          <div className="gym-desktop-col">
-            <div className="gym-desktop-col-title">Templates</div>
-            <TemplatesView />
-          </div>
-
-          {/* Center: Planner */}
-          <div className="gym-desktop-col gym-desktop-col--planner">
+        <div className="gym-desktop-two-col">
+          {/* Left: Planner — takes all available space */}
+          <div className="gym-desktop-planner-col">
             <div className="gym-desktop-col-title">Planner</div>
             <PlannerView
               weekOffset={plannerWeekOffset}
@@ -181,8 +175,8 @@ export default function Gym() {
             />
           </div>
 
-          {/* Right: AI Coach / History / Stats panel */}
-          <div className="gym-desktop-col gym-desktop-col--panel">
+          {/* Right: Templates / AI Coach / History / Stats panel */}
+          <div className="gym-desktop-col--panel">
             <div className="gym-subnav gym-subnav--panel">
               {DESKTOP_PANEL_VIEWS.map(v => (
                 <button
@@ -192,14 +186,19 @@ export default function Gym() {
                 >{VIEW_LABELS[v]}</button>
               ))}
             </div>
-            <div className={`gym-panel-view${activeView === 'ai-coach' ? ' active' : ''}`}>
-              <AICoachView onPlanLoaded={handleAIPlanLoaded} />
-            </div>
-            <div className={`gym-panel-view${activeView === 'history' ? ' active' : ''}`}>
-              <HistoryView />
-            </div>
-            <div className={`gym-panel-view${activeView === 'stats' ? ' active' : ''}`}>
-              <StatsView />
+            <div className="gym-panel-scroll">
+              <div className={`gym-panel-view${activeView === 'templates' ? ' active' : ''}`}>
+                <TemplatesView />
+              </div>
+              <div className={`gym-panel-view${activeView === 'ai-coach' ? ' active' : ''}`}>
+                <AICoachView onPlanLoaded={handleAIPlanLoaded} />
+              </div>
+              <div className={`gym-panel-view${activeView === 'history' ? ' active' : ''}`}>
+                <HistoryView />
+              </div>
+              <div className={`gym-panel-view${activeView === 'stats' ? ' active' : ''}`}>
+                <StatsView />
+              </div>
             </div>
           </div>
         </div>
