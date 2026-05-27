@@ -4,16 +4,20 @@ import Sidebar from './Sidebar.jsx'
 import BottomNav from './BottomNav.jsx'
 import { useSyncStatus } from '../contexts/SyncContext.jsx'
 import { modules } from '../App.jsx'
+import { getAnthropicKey, setAnthropicKey } from '../lib/api/anthropic.js'
+import { getNotionKey, setNotionKey } from '../lib/api/notion.js'
 
 function SettingsModal({ onClose }) {
-  const [key, setKey] = useState(() => localStorage.getItem('anthropic_api_key') || '')
-  const [show, setShow] = useState(false)
+  const [anthropicKey, setAnthropicKeyState] = useState(() => getAnthropicKey())
+  const [notionKey, setNotionKeyState]       = useState(() => getNotionKey())
+  const [showAnthropic, setShowAnthropic]    = useState(false)
+  const [showNotion, setShowNotion]          = useState(false)
 
   const save = useCallback(() => {
-    if (key.trim()) localStorage.setItem('anthropic_api_key', key.trim())
-    else localStorage.removeItem('anthropic_api_key')
+    setAnthropicKey(anthropicKey)
+    setNotionKey(notionKey)
     onClose()
-  }, [key, onClose])
+  }, [anthropicKey, notionKey, onClose])
 
   return (
     <div className="settings-backdrop" onClick={onClose}>
@@ -27,18 +31,35 @@ function SettingsModal({ onClose }) {
           <div className="settings-input-row">
             <input
               className="settings-input"
-              type={show ? 'text' : 'password'}
-              value={key}
-              onChange={e => setKey(e.target.value)}
+              type={showAnthropic ? 'text' : 'password'}
+              value={anthropicKey}
+              onChange={e => setAnthropicKeyState(e.target.value)}
               placeholder="sk-ant-..."
               autoComplete="off"
               spellCheck={false}
             />
-            <button className="settings-eye" onClick={() => setShow(v => !v)} aria-label={show ? 'Hide' : 'Show'}>
-              {show ? '🙈' : '👁'}
+            <button className="settings-eye" onClick={() => setShowAnthropic(v => !v)} aria-label={showAnthropic ? 'Hide' : 'Show'}>
+              {showAnthropic ? '🙈' : '👁'}
             </button>
           </div>
           <p className="settings-hint">Used for AI goal polish. Stored in your browser only.</p>
+
+          <label className="settings-label" style={{ marginTop: 16 }}>Notion API Key</label>
+          <div className="settings-input-row">
+            <input
+              className="settings-input"
+              type={showNotion ? 'text' : 'password'}
+              value={notionKey}
+              onChange={e => setNotionKeyState(e.target.value)}
+              placeholder="secret_..."
+              autoComplete="off"
+              spellCheck={false}
+            />
+            <button className="settings-eye" onClick={() => setShowNotion(v => !v)} aria-label={showNotion ? 'Hide' : 'Show'}>
+              {showNotion ? '🙈' : '👁'}
+            </button>
+          </div>
+          <p className="settings-hint">Stored in your browser only.</p>
         </div>
         <div className="settings-footer">
           <button className="settings-save" onClick={save}>Save</button>
@@ -78,7 +99,6 @@ export default function Layout({ children }) {
     const dy = e.changedTouches[0].clientY - touchStartY.current
     touchStartX.current = null
     touchStartY.current = null
-    // Only fire if more horizontal than vertical and above threshold
     if (Math.abs(dx) < 50 || Math.abs(dy) > Math.abs(dx)) return
     const idx = modules.findIndex(m => m.path === location.pathname)
     if (dx < 0 && idx < modules.length - 1) navigate(modules[idx + 1].path)
