@@ -8,17 +8,18 @@ import AICoachView from './components/AICoachView.jsx'
 import LogView from './components/LogView.jsx'
 import HistoryView from './components/HistoryView.jsx'
 import RestTimer from './components/RestTimer.jsx'
+import StatsView from './components/StatsView.jsx'
 
-const VIEWS = ['templates', 'planner', 'ai-coach', 'log', 'history']
-const VIEW_LABELS = { templates: 'Templates', planner: 'Planner', 'ai-coach': 'AI Coach', log: 'Log', history: 'History' }
-const DESKTOP_EXTRA_VIEWS = ['ai-coach', 'history']
+const VIEWS = ['templates', 'planner', 'ai-coach', 'log', 'history', 'stats']
+const VIEW_LABELS = { templates: 'Templates', planner: 'Planner', 'ai-coach': 'AI Coach', log: 'Log', history: 'History', stats: 'Stats' }
+const DESKTOP_PANEL_VIEWS = ['ai-coach', 'history', 'stats']
 
 const INIT_REST = { visible: false, remaining: 0, total: 0, paused: false, lastSecs: 90 }
 
 const isDesktop = typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches
 
 export default function Gym() {
-  const [activeView, setActiveView] = useState(isDesktop ? 'planner' : 'templates')
+  const [activeView, setActiveView] = useState(isDesktop ? 'ai-coach' : 'templates')
   const [plannerWeekOffset, setPlannerWeekOffset] = useState(0)
   const [activeSession, setActiveSession] = useState(null)
   const [restState, setRestState] = useState(INIT_REST)
@@ -132,7 +133,7 @@ export default function Gym() {
 
   const handleAIPlanLoaded = useCallback(weekOffset => {
     setPlannerWeekOffset(weekOffset)
-    setActiveView('planner')
+    if (!isDesktop) setActiveView('planner')
   }, [])
 
   const logContent = activeSession?.__done ? (
@@ -162,38 +163,45 @@ export default function Gym() {
     return (
       <>
         <h1 className="dash-title">Gym</h1>
-        <div className="gym-subnav" style={{ overflowX: 'auto' }}>
-          {DESKTOP_EXTRA_VIEWS.map(v => (
-            <button
-              key={v}
-              className={`gym-subnav-btn${activeView === v ? ' active' : ''}`}
-              onClick={() => setActiveView(v)}
-            >{VIEW_LABELS[v]}</button>
-          ))}
-        </div>
-
-        {/* Always-visible planning grid */}
-        <div className="gym-desktop-planning">
+        <div className="gym-desktop-three-col">
+          {/* Left: Templates */}
           <div className="gym-desktop-col">
             <div className="gym-desktop-col-title">Templates</div>
             <TemplatesView />
           </div>
-          <div className="gym-desktop-col">
+
+          {/* Center: Planner */}
+          <div className="gym-desktop-col gym-desktop-col--planner">
             <div className="gym-desktop-col-title">Planner</div>
             <PlannerView
               weekOffset={plannerWeekOffset}
               onWeekOffsetChange={setPlannerWeekOffset}
               onStartWorkout={startWorkout}
+              desktopMode
             />
           </div>
-        </div>
 
-        {/* Extra views accessible via tabs */}
-        <div className={`gym-view${activeView === 'ai-coach' ? ' active' : ''}`}>
-          <AICoachView onPlanLoaded={handleAIPlanLoaded} />
-        </div>
-        <div className={`gym-view${activeView === 'history' ? ' active' : ''}`}>
-          <HistoryView />
+          {/* Right: AI Coach / History / Stats panel */}
+          <div className="gym-desktop-col gym-desktop-col--panel">
+            <div className="gym-subnav gym-subnav--panel">
+              {DESKTOP_PANEL_VIEWS.map(v => (
+                <button
+                  key={v}
+                  className={`gym-subnav-btn${activeView === v ? ' active' : ''}`}
+                  onClick={() => setActiveView(v)}
+                >{VIEW_LABELS[v]}</button>
+              ))}
+            </div>
+            <div className={`gym-panel-view${activeView === 'ai-coach' ? ' active' : ''}`}>
+              <AICoachView onPlanLoaded={handleAIPlanLoaded} />
+            </div>
+            <div className={`gym-panel-view${activeView === 'history' ? ' active' : ''}`}>
+              <HistoryView />
+            </div>
+            <div className={`gym-panel-view${activeView === 'stats' ? ' active' : ''}`}>
+              <StatsView />
+            </div>
+          </div>
         </div>
 
         {restTimer}
@@ -232,6 +240,9 @@ export default function Gym() {
       </div>
       <div className={`gym-view${activeView === 'history' ? ' active' : ''}`}>
         <HistoryView />
+      </div>
+      <div className={`gym-view${activeView === 'stats' ? ' active' : ''}`}>
+        <StatsView />
       </div>
 
       {restTimer}
