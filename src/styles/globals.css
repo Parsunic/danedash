@@ -1800,3 +1800,193 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
   .cal-month-event-chip { font-size: 9px; }
   .cal-day-num { font-size: 14px; }
 }
+
+/* ═══════════════════════════════════════════════════
+   DESKTOP LAYOUT ENHANCEMENTS
+   ═══════════════════════════════════════════════════ */
+
+/* ── DASHBOARD DESKTOP ── */
+.dash-desktop-layout { display: flex; flex-direction: column; gap: 0; }
+.dash-main-col { width: 100%; }
+.dash-side-col { display: flex; flex-direction: column; margin-top: 0; }
+
+@media (min-width: 1024px) {
+  .dash-desktop-layout {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 24px;
+    align-items: start;
+  }
+  .dash-side-col { margin-top: 0; }
+}
+
+/* ── DASHBOARD WIDGETS ── */
+.dash-widget {
+  background: var(--card-bg);
+  border-radius: var(--card-radius);
+  padding: 16px 18px;
+  backdrop-filter: blur(24px) saturate(1.2);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.45);
+  margin-bottom: 14px;
+}
+.dash-widget-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.dash-widget-label {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+.dash-widget-link {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.dash-widget-link:hover { color: var(--text-secondary); }
+.dash-widget-empty {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  font-style: italic;
+  padding: 4px 0 6px;
+}
+
+/* ── TOP TASKS WIDGET ── */
+.dash-task-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  background: rgba(255,255,255,0.035);
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.06);
+  margin-bottom: 7px;
+}
+.dash-task-chip.is-queued {
+  background: rgba(242,192,99,0.10);
+  border-color: rgba(242,192,99,0.2);
+  box-shadow: inset 3px 0 0 0 #F2C063;
+}
+.dash-task-bullet { font-size: 13px; flex-shrink: 0; color: var(--text-tertiary); }
+.dash-task-chip.is-queued .dash-task-bullet { color: #F2C063; }
+.dash-task-text { font-size: 13px; color: var(--text-primary); line-height: 1.35; }
+.dash-task-chip.is-queued .dash-task-text { color: #FFE2A8; }
+
+/* ── CALENDAR NOW WIDGET ── */
+@keyframes greenFlicker {
+  0%   { box-shadow: 0 0 10px rgba(107,227,164,0.25), 0 0 20px rgba(107,227,164,0.10); }
+  20%  { box-shadow: 0 0 16px rgba(107,227,164,0.45), 0 0 30px rgba(107,227,164,0.18); }
+  45%  { box-shadow: 0 0  8px rgba(107,227,164,0.20), 0 0 16px rgba(107,227,164,0.08); }
+  70%  { box-shadow: 0 0 20px rgba(107,227,164,0.50), 0 0 36px rgba(107,227,164,0.20); }
+  85%  { box-shadow: 0 0 12px rgba(107,227,164,0.30), 0 0 22px rgba(107,227,164,0.12); }
+  100% { box-shadow: 0 0 10px rgba(107,227,164,0.25), 0 0 20px rgba(107,227,164,0.10); }
+}
+
+.dash-now-event {
+  border: 1.5px solid rgba(107,227,164,0.35);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  background: rgba(107,227,164,0.05);
+  animation: greenFlicker 4s ease-in-out infinite;
+}
+.dash-now-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  color: var(--success);
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+.dash-now-title { font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 3px; }
+.dash-now-time { font-family: var(--font-mono); font-size: 11px; color: var(--text-secondary); }
+.dash-now-remaining {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--success);
+  margin-top: 5px;
+  font-weight: 600;
+}
+.dash-now-empty {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  font-style: italic;
+  padding: 4px 0 6px;
+}
+.dash-next-event {
+  border: 1px solid rgba(242,192,99,0.20);
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: rgba(242,192,99,0.04);
+}
+.dash-next-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.dash-next-title { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 2px; }
+.dash-next-time { font-family: var(--font-mono); font-size: 11px; color: var(--text-tertiary); }
+
+/* ── TODO DESKTOP 2-COLUMN ── */
+@media (min-width: 1024px) {
+  .todo-desktop-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+  .todo-desktop-grid .gm-card { margin-bottom: 0; }
+}
+
+/* ── GYM DESKTOP PLANNING ── */
+.gym-desktop-planning {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-bottom: 14px;
+}
+@media (min-width: 1024px) {
+  .gym-desktop-planning {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    align-items: start;
+  }
+}
+.gym-desktop-col { min-width: 0; }
+.gym-desktop-col-title {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.gym-desktop-col-title::before {
+  content: '';
+  width: 18px;
+  height: 1px;
+  background: var(--text-tertiary);
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+.gym-desktop-col-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.08), transparent);
+}
