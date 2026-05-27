@@ -11,11 +11,14 @@ import RestTimer from './components/RestTimer.jsx'
 
 const VIEWS = ['templates', 'planner', 'ai-coach', 'log', 'history']
 const VIEW_LABELS = { templates: 'Templates', planner: 'Planner', 'ai-coach': 'AI Coach', log: 'Log', history: 'History' }
+const DESKTOP_EXTRA_VIEWS = ['ai-coach', 'history']
 
 const INIT_REST = { visible: false, remaining: 0, total: 0, paused: false, lastSecs: 90 }
 
+const isDesktop = typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches
+
 export default function Gym() {
-  const [activeView, setActiveView] = useState('templates')
+  const [activeView, setActiveView] = useState(isDesktop ? 'planner' : 'templates')
   const [plannerWeekOffset, setPlannerWeekOffset] = useState(0)
   const [activeSession, setActiveSession] = useState(null)
   const [restState, setRestState] = useState(INIT_REST)
@@ -84,7 +87,6 @@ export default function Gym() {
     if (!activeSession) return
     if (!activeSession.exercises.some(ex => ex.sets.length) && !confirm('No sets logged. Finish anyway?')) return
 
-    // Update exercise history
     const hist = storeGet('gym_exercise_history') || {}
     activeSession.exercises.forEach(ex => {
       if (!ex.sets.length) return
@@ -101,7 +103,6 @@ export default function Gym() {
     })
     storeSet('gym_exercise_history', hist)
 
-    // Save workout log
     const logs = storeGet('gym_workout_logs') || []
     logs.push({
       id: activeSession.id, date: activeSession.date, name: activeSession.name,
@@ -114,7 +115,6 @@ export default function Gym() {
     if (logs.length > 200) logs.splice(0, logs.length - 200)
     storeSet('gym_workout_logs', logs)
 
-    // Mark planned completed
     if (activeSession.plannedId) {
       const planned = storeGet('gym_planned') || []
       const pi = planned.findIndex(p => p.id === activeSession.plannedId)
@@ -123,7 +123,6 @@ export default function Gym() {
 
     const sName = activeSession.name
     setActiveSession(null)
-    // Show completion message briefly, then switch to history
     setActiveSession({ __done: true, name: sName })
     setTimeout(() => {
       setActiveSession(null)
@@ -135,6 +134,72 @@ export default function Gym() {
     setPlannerWeekOffset(weekOffset)
     setActiveView('planner')
   }, [])
+
+  const logContent = activeSession?.__done ? (
+    <div className="gym-log-idle">
+      <div className="gym-log-idle-title">✓ Workout Complete!</div>
+      <div className="gym-log-idle-sub">{activeSession.name} saved to history.</div>
+    </div>
+  ) : (
+    <LogView
+      activeSession={activeSession}
+      onLogSet={handleLogSet}
+      onFinish={handleFinishWorkout}
+      onStartWorkout={startWorkout}
+    />
+  )
+
+  const restTimer = (
+    <RestTimer
+      restState={restState}
+      onDismiss={() => { clearInterval(restIntervalRef.current); setRestState(INIT_REST) }}
+      onPreset={startRestTimer}
+      onTogglePause={() => setRestState(prev => prev.remaining > 0 ? { ...prev, paused: !prev.paused } : prev)}
+    />
+  )
+
+  if (isDesktop) {
+    return (
+      <>
+        <h1 className="dash-title">Gym</h1>
+        <div className="gym-subnav" style={{ overflowX: 'auto' }}>
+          {DESKTOP_EXTRA_VIEWS.map(v => (
+            <button
+              key={v}
+              className={`gym-subnav-btn${activeView === v ? ' active' : ''}`}
+              onClick={() => setActiveView(v)}
+            >{VIEW_LABELS[v]}</button>
+          ))}
+        </div>
+
+        {/* Always-visible planning grid */}
+        <div className="gym-desktop-planning">
+          <div className="gym-desktop-col">
+            <div className="gym-desktop-col-title">Templates</div>
+            <TemplatesView />
+          </div>
+          <div className="gym-desktop-col">
+            <div className="gym-desktop-col-title">Planner</div>
+            <PlannerView
+              weekOffset={plannerWeekOffset}
+              onWeekOffsetChange={setPlannerWeekOffset}
+              onStartWorkout={startWorkout}
+            />
+          </div>
+        </div>
+
+        {/* Extra views accessible via tabs */}
+        <div className={`gym-view${activeView === 'ai-coach' ? ' active' : ''}`}>
+          <AICoachView onPlanLoaded={handleAIPlanLoaded} />
+        </div>
+        <div className={`gym-view${activeView === 'history' ? ' active' : ''}`}>
+          <HistoryView />
+        </div>
+
+        {restTimer}
+      </>
+    )
+  }
 
   return (
     <>
@@ -163,29 +228,13 @@ export default function Gym() {
         <AICoachView onPlanLoaded={handleAIPlanLoaded} />
       </div>
       <div className={`gym-view${activeView === 'log' ? ' active' : ''}`}>
-        {activeSession?.__done
-          ? <div className="gym-log-idle">
-              <div className="gym-log-idle-title">✓ Workout Complete!</div>
-              <div className="gym-log-idle-sub">{activeSession.name} saved to history.</div>
-            </div>
-          : <LogView
-              activeSession={activeSession}
-              onLogSet={handleLogSet}
-              onFinish={handleFinishWorkout}
-              onStartWorkout={startWorkout}
-            />
-        }
+        {logContent}
       </div>
       <div className={`gym-view${activeView === 'history' ? ' active' : ''}`}>
         <HistoryView />
       </div>
 
-      <RestTimer
-        restState={restState}
-        onDismiss={() => { clearInterval(restIntervalRef.current); setRestState(INIT_REST) }}
-        onPreset={startRestTimer}
-        onTogglePause={() => setRestState(prev => prev.remaining > 0 ? { ...prev, paused: !prev.paused } : prev)}
-      />
+      {restTimer}
     </>
   )
 }
