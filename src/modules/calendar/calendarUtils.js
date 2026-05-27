@@ -10,6 +10,49 @@ export const TAG_STYLES = {
   task:     { bg: 'rgba(255,255,255,0.04)',border: 'rgba(255,255,255,0.12)',color: '#76746E', icon: '✓'  },
 }
 
+export const CATEGORIES = [
+  { label: 'Routine',        hex: '#E03131' },
+  { label: 'Personal',       hex: '#E8590C' },
+  { label: 'Transportation', hex: '#F59F00' },
+  { label: 'Hygiene',        hex: '#2F9E44' },
+  { label: 'Work',           hex: '#1971C2' },
+  { label: 'School',         hex: '#7048E8' },
+  { label: 'Other',          hex: '#868E96' },
+]
+export const DEFAULT_CATEGORY_HEX = '#868E96'
+
+export function snapToTen(mins) {
+  return Math.round(mins / 10) * 10
+}
+
+export function roundUpToTen(mins) {
+  return Math.ceil(mins / 10) * 10
+}
+
+export function minsToTimeStr(totalMins) {
+  const clamped = Math.max(0, Math.min(23 * 60 + 59, totalMins))
+  const h = Math.floor(clamped / 60)
+  const m = clamped % 60
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
+}
+
+export function hexToEventStyle(hex) {
+  const r = parseInt(hex.slice(1, 3), 16)
+  const g = parseInt(hex.slice(3, 5), 16)
+  const b = parseInt(hex.slice(5, 7), 16)
+  return {
+    bg: `rgba(${r},${g},${b},0.13)`,
+    border: `rgba(${r},${g},${b},0.55)`,
+    color: hex,
+    icon: null,
+  }
+}
+
+export function getEventStyle(ev) {
+  if (ev.color) return hexToEventStyle(ev.color)
+  return TAG_STYLES[ev.module_tag] || TAG_STYLES.personal
+}
+
 export function isSameDay(a, b) {
   return (
     a.getFullYear() === b.getFullYear() &&
