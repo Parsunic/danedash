@@ -222,7 +222,7 @@ export default function PlannerView({ weekOffset = 0, onWeekOffsetChange = () =>
         <button className="planner-nav-btn" onClick={() => onWeekOffsetChange(weekOffset + 1)}>›</button>
       </div>
 
-      <div className="planner-grid">
+      <div className={`planner-grid${desktopMode ? ' planner-grid--desktop' : ''}`}>
         {days.map(({ d, date, ds, isToday, pw, isDone }) => (
           <div key={d} className="planner-day-col">
             <div className={`planner-day-header${isToday ? ' is-today' : ''}`}>{DSHORT[d]}</div>
@@ -231,36 +231,58 @@ export default function PlannerView({ weekOffset = 0, onWeekOffsetChange = () =>
               onClick={() => setDayModal({ ds, existing: pw || null })}
             >
               <div className={`planner-day-num${isToday ? ' is-today' : ''}`}>{date.getDate()}</div>
-              {pw
-                ? <div className={`planner-workout-chip${isDone ? ' is-completed' : ''}`}>{pw.name || 'Workout'}</div>
-                : <div className="planner-add-plus">+</div>
-              }
+              {pw ? (
+                <>
+                  <div className={`planner-workout-chip${isDone ? ' is-completed' : ''}`}>{pw.name || 'Workout'}</div>
+                  {desktopMode && pw.exercises?.length > 0 && (
+                    <div className="planner-day-exercises">
+                      {pw.exercises.slice(0, 5).map((ex, i) => (
+                        <div key={i} className="planner-day-ex-item">{ex.name}</div>
+                      ))}
+                      {pw.exercises.length > 5 && (
+                        <div className="planner-day-ex-more">+{pw.exercises.length - 5} more</div>
+                      )}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="planner-add-plus">+</div>
+              )}
             </div>
           </div>
         ))}
       </div>
 
-      <div className="section-title">Week Templates</div>
-      <div className="gym-section-header" style={{ marginBottom: 12 }}>
-        <div style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>Save or apply a full weekly split</div>
-        <button className="btn-gym-secondary" onClick={() => setWeekTplModal(true)}>Save This Week</button>
+      <div className="planner-week-tpl-section">
+        <div className="planner-week-tpl-header" onClick={() => setWeekTplsOpen(v => !v)}>
+          <div className="section-title" style={{ marginBottom: 0, flex: 1 }}>Week Templates</div>
+          <span className={`planner-week-tpl-chevron${weekTplsOpen ? ' open' : ''}`}>›</span>
+        </div>
+        {weekTplsOpen && (
+          <>
+            <div className="gym-section-header" style={{ marginBottom: 12, marginTop: 10 }}>
+              <div style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>Save or apply a full weekly split</div>
+              <button className="btn-gym-secondary" onClick={() => setWeekTplModal(true)}>Save This Week</button>
+            </div>
+            {weekTpls.length === 0 && <div className="empty-state">No week templates saved yet.</div>}
+            {weekTpls.map(wt => {
+              const cnt = Object.values(wt.days).filter(Boolean).length
+              return (
+                <div key={wt.id} className="week-template-card">
+                  <div>
+                    <div className="week-template-name">{wt.name}</div>
+                    <div className="week-template-meta">{cnt} workout day{cnt !== 1 ? 's' : ''}</div>
+                  </div>
+                  <div className="week-template-actions">
+                    <button className="btn-gym-secondary" onClick={() => applyWeekTpl(wt.id)}>Apply to Week</button>
+                    <button className="btn-gym-danger" onClick={() => deleteWeekTpl(wt.id)}>Del</button>
+                  </div>
+                </div>
+              )
+            })}
+          </>
+        )}
       </div>
-      {weekTpls.length === 0 && <div className="empty-state">No week templates saved yet.</div>}
-      {weekTpls.map(wt => {
-        const cnt = Object.values(wt.days).filter(Boolean).length
-        return (
-          <div key={wt.id} className="week-template-card">
-            <div>
-              <div className="week-template-name">{wt.name}</div>
-              <div className="week-template-meta">{cnt} workout day{cnt !== 1 ? 's' : ''}</div>
-            </div>
-            <div className="week-template-actions">
-              <button className="btn-gym-secondary" onClick={() => applyWeekTpl(wt.id)}>Apply to Week</button>
-              <button className="btn-gym-danger" onClick={() => deleteWeekTpl(wt.id)}>Del</button>
-            </div>
-          </div>
-        )
-      })}
 
       {dayModal && (
         <DayModal
