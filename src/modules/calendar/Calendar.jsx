@@ -40,7 +40,7 @@ function headerLabel(view, date) {
 }
 
 export default function Calendar() {
-  const [view, setView] = useState('week')
+  const [view, setView] = useState('day')
   const [currentDate, setCurrentDate] = useState(new Date())
   const [events, setEvents] = useState([])
   const [gymPlanned, setGymPlanned] = useState([])
