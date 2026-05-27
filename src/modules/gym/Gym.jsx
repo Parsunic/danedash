@@ -12,7 +12,7 @@ import StatsView from './components/StatsView.jsx'
 
 const VIEWS = ['templates', 'planner', 'ai-coach', 'log', 'history', 'stats']
 const VIEW_LABELS = { templates: 'Templates', planner: 'Planner', 'ai-coach': 'AI Coach', log: 'Log', history: 'History', stats: 'Stats' }
-const DESKTOP_PANEL_VIEWS = ['ai-coach', 'history', 'stats']
+const DESKTOP_PANEL_VIEWS = ['templates', 'ai-coach', 'history', 'stats']
 
 const INIT_REST = { visible: false, remaining: 0, total: 0, paused: false, lastSecs: 90 }
 
