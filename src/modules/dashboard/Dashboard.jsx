@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { Link } from 'react-router-dom'
 import { storeGet } from '../../lib/storage.js'
 import { getActiveDateString } from '../../lib/dateHelpers.js'
+import { getDayEvents } from '../calendar/calendarUtils.js'
 
 const RING_C = 2 * Math.PI * 52
 const WAKE_HOUR = 6.5
@@ -189,12 +191,142 @@ function DayRing() {
   )
 }
 
+// ── TOP TASKS WIDGET ──
+function TopTasksWidget() {
+  const [tasks, setTasks] = useState([])
+
+  const load = useCallback(() => {
+    const goals = storeGet('goals:' + getActiveDateString()) || []
+    const queued = goals.filter(g => g.queued && !g.done)
+    if (queued.length >= 1) {
+      setTasks(queued.slice(0, 2))
+    } else {
+      setTasks(goals.filter(g => !g.done).slice(0, 2))
+    }
+  }, [])
+
+  useEffect(() => {
+    load()
+    window.addEventListener('goals-changed', load)
+    return () => window.removeEventListener('goals-changed', load)
+  }, [load])
+
+  return (
+    <div className="dash-widget">
+      <div className="dash-widget-header">
+        <span className="dash-widget-label">Queue</span>
+        <Link to="/todo" className="dash-widget-link">To-Do →</Link>
+      </div>
+      {tasks.length === 0 ? (
+        <div className="dash-widget-empty">All clear — nothing queued</div>
+      ) : (
+        tasks.map((t, i) => (
+          <div key={i} className={`dash-task-chip${t.queued ? ' is-queued' : ''}`}>
+            <span className="dash-task-bullet">{t.queued ? '⚡' : '○'}</span>
+            <span className="dash-task-text">{t.text}</span>
+          </div>
+        ))
+      )}
+    </div>
+  )
+}
+
+// ── CALENDAR NOW WIDGET ──
+function fmtEventTime(iso) {
+  const d = new Date(iso)
+  const h = d.getHours(), m = d.getMinutes()
+  const ap = h >= 12 ? 'pm' : 'am'
+  const h12 = h % 12 || 12
+  return m ? `${h12}:${String(m).padStart(2, '0')}${ap}` : `${h12}${ap}`
+}
+
+function CalendarNowWidget() {
+  const [now, setNow] = useState(() => new Date())
+  const [current, setCurrent] = useState(null)
+  const [next, setNext] = useState(null)
+
+  const load = useCallback(() => {
+    const nowDate = new Date()
+    setNow(nowDate)
+    const calEvents = storeGet('calendar_events') || []
+    const gymPlanned = storeGet('gym_planned') || []
+    const today = new Date()
+    const allToday = getDayEvents(today, calEvents, gymPlanned)
+      .filter(e => !e.is_all_day)
+      .sort((a, b) => new Date(a.start_time) - new Date(b.start_time))
+
+    setCurrent(allToday.find(e => new Date(e.start_time) <= nowDate && new Date(e.end_time) > nowDate) || null)
+    setNext(allToday.find(e => new Date(e.start_time) > nowDate) || null)
+  }, [])
+
+  useEffect(() => {
+    load()
+    const id = setInterval(load, 60000)
+    window.addEventListener('schedule-sync', load)
+    window.addEventListener('gym-changed', load)
+    return () => {
+      clearInterval(id)
+      window.removeEventListener('schedule-sync', load)
+      window.removeEventListener('gym-changed', load)
+    }
+  }, [load])
+
+  function timeLeft(endTime) {
+    const diff = Math.max(0, new Date(endTime) - now)
+    const mins = Math.floor(diff / 60000)
+    const h = Math.floor(mins / 60), m = mins % 60
+    return h > 0 ? `${h}h ${m}m left` : `${m}m left`
+  }
+
+  function timeUntil(startTime) {
+    const diff = Math.max(0, new Date(startTime) - now)
+    const mins = Math.floor(diff / 60000)
+    const h = Math.floor(mins / 60), m = mins % 60
+    if (h >= 12) return `in ${h}h`
+    return h > 0 ? `in ${h}h ${m}m` : `in ${m}m`
+  }
+
+  return (
+    <div className="dash-widget">
+      <div className="dash-widget-header">
+        <span className="dash-widget-label">Schedule</span>
+        <Link to="/calendar" className="dash-widget-link">Calendar →</Link>
+      </div>
+      {current ? (
+        <div className="dash-now-event">
+          <div className="dash-now-label">NOW</div>
+          <div className="dash-now-title">{current.title}</div>
+          <div className="dash-now-time">{fmtEventTime(current.start_time)} – {fmtEventTime(current.end_time)}</div>
+          <div className="dash-now-remaining">{timeLeft(current.end_time)}</div>
+        </div>
+      ) : (
+        <div className="dash-now-empty">Nothing scheduled right now</div>
+      )}
+      {next && (
+        <div className="dash-next-event">
+          <div className="dash-next-label">NEXT</div>
+          <div className="dash-next-title">{next.title}</div>
+          <div className="dash-next-time">{fmtEventTime(next.start_time)} · {timeUntil(next.start_time)}</div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function Dashboard() {
   return (
     <>
       <h1 className="dash-title">Dane's Dashboard</h1>
       <GoalTicker />
-      <DayRing />
+      <div className="dash-desktop-layout">
+        <div className="dash-main-col">
+          <DayRing />
+        </div>
+        <div className="dash-side-col">
+          <TopTasksWidget />
+          <CalendarNowWidget />
+        </div>
+      </div>
     </>
   )
 }
