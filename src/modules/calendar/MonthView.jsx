@@ -35,7 +35,7 @@ export default function MonthView({ currentDate, events, gymPlanned, onDateSelec
                     {date.getDate()}
                   </div>
                   {visible.map(ev => {
-                    const s = TAG_STYLES[ev.module_tag] || TAG_STYLES.personal
+                    const s = getEventStyle(ev)
                     return (
                       <div
                         key={ev.id}
@@ -44,7 +44,7 @@ export default function MonthView({ currentDate, events, gymPlanned, onDateSelec
                         onClick={e => { e.stopPropagation(); onEventClick(ev) }}
                         title={ev.title}
                       >
-                        {s.icon} {ev.title}
+                        {s.icon ? `${s.icon} ` : ''}{ev.title}
                       </div>
                     )
                   })}
