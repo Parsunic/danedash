@@ -1,7 +1,7 @@
 # UltraDash — Claude Context
 
 ## Project Goal
-Personal life management PWA: Dashboard, Gym, Calendar, To-Do, and more (Finances, Journal planned). Works on **mobile** (primary use) and **desktop** (enhanced multi-column layouts). Deployed to Netlify, auto-synced from GitHub.
+Personal life management PWA: Dashboard, Gym, Calendar, To-Do, and more (Finances, Journal planned). High priority on sleek UI with nice graphs and data. Works on **mobile** (primary use) and **desktop** (enhanced multi-column layouts, with more in depth planning and statistic features on desktop). Deployed to Netlify and Vercel, auto-synced from GitHub.
 
 ## Auto-Deploy — CRITICAL
 A PostToolUse hook **automatically commits and pushes** after every `Write` or `Edit` tool call. **Never run git commands manually** in this project. The hook handles all version control.
