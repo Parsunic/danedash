@@ -1,10 +1,27 @@
-import { Routes, Route } from 'react-router-dom'
+import { useEffect } from 'react'
+import { Routes, Route, useNavigate } from 'react-router-dom'
 import Layout from './components/Layout.jsx'
 import Dashboard from './modules/dashboard/index.jsx'
 import Todo from './modules/todo/index.jsx'
 import Gym from './modules/gym/index.jsx'
 import Calendar from './modules/calendar/index.jsx'
 import { SyncProvider } from './contexts/SyncContext.jsx'
+import { handleOAuthCallback, syncOnLoad } from './modules/calendar/googleSync.js'
+
+function OAuthCallbackHandler() {
+  const navigate = useNavigate()
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).has('code')) {
+      handleOAuthCallback().then(success => {
+        navigate(success ? '/calendar' : '/', { replace: true })
+        if (success) syncOnLoad()
+      })
+    } else {
+      syncOnLoad()
+    }
+  }, [navigate])
+  return null
+}
 
 export const modules = [
   {
