@@ -81,6 +81,7 @@ export const modules = [
 export default function App() {
   return (
     <SyncProvider>
+      <OAuthCallbackHandler />
       <Layout>
         <Routes>
           {modules.map(({ path, component: Component }) => (
