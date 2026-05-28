@@ -142,6 +142,15 @@ export default function Calendar() {
 
   return (
     <div className="cal-root">
+      {!gcalConnected && (
+        <div
+          className="gcal-connect-banner"
+          onClick={() => window.dispatchEvent(new Event('open-settings'))}
+        >
+          <span className="gcal-banner-icon">📅</span>
+          Connect Google Calendar in Settings to enable sync
+        </div>
+      )}
       {/* Header */}
       <div className="cal-header">
         <div className="cal-header-left">
