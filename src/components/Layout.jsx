@@ -167,6 +167,12 @@ export default function Layout({ children }) {
   const touchStartX = useRef(null)
   const touchStartY = useRef(null)
 
+  useEffect(() => {
+    const handler = () => setShowSettings(true)
+    window.addEventListener('open-settings', handler)
+    return () => window.removeEventListener('open-settings', handler)
+  }, [])
+
   const handleTouchStart = useCallback((e) => {
     touchStartX.current = e.touches[0].clientX
     touchStartY.current = e.touches[0].clientY
