@@ -138,6 +138,28 @@ function SyncStatus({ onSettings }) {
   )
 }
 
+function GCalSyncStatus() {
+  const [status, setStatus] = useState(() => isConnected() ? 'idle' : null)
+  useEffect(() => {
+    const onStatus = (e) => setStatus(e.detail.status)
+    const onDisconnect = () => setStatus(null)
+    window.addEventListener('gcal-sync-status', onStatus)
+    window.addEventListener('gcal-disconnected', onDisconnect)
+    return () => {
+      window.removeEventListener('gcal-sync-status', onStatus)
+      window.removeEventListener('gcal-disconnected', onDisconnect)
+    }
+  }, [])
+  if (!status) return null
+  const label = status === 'syncing' ? 'GCal…' : status === 'error' ? 'GCal error' : 'GCal'
+  return (
+    <div className="gcal-sync-status" data-status={status}>
+      <span className="gcal-icon-g">G</span>
+      <span className="sync-label">{label}</span>
+    </div>
+  )
+}
+
 export default function Layout({ children }) {
   const [showSettings, setShowSettings] = useState(false)
   const navigate = useNavigate()
