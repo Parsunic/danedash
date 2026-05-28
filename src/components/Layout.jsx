@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import Sidebar from './Sidebar.jsx'
 import BottomNav from './BottomNav.jsx'
@@ -6,6 +6,10 @@ import { useSyncStatus } from '../contexts/SyncContext.jsx'
 import { modules } from '../App.jsx'
 import { getAnthropicKey, setAnthropicKey } from '../lib/api/anthropic.js'
 import { getNotionKey, setNotionKey } from '../lib/api/notion.js'
+import {
+  getClientId, setClientId, getUserEmail, clearTokens, isConnected,
+} from '../lib/api/gcalendar.js'
+import { initiateGoogleOAuth } from '../modules/calendar/googleSync.js'
 
 function SettingsModal({ onClose }) {
   const [anthropicKey, setAnthropicKeyState] = useState(() => getAnthropicKey())
