@@ -94,21 +94,29 @@ export default function Calendar() {
 
   const handleEventSave = useCallback((data) => {
     if (editEvent) {
-      saveEvents(events.map(e => e.id === editEvent.id ? { ...e, ...data } : e))
+      const updatedEvent = { ...editEvent, ...data }
+      saveEvents(events.map(e => e.id === editEvent.id ? updatedEvent : e))
+      syncEventUpdate(updatedEvent)
     } else {
-      saveEvents([...events, { id: crypto.randomUUID(), user_id: 'dane', ...data, created_at: new Date().toISOString() }])
+      const newEvt = { id: crypto.randomUUID(), user_id: 'dane', ...data, created_at: new Date().toISOString() }
+      saveEvents([...events, newEvt])
+      syncEventCreate(newEvt)
     }
     setShowSidebar(false)
   }, [editEvent, events, saveEvents])
 
   const handleEventDelete = useCallback((id) => {
+    syncEventDelete(id)
     saveEvents(events.filter(e => e.id !== id))
     setShowSidebar(false)
   }, [events, saveEvents])
 
   // Called from TimeGrid move/resize drag — direct time update, no sidebar
   const handleEventUpdate = useCallback((eventId, startIso, endIso) => {
-    saveEvents(events.map(e => e.id === eventId ? { ...e, start_time: startIso, end_time: endIso } : e))
+    const updatedEvents = events.map(e => e.id === eventId ? { ...e, start_time: startIso, end_time: endIso } : e)
+    saveEvents(updatedEvents)
+    const updated = updatedEvents.find(e => e.id === eventId)
+    if (updated) syncEventUpdate(updated)
   }, [events, saveEvents])
 
   const handleSkipGymWorkout = useCallback((gymPlannedId) => {
