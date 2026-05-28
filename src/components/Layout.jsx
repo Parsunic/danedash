@@ -205,6 +205,7 @@ export default function Layout({ children }) {
       </main>
       <BottomNav />
       <SyncStatus onSettings={() => setShowSettings(true)} />
+      <GCalSyncStatus />
       {showSettings && <SettingsModal onClose={() => setShowSettings(false)} />}
     </>
   )
