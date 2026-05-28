@@ -4,6 +4,8 @@ import TimeGrid from './TimeGrid.jsx'
 import MonthView from './MonthView.jsx'
 import EventSidebar from './EventSidebar.jsx'
 import { getWeekDays, formatMonthYear } from './calendarUtils.js'
+import { syncEventCreate, syncEventUpdate, syncEventDelete } from './googleSync.js'
+import { isConnected } from '../../lib/api/gcalendar.js'
 
 const STORAGE_KEY = 'calendar_events'
 
