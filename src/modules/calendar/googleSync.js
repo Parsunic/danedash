@@ -162,13 +162,16 @@ async function generateCodeChallenge(verifier) {
 
 export async function initiateGoogleOAuth() {
   const clientId = getClientId()
-  if (!clientId) return
+  if (!clientId) { console.error('[GCal] No client ID stored'); return }
   const verifier = generateCodeVerifier()
   const challenge = await generateCodeChallenge(verifier)
-  sessionStorage.setItem('gcal_code_verifier', verifier)
+  // Use localStorage — Safari clears sessionStorage across cross-origin redirects
+  localStorage.setItem('gcal_code_verifier', verifier)
+  const redirectUri = window.location.origin
+  console.log('[GCal] Starting OAuth, redirect_uri:', redirectUri)
   const params = new URLSearchParams({
     client_id: clientId,
-    redirect_uri: window.location.origin,
+    redirect_uri: redirectUri,
     response_type: 'code',
     scope: 'https://www.googleapis.com/auth/calendar openid email',
     code_challenge: challenge,
@@ -182,13 +185,23 @@ export async function initiateGoogleOAuth() {
 export async function handleOAuthCallback() {
   const params = new URLSearchParams(window.location.search)
   const code = params.get('code')
-  if (!code) return false
+  const error = params.get('error')
+  if (!code) {
+    if (error) console.error('[GCal] OAuth error from Google:', error)
+    return false
+  }
 
-  const verifier = sessionStorage.getItem('gcal_code_verifier')
-  sessionStorage.removeItem('gcal_code_verifier')
-  if (!verifier) { window.history.replaceState({}, '', '/'); return false }
+  const verifier = localStorage.getItem('gcal_code_verifier')
+  localStorage.removeItem('gcal_code_verifier')
+  if (!verifier) {
+    console.error('[GCal] No code_verifier found — Safari may have cleared storage')
+    window.history.replaceState({}, '', '/')
+    return false
+  }
 
   const clientId = getClientId()
+  const redirectUri = window.location.origin
+  console.log('[GCal] Exchanging code for tokens, redirect_uri:', redirectUri)
 
   try {
     const resp = await fetch('https://oauth2.googleapis.com/token', {
@@ -198,12 +211,18 @@ export async function handleOAuthCallback() {
         code,
         code_verifier: verifier,
         client_id: clientId,
-        redirect_uri: window.location.origin,
+        redirect_uri: redirectUri,
         grant_type: 'authorization_code',
       }),
     })
-    if (!resp.ok) { window.history.replaceState({}, '', '/'); return false }
+    if (!resp.ok) {
+      const errData = await resp.json().catch(() => ({}))
+      console.error('[GCal] Token exchange failed:', resp.status, errData)
+      window.history.replaceState({}, '', '/')
+      return false
+    }
     const data = await resp.json()
+    console.log('[GCal] Token exchange succeeded, has refresh_token:', !!data.refresh_token)
 
     let email = null
     try {
@@ -219,8 +238,10 @@ export async function handleOAuthCallback() {
       expires_in: data.expires_in,
       email,
     })
+    console.log('[GCal] Connected as:', email)
     return true
-  } catch {
+  } catch (e) {
+    console.error('[GCal] Token exchange threw:', e)
     window.history.replaceState({}, '', '/')
     return false
   }
