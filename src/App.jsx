@@ -13,6 +13,7 @@ function OAuthCallbackHandler() {
   useEffect(() => {
     if (new URLSearchParams(window.location.search).has('code')) {
       handleOAuthCallback().then(success => {
+        console.log('[GCal] OAuth callback result:', success)
         navigate(success ? '/calendar' : '/', { replace: true })
         if (success) syncOnLoad()
       })
