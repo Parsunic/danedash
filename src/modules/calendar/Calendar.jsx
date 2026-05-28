@@ -49,6 +49,7 @@ export default function Calendar() {
   const [showSidebar, setShowSidebar] = useState(false)
   const [editEvent, setEditEvent] = useState(null)
   const [defaultSlot, setDefaultSlot] = useState(null)
+  const [gcalConnected, setGcalConnected] = useState(() => isConnected())
 
   useEffect(() => {
     setEvents(storeGet(STORAGE_KEY) || [])
@@ -58,11 +59,17 @@ export default function Calendar() {
       setEvents(storeGet(STORAGE_KEY) || [])
       setGymPlanned(storeGet('gym_planned') || [])
     }
+    const refreshEvents = () => setEvents(storeGet(STORAGE_KEY) || [])
+    const onDisconnect = () => setGcalConnected(false)
     window.addEventListener('gym-changed', refresh)
     window.addEventListener('schedule-sync', refresh)
+    window.addEventListener('calendar-gcal-synced', refreshEvents)
+    window.addEventListener('gcal-disconnected', onDisconnect)
     return () => {
       window.removeEventListener('gym-changed', refresh)
       window.removeEventListener('schedule-sync', refresh)
+      window.removeEventListener('calendar-gcal-synced', refreshEvents)
+      window.removeEventListener('gcal-disconnected', onDisconnect)
     }
   }, [])
 
