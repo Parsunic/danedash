@@ -14,14 +14,30 @@ import { initiateGoogleOAuth } from '../modules/calendar/googleSync.js'
 function SettingsModal({ onClose }) {
   const [anthropicKey, setAnthropicKeyState] = useState(() => getAnthropicKey())
   const [notionKey, setNotionKeyState]       = useState(() => getNotionKey())
+  const [gcalClientId, setGcalClientIdState] = useState(() => getClientId())
+  const [gcalEmail, setGcalEmail]            = useState(() => getUserEmail())
+  const [gcalConnected, setGcalConnected]    = useState(() => isConnected())
   const [showAnthropic, setShowAnthropic]    = useState(false)
   const [showNotion, setShowNotion]          = useState(false)
 
   const save = useCallback(() => {
     setAnthropicKey(anthropicKey)
     setNotionKey(notionKey)
+    setClientId(gcalClientId)
     onClose()
-  }, [anthropicKey, notionKey, onClose])
+  }, [anthropicKey, notionKey, gcalClientId, onClose])
+
+  const handleDisconnect = useCallback(() => {
+    clearTokens()
+    setGcalConnected(false)
+    setGcalEmail(null)
+    window.dispatchEvent(new Event('gcal-disconnected'))
+  }, [])
+
+  const handleConnect = useCallback(() => {
+    setClientId(gcalClientId)
+    initiateGoogleOAuth()
+  }, [gcalClientId])
 
   return (
     <div className="settings-backdrop" onClick={onClose}>
@@ -64,6 +80,43 @@ function SettingsModal({ onClose }) {
             </button>
           </div>
           <p className="settings-hint">Stored in your browser only.</p>
+
+          <div className="settings-section-divider" />
+          <p className="settings-section-title">Google Calendar</p>
+
+          <label className="settings-label">OAuth Client ID</label>
+          <div className="settings-input-row">
+            <input
+              className="settings-input"
+              type="text"
+              value={gcalClientId}
+              onChange={e => setGcalClientIdState(e.target.value)}
+              placeholder="xxxx.apps.googleusercontent.com"
+              autoComplete="off"
+              spellCheck={false}
+            />
+          </div>
+          <p className="settings-hint">From Google Cloud Console → OAuth 2.0 Client IDs.</p>
+
+          <div className="gcal-status-row">
+            {gcalConnected ? (
+              <>
+                <span className="gcal-status-text connected">Connected as {gcalEmail || 'Google account'}</span>
+                <button className="settings-eye" onClick={handleDisconnect}>Disconnect</button>
+              </>
+            ) : (
+              <>
+                <span className="gcal-status-text">Not connected</span>
+                <button
+                  className="gcal-connect-btn"
+                  onClick={handleConnect}
+                  disabled={!gcalClientId.trim()}
+                >
+                  Connect
+                </button>
+              </>
+            )}
+          </div>
         </div>
         <div className="settings-footer">
           <button className="settings-save" onClick={save}>Save</button>
