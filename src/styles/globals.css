@@ -277,7 +277,7 @@ body::after {
   transition: color 0.15s;
 }
 .settings-close:hover { color: var(--text-primary); }
-.settings-body { padding: 18px 20px 10px; }
+.settings-body { padding: 18px 20px 10px; max-height: 70dvh; overflow-y: auto; }
 .settings-label {
   display: block;
   font-size: 11px;
