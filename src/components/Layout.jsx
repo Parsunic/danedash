@@ -15,18 +15,21 @@ import { initiateGoogleOAuth } from '../modules/calendar/googleSync.js'
 function SettingsModal({ onClose }) {
   const [anthropicKey, setAnthropicKeyState] = useState(() => getAnthropicKey())
   const [notionKey, setNotionKeyState]       = useState(() => getNotionKey())
-  const [gcalClientId, setGcalClientIdState] = useState(() => getClientId())
-  const [gcalEmail, setGcalEmail]            = useState(() => getUserEmail())
-  const [gcalConnected, setGcalConnected]    = useState(() => isConnected())
-  const [showAnthropic, setShowAnthropic]    = useState(false)
-  const [showNotion, setShowNotion]          = useState(false)
+  const [gcalClientId, setGcalClientIdState]     = useState(() => getClientId())
+  const [gcalClientSecret, setGcalClientSecretSt] = useState(() => getClientSecret())
+  const [gcalEmail, setGcalEmail]                = useState(() => getUserEmail())
+  const [gcalConnected, setGcalConnected]        = useState(() => isConnected())
+  const [showAnthropic, setShowAnthropic]        = useState(false)
+  const [showNotion, setShowNotion]              = useState(false)
+  const [showGcalSecret, setShowGcalSecret]      = useState(false)
 
   const save = useCallback(() => {
     setAnthropicKey(anthropicKey)
     setNotionKey(notionKey)
     setClientId(gcalClientId)
+    setClientSecret(gcalClientSecret)
     onClose()
-  }, [anthropicKey, notionKey, gcalClientId, onClose])
+  }, [anthropicKey, notionKey, gcalClientId, gcalClientSecret, onClose])
 
   const handleDisconnect = useCallback(() => {
     clearTokens()
