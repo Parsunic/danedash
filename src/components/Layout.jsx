@@ -103,6 +103,23 @@ function SettingsModal({ onClose }) {
           </div>
           <p className="settings-hint">From Google Cloud Console → OAuth 2.0 Client IDs.</p>
 
+          <label className="settings-label" style={{ marginTop: 12 }}>Client Secret</label>
+          <div className="settings-input-row">
+            <input
+              className="settings-input"
+              type={showGcalSecret ? 'text' : 'password'}
+              value={gcalClientSecret}
+              onChange={e => setGcalClientSecretSt(e.target.value)}
+              placeholder="GOCSPX-..."
+              autoComplete="off"
+              spellCheck={false}
+            />
+            <button className="settings-eye" onClick={() => setShowGcalSecret(v => !v)} aria-label={showGcalSecret ? 'Hide' : 'Show'}>
+              {showGcalSecret ? '🙈' : '👁'}
+            </button>
+          </div>
+          <p className="settings-hint">Stored in your browser only.</p>
+
           <div className="gcal-status-row">
             {gcalConnected ? (
               <>
