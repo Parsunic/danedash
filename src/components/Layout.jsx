@@ -7,7 +7,8 @@ import { modules } from '../App.jsx'
 import { getAnthropicKey, setAnthropicKey } from '../lib/api/anthropic.js'
 import { getNotionKey, setNotionKey } from '../lib/api/notion.js'
 import {
-  getClientId, setClientId, getUserEmail, clearTokens, isConnected,
+  getClientId, setClientId, getClientSecret, setClientSecret,
+  getUserEmail, clearTokens, isConnected,
 } from '../lib/api/gcalendar.js'
 import { initiateGoogleOAuth } from '../modules/calendar/googleSync.js'
 
