@@ -1,5 +1,5 @@
 import {
-  getClientId, getAccessToken, getRefreshToken, getTokenExpiry,
+  getClientId, getClientSecret, getAccessToken, getRefreshToken, getTokenExpiry,
   setTokens, clearTokens, isConnected,
 } from '../../lib/api/gcalendar.js'
 import { storeGet, storeSet } from '../../lib/storage.js'
