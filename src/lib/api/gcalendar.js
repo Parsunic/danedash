@@ -1,7 +1,13 @@
-export const getClientId    = () => localStorage.getItem('gcal_client_id') || ''
-export const setClientId    = (id) => {
+export const getClientId     = () => localStorage.getItem('gcal_client_id') || ''
+export const setClientId     = (id) => {
   if (id.trim()) localStorage.setItem('gcal_client_id', id.trim())
   else localStorage.removeItem('gcal_client_id')
+}
+
+export const getClientSecret = () => localStorage.getItem('gcal_client_secret') || ''
+export const setClientSecret = (s) => {
+  if (s.trim()) localStorage.setItem('gcal_client_secret', s.trim())
+  else localStorage.removeItem('gcal_client_secret')
 }
 
 export const getAccessToken  = () => localStorage.getItem('gcal_access_token') || null
