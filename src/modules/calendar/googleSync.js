@@ -212,6 +212,7 @@ export async function handleOAuthCallback() {
         code,
         code_verifier: verifier,
         client_id: clientId,
+        client_secret: getClientSecret(),
         redirect_uri: redirectUri,
         grant_type: 'authorization_code',
       }),
