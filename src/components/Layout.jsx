@@ -132,7 +132,7 @@ function SettingsModal({ onClose }) {
                 <button
                   className="gcal-connect-btn"
                   onClick={handleConnect}
-                  disabled={!gcalClientId.trim()}
+                  disabled={!gcalClientId.trim() || !gcalClientSecret.trim()}
                 >
                   Connect
                 </button>
