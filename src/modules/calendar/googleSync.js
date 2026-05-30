@@ -38,6 +38,7 @@ async function refreshTokenNow() {
         grant_type: 'refresh_token',
         refresh_token: refreshToken,
         client_id: clientId,
+        client_secret: getClientSecret(),
       }),
     })
     if (!resp.ok) throw new Error('refresh failed')
