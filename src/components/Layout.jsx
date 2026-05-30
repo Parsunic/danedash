@@ -40,8 +40,9 @@ function SettingsModal({ onClose }) {
 
   const handleConnect = useCallback(() => {
     setClientId(gcalClientId)
+    setClientSecret(gcalClientSecret)
     initiateGoogleOAuth()
-  }, [gcalClientId])
+  }, [gcalClientId, gcalClientSecret])
 
   return (
     <div className="settings-backdrop" onClick={onClose}>
