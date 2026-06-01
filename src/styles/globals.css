@@ -1494,9 +1494,8 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
   position: absolute;
   left: 2px;
   right: 2px;
-  border-radius: 6px;
-  border: 1px solid;
-  padding: 3px 5px;
+  border-radius: 5px;
+  padding: 3px 5px 3px 7px;
   overflow: hidden;
   cursor: pointer;
   display: flex;
@@ -1507,7 +1506,6 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
   z-index: 2;
 }
 .cal-event.is-gym:hover { filter: brightness(1.12); transform: scaleX(0.985); }
-.cal-event.is-gym { box-shadow: inset 3px 0 0 rgba(232,160,32,0.6); }
 .cal-event-icon { font-size: 10px; flex-shrink: 0; margin-top: 1px; }
 .cal-event-body { flex: 1; min-width: 0; }
 .cal-event-title {
