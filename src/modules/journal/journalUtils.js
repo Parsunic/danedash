@@ -1,6 +1,6 @@
 export const JOURNAL_KEY = 'journal_entries'
 
-export const TAGS = ['daily', 'regroup', 'important', 'vent', 'grateful']
+export const TAGS = ['daily', 'regroup', 'important']
 
 export const PROMPTS = [
   "Where is this going? What's working? What's failing? What's next?",
