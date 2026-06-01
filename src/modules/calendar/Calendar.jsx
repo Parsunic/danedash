@@ -114,6 +114,12 @@ export default function Calendar() {
     setShowSidebar(false)
   }, [events, saveEvents])
 
+  const handleAIEventsAdd = useCallback((newEvents) => {
+    const updated = [...events, ...newEvents]
+    saveEvents(updated)
+    newEvents.forEach(ev => syncEventCreate(ev))
+  }, [events, saveEvents])
+
   // Called from TimeGrid move/resize drag — direct time update, no sidebar
   const handleEventUpdate = useCallback((eventId, startIso, endIso) => {
     const updatedEvents = events.map(e => e.id === eventId ? { ...e, start_time: startIso, end_time: endIso } : e)
