@@ -711,6 +711,7 @@ export default function Todo() {
 
   return (
     <div className="section">
+      <BackgroundBlob page="todo" />
       <div className="section-title">To Do List</div>
       <div className="todo-desktop-grid">
         <TodayCard
