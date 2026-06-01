@@ -256,9 +256,6 @@ export default function Journal() {
         <div className="journal-streak-row">
           {streak > 0 ? (
             <>
-              <span className="journal-streak-icon" style={{ color: 'var(--accent)' }}>
-                🔥
-              </span>
               <span className="journal-streak-num">{streak}</span>
               <span className="journal-streak-label">day streak</span>
             </>
