@@ -611,7 +611,7 @@ body::after {
   color: var(--text-tertiary); opacity: 0.55; padding: 2px 4px; border-radius: 6px;
   transition: opacity 0.2s, filter 0.2s, color 0.2s; flex-shrink: 0;
 }
-.gm-queue-btn.gm-queue-active { color: #F2C063; opacity: 1; filter: drop-shadow(0 0 4px rgba(232,160,32,0.65)); }
+.gm-queue-btn.gm-queue-active { color: var(--accent); opacity: 1; filter: drop-shadow(0 0 4px rgba(232,160,32,0.65)); }
 .gm-queue-btn:disabled { cursor: not-allowed; }
 .goal-delete {
   background: none; border: none; cursor: pointer; font-size: 16px;
