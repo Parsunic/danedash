@@ -195,16 +195,17 @@ body::after {
   font-size: 13px;
   font-weight: 600;
   letter-spacing: -0.01em;
-  transition: background 0.15s, color 0.15s;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
   user-select: none;
   border: none;
+  border-left: 2px solid transparent;
   background: none;
   width: 100%;
   text-align: left;
   text-decoration: none;
 }
 .nav-item:hover { background: rgba(255,255,255,0.04); color: var(--text-secondary); }
-.nav-item.active { background: rgba(242,192,99,0.11); color: var(--accent); }
+.nav-item.active { background: transparent; border-left-color: var(--accent); color: var(--accent); padding-left: 12px; }
 .nav-icon { flex-shrink: 0; display: flex; align-items: center; }
 
 /* ── BOTTOM TAB BAR ── */
