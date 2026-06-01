@@ -2066,10 +2066,10 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
 .dash-task-chip.is-queued {
   background: rgba(232,160,32,0.10);
   border-color: rgba(232,160,32,0.2);
-  box-shadow: inset 3px 0 0 0 #F2C063;
+  box-shadow: inset 3px 0 0 0 var(--accent);
 }
 .dash-task-bullet { font-size: 13px; flex-shrink: 0; color: var(--text-tertiary); }
-.dash-task-chip.is-queued .dash-task-bullet { color: #F2C063; }
+.dash-task-chip.is-queued .dash-task-bullet { color: var(--accent); }
 .dash-task-text { font-size: 13px; color: var(--text-primary); line-height: 1.35; }
 .dash-task-chip.is-queued .dash-task-text { color: #FFE2A8; }
 
