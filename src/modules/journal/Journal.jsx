@@ -38,7 +38,7 @@ function EntryCard({ entry }) {
         <span className="journal-entry-time">{timeLabel}</span>
         {entry.tags?.length > 0 && (
           <div className="journal-entry-tags">
-            {entry.tags.map(t => <span key={t} className="journal-entry-tag">#{t}</span>)}
+            {entry.tags.map(t => <span key={t} className="journal-entry-tag">{t}</span>)}
           </div>
         )}
       </div>
