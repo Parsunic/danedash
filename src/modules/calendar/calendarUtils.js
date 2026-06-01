@@ -38,8 +38,8 @@ export function minsToTimeStr(totalMins) {
 
 export function hexToEventStyle(hex) {
   return {
-    bg: 'transparent',
-    border: `color-mix(in srgb, ${hex} 45%, transparent)`,
+    bg: 'rgba(255,255,255,0.05)',
+    borderColor: hex,
     color: hex,
     icon: null,
   }
