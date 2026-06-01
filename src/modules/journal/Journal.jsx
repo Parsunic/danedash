@@ -298,7 +298,7 @@ export default function Journal() {
               className={`journal-tag-pill${selectedTags.includes(tag) ? ' active' : ''}`}
               onClick={() => toggleTag(tag)}
             >
-              #{tag}
+              {tag}
             </button>
           ))}
         </div>
