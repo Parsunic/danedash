@@ -92,7 +92,7 @@ function DayModal({ ds, existing, templates, onClose, onSave, onRemove, onStartW
             <div style={{ display: 'flex', gap: 8 }}>
               <button
                 className="btn-gym-secondary"
-                style={{ flex: 1, background: status !== 'completed' ? 'rgba(242,192,99,0.14)' : '' }}
+                style={{ flex: 1, background: status !== 'completed' ? 'rgba(232,160,32,0.14)' : '' }}
                 onClick={() => setStatus('upcoming')}
               >Upcoming</button>
               <button
