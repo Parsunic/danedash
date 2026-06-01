@@ -2042,10 +2042,10 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
 .dash-widget-label {
   font-family: var(--font-mono);
   font-size: 9.5px;
-  font-weight: 800;
+  font-weight: 400;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--text-tertiary);
+  color: rgba(250,250,250,0.40);
 }
 .dash-widget-link {
   font-size: 11px;
