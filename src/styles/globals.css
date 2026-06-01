@@ -968,7 +968,7 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
 .ai-day-toggle.active { background:rgba(232,160,32,0.12); border-color:rgba(232,160,32,0.4); color:var(--accent); }
 .ai-generate-btn {
   padding:14px 20px; border-radius:14px; border:none;
-  background:linear-gradient(135deg,#F2C063 0%,#E07B3B 100%);
+  background:linear-gradient(135deg,#E8A020 0%,#E07B3B 100%);
   color:#0A0A0B; font-family:var(--font-body); font-size:15px; font-weight:700;
   cursor:pointer; transition:transform 0.15s,box-shadow 0.15s;
   box-shadow:0 4px 20px rgba(232,160,32,0.25);
