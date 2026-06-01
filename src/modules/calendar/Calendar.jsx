@@ -185,6 +185,12 @@ export default function Calendar() {
             <button className="cal-nav-btn" onClick={() => navigate(1)}>›</button>
           </div>
           <button
+            className="cal-ai-btn"
+            onClick={() => setShowAIPlanner(v => !v)}
+          >
+            ✦ AI
+          </button>
+          <button
             className="cal-add-btn"
             onClick={() => { setDefaultSlot(null); setEditEvent(null); setShowSidebar(true) }}
           >
