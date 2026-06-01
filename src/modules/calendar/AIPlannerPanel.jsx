@@ -177,7 +177,8 @@ Additional rules:
     const next30 = new Date(now); next30.setDate(now.getDate() + 30)
     const relevant = getEventsInRange(events, past7, next30)
     const todayStr = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
-    return `Today is ${todayStr}.\n\nUser's calendar (last 7 days + next 30 days):\n${formatEventsForPrompt(relevant)}`
+    const timeStr  = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })
+    return `Today is ${todayStr}. Current time: ${timeStr}.\n\nUser's calendar (last 7 days + next 30 days):\n${formatEventsForPrompt(relevant)}`
   }, [events])
 
   const handleAsk = useCallback(async () => {
