@@ -37,12 +37,9 @@ export function minsToTimeStr(totalMins) {
 }
 
 export function hexToEventStyle(hex) {
-  const r = parseInt(hex.slice(1, 3), 16)
-  const g = parseInt(hex.slice(3, 5), 16)
-  const b = parseInt(hex.slice(5, 7), 16)
   return {
-    bg: `rgba(${r},${g},${b},0.13)`,
-    border: `rgba(${r},${g},${b},0.55)`,
+    bg: `color-mix(in srgb, ${hex} 12%, transparent)`,
+    border: `color-mix(in srgb, ${hex} 25%, transparent)`,
     color: hex,
     icon: null,
   }
