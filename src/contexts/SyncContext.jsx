@@ -75,28 +75,56 @@ export function SyncProvider({ children }) {
         const client = createClient(SUPABASE_URL, SUPABASE_KEY)
         clientRef.current = client
         setStatus('syncing')
+        setIsOffline(false)
+
+        // Supabase is always the source of truth on load.
+        // We READ from Supabase and hydrate localStorage — never the reverse.
         const { data: row, error } = await client
-          .from('app_state').select('data').eq('key', SYNC_ROW_ID).single()
+          .from('app_state').select('data, updated_at').eq('key', SYNC_ROW_ID).single()
+
         if (error) {
           if (error.code === 'PGRST116') {
-            await pushToSupabase()
+            // No row exists yet — brand-new user or row was deleted.
+            // Only push local data to seed Supabase if local actually has content.
+            // This guard prevents an empty or stale mobile device from creating a blank row
+            // and overwriting data that exists on another device.
+            const localData = getLocalPayload()
+            if (Object.keys(localData).length > 0) {
+              await pushToSupabase()
+            } else {
+              setStatus('synced')
+            }
           } else {
+            // Supabase is reachable but returned an unexpected error — treat as offline.
+            // Fall back to cached localStorage data and allow local writes to proceed.
             console.warn('Sync pull failed:', error)
-            setStatus('error')
+            setStatus('offline')
+            setIsOffline(true)
+            // Allow writes so the user isn't blocked; they'll sync when connectivity returns.
+            initializedRef.current = true
             return
           }
         } else if (row?.data) {
+          // Remote data fetched — overwrite localStorage entirely.
+          // Do NOT let any local write trigger a push during this phase (isSyncingRef guard).
           isSyncingRef.current = true
           applyRemotePayload(row.data)
           isSyncingRef.current = false
+          setStatus('synced')
+        } else {
+          setStatus('synced')
         }
-        setStatus('synced')
+
+        // Mark initialization complete only AFTER Supabase data has been applied.
+        // schedulePush checks this flag — no local push can reach Supabase before this point.
         initializedRef.current = true
+
         channel = client.channel('dashboard-sync')
           .on('postgres_changes', {
             event: '*', schema: 'public', table: 'app_state', filter: `key=eq.${SYNC_ROW_ID}`,
           }, change => {
             if (change.new?.data) {
+              // Remote change from another device — Supabase wins, overwrite local.
               isSyncingRef.current = true
               applyRemotePayload(change.new.data)
               isSyncingRef.current = false
@@ -105,8 +133,12 @@ export function SyncProvider({ children }) {
           })
           .subscribe()
       } catch (e) {
+        // Network unreachable — fall back to localStorage (offline mode).
         console.warn('Sync init failed:', e)
         setStatus('offline')
+        setIsOffline(true)
+        // Allow local writes to proceed so the user isn't blocked while offline.
+        initializedRef.current = true
       }
     }
     initSync()
