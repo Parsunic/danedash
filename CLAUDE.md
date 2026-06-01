@@ -93,3 +93,47 @@ Panel: tab-switched between AI Coach, History, Stats.
 - Today → "Today" | Yesterday → "Yesterday" | Tomorrow → "Tomorrow"
 - +2 to +7 days → weekday name (e.g. "Wednesday")
 - Beyond 7 days or past → "Month Nth" (e.g. "June 2nd")
+
+## Design System
+
+### Accent Color
+Single accent: #E8A020 (warm amber). Use this exact hex universally —
+active states, CTAs, progress rings, streak counters, hover indicators.
+No Tailwind approximations like amber-400. Import as a CSS variable --accent.
+
+### Typography
+- UI font: Geist Sans (via next/font/google or CDN)
+- Display font: Instrument Serif (for large emotional numbers/headings like
+  journal entry counts, day-of-week heroes)
+- Monospace: Geist Mono for all stats, timestamps, data strings
+- Section labels: uppercase, tracking-widest, text-xs, muted (opacity 40%).
+  Never bold. This is a whisper, not a shout.
+
+### Cards
+All cards: bg-white/[0.04], border border-white/[0.06], rounded-xl, p-6.
+No exceptions. No mixing border styles.
+
+### Background Blob
+Each tab has one large blurred radial gradient blob (accent color,
+opacity 0.08–0.12, blur-3xl, pointer-events-none, fixed, z-0).
+Blob breathes via keyframe: slow scale (1 → 1.15) + opacity pulse over 8s,
+ease-in-out, infinite alternate.
+
+Per-tab blob position and drift:
+- Dashboard: top-right, drifts 20px down-left on breathe cycle
+- To-Do: center-left (30% from left, 50% down), slow clockwise circular drift
+- Gym: bottom-right, slow upward drift 30px
+- Calendar: top-left, drifts 25px right
+- Journal: dead center, minimal drift, emphasis on opacity pulse
+
+### Sidebar
+Active item: left accent bar only (border-l-2 border-[--accent],
+bg-transparent). Remove background highlight slab.
+
+### Micro-copy Principle
+Every card should have one "voice" line — motivational, conversational,
+human. Ex: "One down. Don't stop now." This is not optional decoration.
+
+### Emotional Data Principle
+Data should feel like a conversation with yourself, not a spreadsheet.
+Big number → tiny label beneath → micro-copy. This hierarchy is sacred.
