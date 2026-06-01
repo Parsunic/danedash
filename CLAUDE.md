@@ -103,8 +103,7 @@ No Tailwind approximations like amber-400. Import as a CSS variable --accent.
 
 ### Typography
 - UI font: Geist Sans (via next/font/google or CDN)
-- Display font: Instrument Serif (for large emotional numbers/headings like
-  journal entry counts, day-of-week heroes)
+- Display font: Plus Jakarta Sans, weight 300 (for large headings, date heroes, streak numbers, calendar entry counts). Applied via `var(--font-display)`. Do not use Instrument Serif.
 - Monospace: Geist Mono for all stats, timestamps, data strings
 - Section labels: uppercase, tracking-widest, text-xs, muted (opacity 40%).
   Never bold. This is a whisper, not a shout.
