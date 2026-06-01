@@ -49,6 +49,7 @@ export default function Calendar() {
   const [gymPlanned, setGymPlanned] = useState([])
   const [showMiniMonth, setShowMiniMonth] = useState(true)
   const [showSidebar, setShowSidebar] = useState(false)
+  const [showAIPlanner, setShowAIPlanner] = useState(false)
   const [editEvent, setEditEvent] = useState(null)
   const [defaultSlot, setDefaultSlot] = useState(null)
   const [gcalConnected, setGcalConnected] = useState(() => isConnected())
