@@ -2026,8 +2026,9 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
 /* ── DASHBOARD WIDGETS ── */
 .dash-widget {
   background: var(--card-bg);
+  border: 1px solid rgba(255,255,255,0.06);
   border-radius: var(--card-radius);
-  padding: 16px 18px;
+  padding: 24px;
   backdrop-filter: blur(24px) saturate(1.2);
   box-shadow: 0 12px 40px rgba(0,0,0,0.45);
   margin-bottom: 14px;
