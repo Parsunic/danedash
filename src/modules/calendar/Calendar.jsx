@@ -143,6 +143,7 @@ export default function Calendar() {
 
   return (
     <div className="cal-root">
+      <BackgroundBlob page="calendar" />
       {!gcalConnected && (
         <div
           className="gcal-connect-banner"
