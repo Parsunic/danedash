@@ -211,6 +211,7 @@ export default function Gym() {
 
   return (
     <>
+      <BackgroundBlob page="gym" />
       <h1 className="dash-title">Gym</h1>
       <div className="gym-subnav" style={{ overflowX: 'auto' }}>
         {VIEWS.map(v => (
