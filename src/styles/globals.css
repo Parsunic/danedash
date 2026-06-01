@@ -480,8 +480,8 @@ body::after {
 /* ── DAY RING ── */
 .day-ring-section {
   display: flex; flex-direction: row; align-items: center; justify-content: center;
-  gap: 26px; flex-wrap: wrap; padding: 18px 22px;
-  background: var(--card-bg); border-radius: var(--card-radius);
+  gap: 26px; flex-wrap: wrap; padding: 24px;
+  background: var(--card-bg); border: 1px solid rgba(255,255,255,0.06); border-radius: var(--card-radius);
   backdrop-filter: blur(24px) saturate(1.2); box-shadow: 0 12px 40px rgba(0,0,0,0.45);
   margin-bottom: 18px;
 }
