@@ -7,7 +7,7 @@ const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL ?? 'https://wlrdwrlxkjgub
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY ?? 'sb_publishable_yUHmrdeFSaKfY-AMGp3r9Q_Q2Mbqh7Y'
 const SYNC_ROW_ID = 'dane'
 
-const SyncContext = createContext({ status: 'offline' })
+const SyncContext = createContext({ status: 'offline', isOffline: false })
 
 export function useSyncStatus() {
   return useContext(SyncContext)
