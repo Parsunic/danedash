@@ -53,6 +53,68 @@
   100% { background: transparent; transform: scale(1); }
 }
 
+/* ── BACKGROUND BLOB ── */
+@keyframes blob-dashboard {
+  from { transform: translate(0, 0) scale(1); opacity: 0.08; }
+  to   { transform: translate(-20px, 20px) scale(1.15); opacity: 0.12; }
+}
+@keyframes blob-todo {
+  0%   { transform: translate(0, 0) scale(1); opacity: 0.08; }
+  25%  { transform: translate(15px, 10px) scale(1.07); opacity: 0.10; }
+  50%  { transform: translate(0, 20px) scale(1.15); opacity: 0.12; }
+  75%  { transform: translate(-15px, 10px) scale(1.07); opacity: 0.10; }
+  100% { transform: translate(0, 0) scale(1); opacity: 0.08; }
+}
+@keyframes blob-gym {
+  from { transform: translate(0, 0) scale(1); opacity: 0.08; }
+  to   { transform: translate(0, -30px) scale(1.15); opacity: 0.12; }
+}
+@keyframes blob-calendar {
+  from { transform: translate(0, 0) scale(1); opacity: 0.08; }
+  to   { transform: translate(25px, 0) scale(1.15); opacity: 0.12; }
+}
+@keyframes blob-journal {
+  from { transform: translate(-50%, -50%) scale(1); opacity: 0.08; }
+  to   { transform: translate(-50%, -50%) scale(1.15); opacity: 0.12; }
+}
+
+.bg-blob {
+  position: fixed;
+  width: 640px;
+  height: 640px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(232,160,32,0.18) 0%, transparent 70%);
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 0;
+  will-change: transform, opacity;
+}
+.bg-blob--dashboard {
+  top: -160px;
+  right: -160px;
+  animation: blob-dashboard 8s ease-in-out infinite alternate;
+}
+.bg-blob--todo {
+  top: calc(50% - 320px);
+  left: calc(30% - 320px);
+  animation: blob-todo 8s ease-in-out infinite;
+}
+.bg-blob--gym {
+  bottom: -160px;
+  right: -120px;
+  animation: blob-gym 8s ease-in-out infinite alternate;
+}
+.bg-blob--calendar {
+  top: -160px;
+  left: -120px;
+  animation: blob-calendar 8s ease-in-out infinite alternate;
+}
+.bg-blob--journal {
+  top: 50%;
+  left: 50%;
+  animation: blob-journal 8s ease-in-out infinite alternate;
+}
+
 /* ── BASE ── */
 html { font-size: 16px; height: 100%; }
 
