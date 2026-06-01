@@ -173,6 +173,14 @@ export default function EventSidebar({ event, defaultSlot, currentDate, events, 
               rows={3}
             />
           </div>
+
+          <button
+            className="cal-mobile-create-btn"
+            onClick={handleSave}
+            disabled={!form.title.trim()}
+          >
+            {isNew ? 'Create' : 'Save'}
+          </button>
         </div>
 
         <div className="cal-sidebar-footer">
