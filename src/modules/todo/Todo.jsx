@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { storeGet, storeSet, storeListKeys } from '../../lib/storage.js'
 import { getActiveDateString, getTomorrowDateString, formatDate, ordinal } from '../../lib/dateHelpers.js'
+import BackgroundBlob from '../../components/BackgroundBlob.jsx'
 
 const DAY_NAMES = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
 
