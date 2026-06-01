@@ -406,7 +406,7 @@ body::after {
 .dash-title {
   font-family: var(--font-display);
   font-size: 28px;
-  font-weight: 400;
+  font-weight: 300;
   letter-spacing: -0.01em;
   background: linear-gradient(180deg, #FFFFFF 0%, #C7C4BC 120%);
   -webkit-background-clip: text;
