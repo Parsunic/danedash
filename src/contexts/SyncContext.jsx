@@ -39,6 +39,7 @@ function applyRemotePayload(payload) {
 
 export function SyncProvider({ children }) {
   const [status, setStatus] = useState('offline')
+  const [isOffline, setIsOffline] = useState(false)
   const clientRef = useRef(null)
   const debounceRef = useRef(null)
   const isSyncingRef = useRef(false)
