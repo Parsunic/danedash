@@ -3,11 +3,11 @@ export const HOURS = Array.from({ length: 24 }, (_, i) => i)
 export const MODULE_TAGS = ['gym', 'school', 'finance', 'personal', 'task']
 
 export const TAG_STYLES = {
-  gym:      { bg: 'rgba(232,160,32,0.14)',  border: 'rgba(232,160,32,0.45)', color: '#E8A020', icon: '🏋️' },
-  school:   { bg: 'rgba(99,149,242,0.14)', border: 'rgba(99,149,242,0.45)', color: '#6395F2', icon: '📚' },
-  finance:  { bg: 'rgba(107,227,164,0.14)',border: 'rgba(107,227,164,0.45)',color: '#6BE3A4', icon: '💰' },
-  personal: { bg: 'rgba(255,255,255,0.07)',border: 'rgba(255,255,255,0.2)', color: '#D8D6D0', icon: '👤' },
-  task:     { bg: 'rgba(255,255,255,0.04)',border: 'rgba(255,255,255,0.12)',color: '#76746E', icon: '✓'  },
+  gym:      { bg: 'color-mix(in srgb, #E8A020 12%, transparent)', border: 'color-mix(in srgb, #E8A020 25%, transparent)', color: '#E8A020', icon: '🏋️' },
+  school:   { bg: 'color-mix(in srgb, #6395F2 12%, transparent)', border: 'color-mix(in srgb, #6395F2 25%, transparent)', color: '#6395F2', icon: '📚' },
+  finance:  { bg: 'color-mix(in srgb, #6BE3A4 12%, transparent)', border: 'color-mix(in srgb, #6BE3A4 25%, transparent)', color: '#6BE3A4', icon: '💰' },
+  personal: { bg: 'color-mix(in srgb, #D8D6D0 12%, transparent)', border: 'color-mix(in srgb, #D8D6D0 25%, transparent)', color: '#D8D6D0', icon: '👤' },
+  task:     { bg: 'color-mix(in srgb, #76746E 12%, transparent)', border: 'color-mix(in srgb, #76746E 25%, transparent)', color: '#76746E', icon: '✓'  },
 }
 
 export const CATEGORIES = [
