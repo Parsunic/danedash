@@ -533,8 +533,7 @@ body::after {
 }
 .gm-progress-row { display: flex; flex-direction: row; align-items: baseline; gap: 6px; flex-wrap: wrap; }
 .gm-progress-num {
-  font-family: var(--font-display);
-  font-size: 42px; font-weight: 400; letter-spacing: -0.02em;
+  font-size: 42px; font-weight: 700; letter-spacing: -0.045em; font-variant-numeric: tabular-nums;
   color: var(--text-primary); line-height: 1; transition: color 0.3s;
 }
 .gm-all-done .gm-progress-num { color: var(--success); }
