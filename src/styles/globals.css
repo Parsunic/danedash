@@ -2927,7 +2927,7 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
   display: block;
 }
 
-/* ── Date heading (Instrument Serif) ── */
+/* ── Date heading ── */
 .journal-date-heading {
   font-family: var(--font-display);
   font-size: 40px;
