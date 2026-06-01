@@ -73,8 +73,9 @@ export default function AIPlannerPanel({ events, gymPlanned, onEventsAdd, onClos
     const pastEvs   = getEventsInRange(events, past7, now)
     const futureEvs = getEventsInRange(events, now, next14)
     const todayStr  = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+    const timeStr   = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })
 
-    return `Today is ${todayStr}.
+    return `Today is ${todayStr}. Current time: ${timeStr} (${now.toISOString()}).
 
 SCHEDULING CONSTRAINTS (hard rules):
 - Never schedule before 6:30 AM or after 9:30 PM.
