@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 import { storeGet, storeSet } from '../../lib/storage.js'
+import BackgroundBlob from '../../components/BackgroundBlob.jsx'
 import { getActiveDateString } from '../../lib/dateHelpers.js'
 import { gymUUID, calcE1RM, parseRepRange } from './gymUtils.js'
 import TemplatesView from './components/TemplatesView.jsx'
