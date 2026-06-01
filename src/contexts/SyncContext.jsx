@@ -148,7 +148,7 @@ export function SyncProvider({ children }) {
   }, [pushToSupabase])
 
   return (
-    <SyncContext.Provider value={{ status }}>
+    <SyncContext.Provider value={{ status, isOffline }}>
       {children}
     </SyncContext.Provider>
   )
