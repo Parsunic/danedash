@@ -240,6 +240,15 @@ export default function Calendar() {
           onClose={() => setShowSidebar(false)}
         />
       )}
+
+      {showAIPlanner && (
+        <AIPlannerPanel
+          events={events}
+          gymPlanned={gymPlanned}
+          onEventsAdd={handleAIEventsAdd}
+          onClose={() => setShowAIPlanner(false)}
+        />
+      )}
     </div>
   )
 }
