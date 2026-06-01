@@ -526,8 +526,8 @@ body::after {
 }
 .gm-header-left { display: flex; flex-direction: column; }
 .gm-eyebrow {
-  font-size: 10.5px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase;
-  color: var(--text-tertiary); margin-bottom: 6px;
+  font-size: 10.5px; font-weight: 400; letter-spacing: 0.18em; text-transform: uppercase;
+  color: rgba(250,250,250,0.40); margin-bottom: 6px;
 }
 .gm-progress-row { display: flex; flex-direction: row; align-items: baseline; gap: 6px; flex-wrap: wrap; }
 .gm-progress-num {
