@@ -1241,7 +1241,7 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
   padding: 8px 16px;
   border-radius: 10px;
   border: none;
-  background: linear-gradient(180deg, #F2C063 0%, #E0A840 100%);
+  background: linear-gradient(180deg, #E8A020 0%, #C87010 100%);
   color: #0A0A0B;
   font-size: 13px;
   font-weight: 700;
