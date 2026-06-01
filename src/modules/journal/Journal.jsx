@@ -15,14 +15,6 @@ const DOW = ['Su','Mo','Tu','We','Th','Fr','Sa']
 
 // ── Icons ──
 
-function FlameIcon({ size = 14 }) {
-  return (
-    <svg width={size} height={Math.round(size * 1.4)} viewBox="0 0 10 14" fill="currentColor" aria-hidden="true">
-      <path d="M5 0C5 0 7.5 4 7.5 7C7.5 8.4 6.65 9.55 5.48 9.92C5.68 9 5.18 8 4.82 7.62C4.52 7.3 4.2 7.6 4.2 8C3.7 7.5 3.38 6.65 3.5 5.5C2.9 6.38 2.5 7.6 2.5 9C2.5 11.48 3.57 13.5 5 13.5S7.5 11.48 7.5 9C7.5 5.5 5 0 5 0Z" />
-    </svg>
-  )
-}
-
 function LockIcon({ size = 13 }) {
   return (
     <svg width={size} height={Math.round(size * 1.2)} viewBox="0 0 13 16" fill="none" aria-hidden="true">
