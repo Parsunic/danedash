@@ -9,8 +9,41 @@ import {
 
 const isDesktop = window.matchMedia('(min-width: 1024px)').matches
 
-function yToRawMins(y) {
-  return (y / HOUR_HEIGHT) * 60
+// Assign non-overlapping columns to concurrent events (Google Calendar style)
+function computeEventLayout(dayEvs) {
+  if (!dayEvs.length) return []
+  const items = dayEvs.map(ev => {
+    const s = new Date(ev.start_time)
+    const e = new Date(ev.end_time)
+    return {
+      ev,
+      start: s.getHours() * 60 + s.getMinutes(),
+      end: Math.max(e.getHours() * 60 + e.getMinutes(), s.getHours() * 60 + s.getMinutes() + 1),
+      col: 0,
+      totalCols: 1,
+    }
+  }).sort((a, b) => a.start - b.start)
+
+  const colEnds = []
+  for (const item of items) {
+    let col = colEnds.findIndex(end => end <= item.start)
+    if (col === -1) { col = colEnds.length; colEnds.push(0) }
+    item.col = col
+    colEnds[col] = item.end
+  }
+
+  // Expand totalCols to the highest column used by any overlapping peer
+  for (let i = 0; i < items.length; i++) {
+    let maxCol = items[i].col
+    for (let j = 0; j < items.length; j++) {
+      if (i !== j && items[i].start < items[j].end && items[j].start < items[i].end) {
+        maxCol = Math.max(maxCol, items[j].col)
+      }
+    }
+    items[i].totalCols = Math.max(items[i].col + 1, maxCol + 1)
+  }
+
+  return items
 }
 
 export default function TimeGrid({
@@ -35,6 +68,14 @@ export default function TimeGrid({
   const [dragState, setDragState] = useState(null)
   const today = new Date()
 
+  // Zoom
+  const [zoomLevel, setZoomLevel] = useState(1.0)
+  const zoomLevelRef = useRef(1.0)
+  const effHHRef = useRef(HOUR_HEIGHT)
+  zoomLevelRef.current = zoomLevel
+  const effHH = HOUR_HEIGHT * zoomLevel
+  effHHRef.current = effHH
+
   // Keep latest callbacks + data in refs so global effects don't re-bind
   const onCreateRef = useRef(onCreateEvent)
   const onUpdateRef = useRef(onEventUpdate)
@@ -49,7 +90,7 @@ export default function TimeGrid({
   useEffect(() => {
     if (scrollRef.current) {
       const nowMins = new Date().getHours() * 60 + new Date().getMinutes()
-      scrollRef.current.scrollTop = Math.max(0, (nowMins / 60) * HOUR_HEIGHT - 200)
+      scrollRef.current.scrollTop = Math.max(0, (nowMins / 60) * effHHRef.current - 200)
     }
   }, [view])
 
@@ -60,20 +101,38 @@ export default function TimeGrid({
   }, [])
 
   const nowMins = now.getHours() * 60 + now.getMinutes()
-  const nowTop  = (nowMins / 60) * HOUR_HEIGHT
+  const nowTop  = (nowMins / 60) * effHH
 
   const eventsPerDay    = days.map(day => getDayEvents(day, events, gymPlanned))
   const allDayPerDay    = eventsPerDay.map(d => d.filter(e => e.is_all_day))
   const timedPerDay     = eventsPerDay.map(d => d.filter(e => !e.is_all_day))
   const hasAnyAllDay    = allDayPerDay.some(d => d.length > 0)
 
-  // Convert clientY → snapped minutes from midnight (uses scrollRef)
+  // Convert clientY → snapped minutes from midnight
   const clientYToSnapped = (clientY) => {
     const rect = scrollRef.current?.getBoundingClientRect()
     const scrollTop = scrollRef.current?.scrollTop || 0
     if (!rect) return 0
     const y = (clientY - rect.top) + scrollTop
-    return Math.max(0, Math.min(24 * 60 - 10, snapToTen(yToRawMins(y))))
+    return Math.max(0, Math.min(24 * 60 - 10, snapToTen((y / effHHRef.current) * 60)))
+  }
+
+  // Zoom button handler — keeps view center pinned
+  const handleZoomBtn = (dir) => {
+    const factor = dir > 0 ? 1.35 : (1 / 1.35)
+    const oldZoom = zoomLevelRef.current
+    const newZoom = Math.max(0.3, Math.min(4.0, oldZoom * factor))
+    if (newZoom === oldZoom) return
+    const el = scrollRef.current
+    if (el) {
+      const center = el.scrollTop + el.clientHeight / 2
+      const mins = (center / effHHRef.current) * 60
+      const newEffHH = HOUR_HEIGHT * newZoom
+      el.scrollTop = Math.max(0, (mins / 60) * newEffHH - el.clientHeight / 2)
+    }
+    zoomLevelRef.current = newZoom
+    effHHRef.current = HOUR_HEIGHT * newZoom
+    setZoomLevel(newZoom)
   }
 
   // ── DESKTOP: column mouse-down → drag-to-create ──
@@ -98,14 +157,14 @@ export default function TimeGrid({
     const endMin   = new Date(ev.end_time).getHours()   * 60 + new Date(ev.end_time).getMinutes()
 
     let type
-    if (yInEvent <= 8)              type = 'resize-top'
+    if (yInEvent <= 8)                   type = 'resize-top'
     else if (yInEvent >= rect.height - 8) type = 'resize-bottom'
-    else                            type = 'move'
+    else                                  type = 'move'
 
     dragRef.current = {
       type, dayIndex: di, eventId: ev.id,
       origStart: startMin, origEnd: endMin,
-      grabOffset: type === 'move' ? yToRawMins(yInEvent) : 0,
+      grabOffset: type === 'move' ? (yInEvent / effHH) * 60 : 0,
       currentStart: startMin, currentEnd: endMin,
     }
     setDragState({ type, dayIndex: di, eventId: ev.id, currentStart: startMin, currentEnd: endMin })
@@ -125,15 +184,16 @@ export default function TimeGrid({
         return
       }
 
-      // Compute raw mouse mins for move (unsnapped offset subtraction)
       const rect = scrollRef.current?.getBoundingClientRect()
       const scrollTop = scrollRef.current?.scrollTop || 0
-      const rawMins = rect ? yToRawMins((e.clientY - rect.top) + scrollTop) : snapped
+      const rawMins = rect
+        ? (((e.clientY - rect.top) + scrollTop) / effHHRef.current) * 60
+        : snapped
 
       if (dr.type === 'move') {
-        const duration  = dr.origEnd - dr.origStart
-        const newStart  = snapToTen(Math.max(0, Math.min(24 * 60 - duration, rawMins - dr.grabOffset)))
-        const newEnd    = newStart + duration
+        const duration = dr.origEnd - dr.origStart
+        const newStart = snapToTen(Math.max(0, Math.min(24 * 60 - duration, rawMins - dr.grabOffset)))
+        const newEnd   = newStart + duration
         if (newStart !== dr.currentStart) didDragRef.current = true
         dragRef.current.currentStart = newStart
         dragRef.current.currentEnd   = newEnd
@@ -167,7 +227,7 @@ export default function TimeGrid({
         return
       }
 
-      if (!didDragRef.current) return // pure click — onClick will handle it
+      if (!didDragRef.current) return
 
       const ev = eventsRef.current.find(e => e.id === dr.eventId)
       if (ev && onUpdateRef.current) {
@@ -182,7 +242,33 @@ export default function TimeGrid({
     return () => window.removeEventListener('mouseup', onUp)
   }, []) // uses refs only
 
-  // ── Mobile: long-press to create ──
+  // ── Trackpad pinch-to-zoom (wheel + ctrlKey) — desktop only ──
+  useEffect(() => {
+    const el = scrollRef.current
+    if (!el) return
+    const onWheel = (e) => {
+      if (!e.ctrlKey) return
+      e.preventDefault()
+      const delta = -e.deltaY * 0.003
+      const oldZoom = zoomLevelRef.current
+      const newZoom = Math.max(0.3, Math.min(4.0, oldZoom + delta))
+      if (Math.abs(newZoom - oldZoom) < 0.0005) return
+
+      const rect = el.getBoundingClientRect()
+      const relY = Math.max(0, e.clientY - rect.top)
+      const oldEffHH = effHHRef.current
+      const newEffHH = HOUR_HEIGHT * newZoom
+      el.scrollTop = Math.max(0, ((el.scrollTop + relY) / oldEffHH) * newEffHH - relY)
+
+      zoomLevelRef.current = newZoom
+      effHHRef.current = newEffHH
+      setZoomLevel(newZoom)
+    }
+    el.addEventListener('wheel', onWheel, { passive: false })
+    return () => el.removeEventListener('wheel', onWheel)
+  }, [])
+
+  // ── Mobile: long-press to create + two-finger pinch to zoom ──
   useEffect(() => {
     if (isDesktop) return
     const el = scrollRef.current
@@ -192,14 +278,34 @@ export default function TimeGrid({
     let startX = 0, startY = 0
     let active = false
 
+    let pinchActive = false
+    let pinchStartDist = 0
+    let pinchStartZoom = 1
+    let pinchStartContentY = 0
+
     const onTouchStart = (e) => {
+      if (e.touches.length === 2) {
+        clearTimeout(timer); timer = null; active = false
+        pinchActive = true
+        pinchStartDist = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        )
+        pinchStartZoom = zoomLevelRef.current
+        const rect = el.getBoundingClientRect()
+        const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top
+        pinchStartContentY = el.scrollTop + midY
+        return
+      }
+
+      pinchActive = false
       const t = e.touches[0]
       startX = t.clientX; startY = t.clientY
       active = false
 
       const containerRect = el.getBoundingClientRect()
       const y = (t.clientY - containerRect.top) + el.scrollTop
-      const snapped = Math.max(0, Math.min(24 * 60 - 10, snapToTen(yToRawMins(y))))
+      const snapped = Math.max(0, Math.min(24 * 60 - 10, snapToTen((y / effHHRef.current) * 60)))
 
       const colsRect = colsWrapRef.current?.getBoundingClientRect()
       let di = 0
@@ -216,6 +322,25 @@ export default function TimeGrid({
     }
 
     const onTouchMove = (e) => {
+      if (e.touches.length === 2 && pinchActive) {
+        e.preventDefault()
+        const dist = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        )
+        const scale = dist / pinchStartDist
+        const newZoom = Math.max(0.3, Math.min(4.0, pinchStartZoom * scale))
+        const rect = el.getBoundingClientRect()
+        const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top
+        const newEffHH = HOUR_HEIGHT * newZoom
+        const oldEffHH = HOUR_HEIGHT * pinchStartZoom
+        el.scrollTop = Math.max(0, (pinchStartContentY / oldEffHH) * newEffHH - midY)
+        zoomLevelRef.current = newZoom
+        effHHRef.current = newEffHH
+        setZoomLevel(newZoom)
+        return
+      }
+
       const t = e.touches[0]
       if (timer && (Math.abs(t.clientX - startX) > 10 || Math.abs(t.clientY - startY) > 10)) {
         clearTimeout(timer); timer = null
@@ -224,13 +349,14 @@ export default function TimeGrid({
       e.preventDefault()
       const containerRect = el.getBoundingClientRect()
       const y = (t.clientY - containerRect.top) + el.scrollTop
-      const snapped = Math.max(0, Math.min(24 * 60 - 10, snapToTen(yToRawMins(y))))
+      const snapped = Math.max(0, Math.min(24 * 60 - 10, snapToTen((y / effHHRef.current) * 60)))
       const endMin = Math.max(snapped, dragRef.current.startMin + 10)
       dragRef.current.endMin = endMin
       setDragState(p => p ? { ...p, endMin } : null)
     }
 
-    const onTouchEnd = () => {
+    const onTouchEnd = (e) => {
+      if (e.touches.length < 2) pinchActive = false
       clearTimeout(timer); timer = null
       if (active && dragRef.current) {
         const dr = dragRef.current
@@ -269,7 +395,7 @@ export default function TimeGrid({
                   <div
                     key={ev.id}
                     className="cal-allday-event"
-                    style={{ background: s.bg, borderColor: s.border, color: s.color }}
+                    style={{ background: s.bg, borderColor: s.borderColor, color: s.color }}
                     onClick={() => onEventClick(ev)}
                   >
                     {ev.title}
@@ -307,11 +433,11 @@ export default function TimeGrid({
 
       {/* Scrollable grid */}
       <div className="cal-grid-scroll" ref={scrollRef}>
-        <div className="cal-grid-layout" style={{ height: HOUR_HEIGHT * 24 }}>
+        <div className="cal-grid-layout" style={{ height: effHH * 24 }}>
           {/* Hour gutter */}
           <div className="cal-time-gutter">
             {HOURS.map(h => (
-              <div key={h} className="cal-hour-label" style={{ top: h * HOUR_HEIGHT, height: HOUR_HEIGHT }}>
+              <div key={h} className="cal-hour-label" style={{ top: h * effHH, height: effHH }}>
                 {h > 0 ? formatHour(h) : null}
               </div>
             ))}
@@ -322,7 +448,7 @@ export default function TimeGrid({
             {days.map((day, di) => {
               const isWeekend = day.getDay() === 0 || day.getDay() === 6
               const isToday   = isSameDay(day, today)
-              const dayEvs    = timedPerDay[di]
+              const layout    = computeEventLayout(timedPerDay[di])
 
               return (
                 <div
@@ -335,34 +461,41 @@ export default function TimeGrid({
                     <div
                       key={h}
                       className={`cal-hour-row${isSleepHour(h) ? ' sleep' : ''}`}
-                      style={{ top: h * HOUR_HEIGHT, height: HOUR_HEIGHT }}
+                      style={{ top: h * effHH, height: effHH }}
                     />
                   ))}
 
                   {/* Events */}
-                  {dayEvs.map(ev => {
+                  {layout.map(({ ev, col, totalCols }) => {
                     const isDragging = dragState?.eventId === ev.id && dragState?.dayIndex === di
                     const origStart = new Date(ev.start_time)
                     const origEnd   = new Date(ev.end_time)
 
                     let topPx, heightPx, displayStart, displayEnd
                     if (isDragging) {
-                      topPx = (dragState.currentStart / 60) * HOUR_HEIGHT
+                      topPx = (dragState.currentStart / 60) * effHH
                       const durMins = Math.max(dragState.currentEnd - dragState.currentStart, 10)
-                      heightPx = (durMins / 60) * HOUR_HEIGHT
+                      heightPx = (durMins / 60) * effHH
                       const y = origStart.getFullYear(), mo = origStart.getMonth(), d = origStart.getDate()
                       displayStart = new Date(y, mo, d, Math.floor(dragState.currentStart / 60), dragState.currentStart % 60)
                       displayEnd   = new Date(y, mo, d, Math.floor(dragState.currentEnd   / 60), dragState.currentEnd   % 60)
                     } else {
-                      topPx = (minutesFromMidnight(origStart) / 60) * HOUR_HEIGHT
-                      const durMins = Math.max((origEnd - origStart) / 60000, 30)
-                      heightPx = (durMins / 60) * HOUR_HEIGHT
+                      topPx = (minutesFromMidnight(origStart) / 60) * effHH
+                      const durMins = Math.max((origEnd - origStart) / 60000, 1)
+                      heightPx = (durMins / 60) * effHH
                       displayStart = origStart
                       displayEnd   = origEnd
                     }
 
-                    const s      = getEventStyle(ev)
-                    const isTall = heightPx > 42
+                    const s         = getEventStyle(ev)
+                    const renderedH = Math.max(heightPx - 2, 6)
+                    const isTall    = renderedH > 42
+
+                    // Horizontal offset for overlapping events
+                    const colW  = 100 / totalCols
+                    const colL  = col * colW
+                    const evLeft  = totalCols > 1 ? `calc(${colL}% + 1px)`           : '2px'
+                    const evRight = totalCols > 1 ? `calc(${100 - colL - colW}% + 1px)` : '2px'
 
                     return (
                       <div
@@ -370,9 +503,11 @@ export default function TimeGrid({
                         className={`cal-event${ev.is_gym_planned ? ' is-gym' : ' user-event'}${isDragging ? ' is-dragging' : ''}`}
                         style={{
                           top: topPx + 1,
-                          height: heightPx - 2,
+                          height: renderedH,
+                          left: evLeft,
+                          right: evRight,
                           background: s.bg,
-                          borderColor: s.border,
+                          borderLeft: `3px solid ${s.borderColor}`,
                           color: s.color,
                         }}
                         onMouseDown={e => handleEventMouseDown(ev, di, e)}
@@ -408,8 +543,8 @@ export default function TimeGrid({
                     <div
                       className="cal-drag-preview"
                       style={{
-                        top:    (dragState.startMin / 60) * HOUR_HEIGHT,
-                        height: ((dragState.endMin - dragState.startMin) / 60) * HOUR_HEIGHT,
+                        top:    (dragState.startMin / 60) * effHH,
+                        height: ((dragState.endMin - dragState.startMin) / 60) * effHH,
                       }}
                     />
                   )}
@@ -427,6 +562,12 @@ export default function TimeGrid({
             })}
           </div>
         </div>
+      </div>
+
+      {/* Zoom controls */}
+      <div className="cal-zoom-controls">
+        <button className="cal-zoom-btn" onClick={() => handleZoomBtn(1)} title="Zoom in">+</button>
+        <button className="cal-zoom-btn" onClick={() => handleZoomBtn(-1)} title="Zoom out">−</button>
       </div>
 
       {/* Mini month */}
