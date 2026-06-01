@@ -1919,6 +1919,11 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
   flex-shrink: 0;
 }
 
+/* Mobile-only Create/Save button inside the scrollable body */
+.cal-mobile-create-btn {
+  display: none;
+}
+
 /* Category picker */
 .cal-category-picker {
   display: grid;
