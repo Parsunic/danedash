@@ -788,7 +788,7 @@ body::after {
 .gym-placeholder {
   display: flex; flex-direction: column; align-items: center; text-align: center;
   padding: 52px 20px; gap: 10px;
-  background: var(--card-bg); border-radius: var(--card-radius);
+  background: var(--card-bg); border: 1px solid rgba(255,255,255,0.06); border-radius: var(--card-radius);
   backdrop-filter: blur(24px) saturate(1.2); box-shadow: 0 12px 40px rgba(0,0,0,0.45);
 }
 .gym-placeholder-icon { font-size: 30px; opacity: 0.25; }
