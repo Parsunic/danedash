@@ -51,6 +51,17 @@ export const modules = [
     component: Todo,
   },
   {
+    path: '/journal',
+    label: 'Journal',
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <rect x="3" y="2" width="12" height="14" rx="2" stroke="currentColor" strokeWidth="1.5" fill="none" />
+        <path d="M6 6h6M6 9h6M6 12h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      </svg>
+    ),
+    component: Journal,
+  },
+  {
     path: '/gym',
     label: 'Gym',
     icon: (
