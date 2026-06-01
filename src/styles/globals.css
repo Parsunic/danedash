@@ -302,6 +302,34 @@ body::after {
 }
 .sync-settings-btn:hover { opacity: 1; }
 
+/* ── OFFLINE BANNER ── */
+.offline-banner {
+  position: fixed;
+  bottom: calc(var(--bottom-nav-h, 64px) + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 200;
+  background: rgba(248, 113, 113, 0.12);
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  color: #f87171;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 6px 14px;
+  border-radius: 20px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+@media (min-width: 1024px) {
+  .offline-banner {
+    bottom: 20px;
+    left: calc(var(--sidebar-w, 180px) + 20px);
+    transform: none;
+  }
+}
+
 /* ── SETTINGS MODAL ── */
 .settings-backdrop {
   position: fixed;
