@@ -2891,13 +2891,6 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
    JOURNAL
    ══════════════════════════════════════════════════════ */
 
-/* ── blob position for journal (dead center) ── */
-.bg-blob--journal {
-  top: 50%;
-  left: 50%;
-  animation: blob-journal 9s ease-in-out infinite alternate;
-}
-
 /* ── Root layout ── */
 .journal-root {
   position: relative;
