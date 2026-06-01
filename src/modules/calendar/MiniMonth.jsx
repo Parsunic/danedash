@@ -46,7 +46,7 @@ export default function MiniMonth({ currentDate, events, gymPlanned, onSelect })
               onClick={() => onSelect(date)}
               style={
                 inMonth && busyScore > 0 && !isToday && !isSelected
-                  ? { background: `rgba(242,192,99,${amberAlpha})`, color: busyScore > 0.3 ? '#F2C063' : undefined }
+                  ? { background: `rgba(232,160,32,${amberAlpha})`, color: busyScore > 0.3 ? '#E8A020' : undefined }
                   : undefined
               }
             >
