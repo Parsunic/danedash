@@ -149,14 +149,21 @@ function SettingsModal({ onClose }) {
 }
 
 function SyncStatus({ onSettings }) {
-  const { status } = useSyncStatus()
+  const { status, isOffline } = useSyncStatus()
   const label = status === 'syncing' ? 'Syncing…' : status === 'synced' ? 'Synced' : status === 'error' ? 'Sync error' : 'Offline'
   return (
-    <div className="sync-status" data-status={status}>
-      <span className="sync-dot" />
-      <span className="sync-label">{label}</span>
-      <button className="sync-settings-btn" onClick={onSettings} aria-label="Settings">⚙</button>
-    </div>
+    <>
+      {isOffline && (
+        <div className="offline-banner">
+          Offline — showing cached data
+        </div>
+      )}
+      <div className="sync-status" data-status={status}>
+        <span className="sync-dot" />
+        <span className="sync-label">{label}</span>
+        <button className="sync-settings-btn" onClick={onSettings} aria-label="Settings">⚙</button>
+      </div>
+    </>
   )
 }
 
