@@ -3,9 +3,20 @@ import { getMonthGrid, isSameDay, getDayEvents, getEventStyle, hasGymOnDay } fro
 const DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const MAX_CHIPS = 3
 
-export default function MonthView({ currentDate, events, gymPlanned, onDateSelect, onEventClick }) {
+function dk(d) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
+function reviewDotColor(score) {
+  if (score >= 70) return 'var(--success)'
+  if (score >= 40) return 'var(--warning)'
+  return 'var(--danger)'
+}
+
+export default function MonthView({ currentDate, events, gymPlanned, dayReviews = [], onDateSelect, onEventClick }) {
   const today = new Date()
   const grid = getMonthGrid(currentDate.getFullYear(), currentDate.getMonth())
+  const reviewMap = Object.fromEntries(dayReviews.map(r => [r.date, r.overall_adherence_score]))
 
   return (
     <div className="cal-month-view">
