@@ -3436,350 +3436,246 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
   border-color: rgba(232,160,32,0.5);
 }
 
-/* Panel */
+/* ── Inline side panel ── */
 .cal-review-panel {
-  position: fixed;
-  right: 0; top: 0;
-  width: 380px;
-  height: 100%;
-  z-index: 3001;
+  width: 320px;
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  background: #111113;
-  border-left: 1px solid rgba(255,255,255,0.08);
-  box-shadow: -16px 0 48px rgba(0,0,0,0.65);
-  transform: translateX(100%);
-  transition: transform 0.26s cubic-bezier(0.32, 0.72, 0, 1);
+  border-left: 1px solid rgba(255,255,255,0.07);
+  background: rgba(255,255,255,0.015);
+  overflow: hidden;
 }
-.cal-review-panel.open { transform: translateX(0); }
-
-/* Header */
-.cal-review-header {
+.cal-review-hd {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-  padding: 22px 20px 16px;
-  border-bottom: 1px solid rgba(255,255,255,0.07);
+  padding: 14px 14px 11px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
   flex-shrink: 0;
+  gap: 8px;
 }
-.cal-review-header-eyebrow {
-  font-size: 11px;
+.cal-review-hd-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.cal-review-eyebrow {
+  font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   color: var(--accent);
-  margin-bottom: 4px;
+  font-family: var(--font-body);
 }
-.cal-review-header-date {
-  font-size: 18px;
-  font-weight: 700;
+.cal-review-date-lbl {
+  font-size: 14px;
+  font-weight: 300;
   color: var(--text-primary);
-  line-height: 1.2;
+  font-family: var(--font-display);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-.cal-review-close-btn {
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.08);
-  color: var(--text-tertiary);
-  font-size: 13px;
-  line-height: 1;
-  cursor: pointer;
-  padding: 0;
-  width: 28px; height: 28px;
-  border-radius: 7px;
-  display: flex; align-items: center; justify-content: center;
+.cal-review-x {
   flex-shrink: 0;
-  margin-top: 2px;
-  transition: color 0.15s, background 0.15s;
+  width: 24px; height: 24px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 6px;
+  color: var(--text-tertiary);
+  font-size: 11px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: color 0.14s, background 0.14s;
 }
-.cal-review-close-btn:hover { color: var(--text-primary); background: rgba(255,255,255,0.09); }
-
-/* Scrollable body */
-.cal-review-body {
+.cal-review-x:hover { color: var(--text-primary); background: rgba(255,255,255,0.08); }
+.cal-review-bd {
   flex: 1;
   overflow-y: auto;
-  padding: 20px;
+  padding: 14px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
 }
-.cal-review-body::-webkit-scrollbar { width: 4px; }
-.cal-review-body::-webkit-scrollbar-track { background: transparent; }
-.cal-review-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
-
-/* Loading */
+.cal-review-bd::-webkit-scrollbar { width: 3px; }
+.cal-review-bd::-webkit-scrollbar-track { background: transparent; }
+.cal-review-bd::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.07); border-radius: 2px; }
 .cal-review-loading {
-  font-size: 13px;
+  font-size: 12px;
   color: var(--text-tertiary);
+  font-family: var(--font-body);
   text-align: center;
-  margin-top: 40px;
+  margin-top: 28px;
 }
-
-/* Already-reviewed badge */
-.cal-review-existing-badge {
+.cal-review-done-badge {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 5px 11px;
+  padding: 3px 9px;
   border-radius: 20px;
   background: rgba(107,227,164,0.08);
   border: 1px solid rgba(107,227,164,0.2);
   color: var(--success);
-  font-size: 11px;
-  font-weight: 600;
+  font-size: 10px;
+  font-weight: 700;
+  font-family: var(--font-body);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
   align-self: flex-start;
 }
-
-/* Section prompt */
-.cal-review-prompt-label {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  margin: 0 0 8px;
+.cal-review-prompt-lbl {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--text-tertiary);
+  font-family: var(--font-body);
+  margin: 0;
 }
-
-/* Textarea + mic */
 .cal-review-input-wrap { position: relative; }
-
 .cal-review-textarea {
   display: block;
   width: 100%;
-  min-height: 130px;
-  padding: 13px 44px 13px 14px;
+  min-height: 96px;
+  padding: 10px 36px 10px 11px;
   background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.09);
-  border-radius: 12px;
-  color: #fafafa;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  color: var(--text-primary);
+  caret-color: var(--accent);
   font-family: var(--font-body);
-  font-size: 14px;
-  line-height: 1.65;
-  resize: vertical;
+  font-size: 13px;
+  line-height: 1.6;
+  resize: none;
   outline: none;
   box-sizing: border-box;
   transition: border-color 0.15s;
-  -webkit-text-fill-color: #fafafa;
 }
-.cal-review-textarea::placeholder { color: rgba(255,255,255,0.28); }
-.cal-review-textarea:focus { border-color: rgba(232,160,32,0.45); }
-
+.cal-review-textarea::placeholder { color: rgba(255,255,255,0.22); }
+.cal-review-textarea:focus { border-color: rgba(232,160,32,0.38); }
 .cal-review-voice-btn {
   position: absolute;
-  top: 10px; right: 10px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.10);
-  border-radius: 8px;
-  width: 30px; height: 30px;
+  top: 7px; right: 7px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 6px;
+  width: 24px; height: 24px;
   display: flex; align-items: center; justify-content: center;
-  font-size: 14px;
+  font-size: 11px;
   cursor: pointer;
-  transition: background 0.15s, border-color 0.15s;
+  transition: background 0.14s;
 }
 .cal-review-voice-btn:hover { background: rgba(255,255,255,0.09); }
 .cal-review-voice-btn.listening {
   border-color: var(--danger);
-  background: rgba(255,107,107,0.14);
+  background: rgba(255,107,107,0.12);
   animation: review-mic-pulse 1.1s ease-in-out infinite alternate;
 }
 @keyframes review-mic-pulse {
   from { box-shadow: 0 0 0 0 rgba(255,107,107,0.4); }
-  to   { box-shadow: 0 0 0 8px rgba(255,107,107,0); }
+  to   { box-shadow: 0 0 0 5px rgba(255,107,107,0); }
 }
-
-/* ── Results area ── */
-.cal-review-results { display: flex; flex-direction: column; gap: 12px; }
-
-/* Score card */
+.cal-review-results { display: flex; flex-direction: column; gap: 10px; }
 .cal-review-score-card {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 16px;
+  gap: 12px;
+  padding: 12px;
   background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.07);
-  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
 }
-.cal-review-score-ring {
-  position: relative;
-  width: 60px; height: 60px;
-  flex-shrink: 0;
-}
-.cal-review-score-ring svg {
-  width: 60px; height: 60px;
-  transform: rotate(-90deg);
-  overflow: visible;
-}
-.cal-review-score-track {
-  fill: none;
-  stroke: rgba(255,255,255,0.07);
-  stroke-width: 3;
-}
+.cal-review-score-ring { position: relative; width: 50px; height: 50px; flex-shrink: 0; }
+.cal-review-score-ring svg { width: 50px; height: 50px; transform: rotate(-90deg); overflow: visible; }
+.cal-review-score-track { fill: none; stroke: rgba(255,255,255,0.07); stroke-width: 3; }
 .cal-review-score-arc {
   fill: none;
   stroke: var(--score-color);
   stroke-width: 3;
   stroke-linecap: round;
-  transition: stroke-dashoffset 0.75s cubic-bezier(0.34, 1.3, 0.64, 1);
+  transition: stroke-dashoffset 0.7s cubic-bezier(0.34, 1.3, 0.64, 1);
 }
 .cal-review-score-num {
-  position: absolute;
-  inset: 0;
+  position: absolute; inset: 0;
   display: flex; align-items: center; justify-content: center;
-  font-size: 16px;
-  font-weight: 800;
+  font-size: 13px; font-weight: 800;
   font-family: var(--font-mono);
   color: var(--score-color);
 }
 .cal-review-score-kicker {
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--text-tertiary);
-  margin-bottom: 5px;
+  font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--text-tertiary); font-family: var(--font-body); margin-bottom: 3px;
 }
-.cal-review-summary {
-  font-size: 13px;
-  color: var(--text-secondary);
-  line-height: 1.55;
-  font-style: italic;
+.cal-review-summary { font-size: 12px; color: var(--text-secondary); line-height: 1.5; font-style: italic; font-family: var(--font-body); }
+.cal-review-summary-muted { font-size: 11px; color: var(--text-tertiary); font-style: italic; font-family: var(--font-body); }
+.cal-review-events-section { display: flex; flex-direction: column; gap: 5px; }
+.cal-review-sub-lbl {
+  font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--text-tertiary); font-family: var(--font-body);
 }
-.cal-review-summary-muted {
-  font-size: 12px;
-  color: var(--text-tertiary);
-  font-style: italic;
-}
-
-/* Events section */
-.cal-review-events-section { display: flex; flex-direction: column; gap: 6px; }
-.cal-review-subsection-label {
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--text-tertiary);
-  margin-bottom: 2px;
-}
-.cal-review-events-list { display: flex; flex-direction: column; gap: 5px; }
+.cal-review-events-list { display: flex; flex-direction: column; gap: 4px; }
 .cal-review-event-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 10px;
   background: rgba(255,255,255,0.025);
-  border: 1px solid rgba(255,255,255,0.06);
-  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 8px;
 }
-.cal-review-status-dot {
-  width: 7px; height: 7px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
+.cal-review-status-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
 .cal-review-event-info { flex: 1; min-width: 0; }
 .cal-review-event-title {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-primary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-size: 12px; font-weight: 600; color: var(--text-primary);
+  font-family: var(--font-body);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .cal-review-event-notes {
-  font-size: 11px;
-  color: var(--text-tertiary);
-  margin-top: 2px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-size: 10px; color: var(--text-tertiary); font-family: var(--font-body);
+  margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .cal-review-status-pill {
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  padding: 3px 8px;
-  border-radius: 20px;
-  border: 1px solid;
-  flex-shrink: 0;
+  font-size: 9px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.07em;
+  padding: 2px 6px; border-radius: 20px; border: 1px solid;
+  flex-shrink: 0; font-family: var(--font-body);
 }
-
-/* ── Footer ── */
-.cal-review-footer {
-  display: flex;
-  gap: 8px;
-  padding: 14px 20px;
-  border-top: 1px solid rgba(255,255,255,0.07);
+.cal-review-ft {
+  display: flex; gap: 6px;
+  padding: 9px 12px 11px;
+  border-top: 1px solid rgba(255,255,255,0.06);
   flex-shrink: 0;
 }
 .cal-review-primary-btn {
-  padding: 11px 20px;
-  border-radius: 10px;
-  border: none;
-  background: var(--accent);
-  color: #000;
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: background 0.15s, opacity 0.15s;
-  font-family: var(--font-body);
+  flex: 1; padding: 9px 12px; border-radius: 9px; border: none;
+  background: var(--accent); color: #000;
+  font-size: 12px; font-weight: 700; font-family: var(--font-body);
+  cursor: pointer; transition: background 0.14s, opacity 0.14s;
 }
 .cal-review-primary-btn:hover:not(:disabled) { background: #d4901a; }
-.cal-review-primary-btn:disabled { opacity: 0.38; cursor: not-allowed; }
-
+.cal-review-primary-btn:disabled { opacity: 0.35; cursor: not-allowed; }
 .cal-review-ghost-btn {
-  padding: 11px 16px;
-  border-radius: 10px;
-  border: 1px solid rgba(255,255,255,0.10);
-  background: transparent;
-  color: var(--text-secondary);
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s;
-  font-family: var(--font-body);
+  padding: 9px 11px; border-radius: 9px;
+  border: 1px solid rgba(255,255,255,0.09);
+  background: transparent; color: var(--text-secondary);
+  font-size: 12px; font-weight: 600; font-family: var(--font-body);
+  cursor: pointer; transition: background 0.14s;
 }
-.cal-review-ghost-btn:hover { background: rgba(255,255,255,0.06); }
+.cal-review-ghost-btn:hover { background: rgba(255,255,255,0.05); }
 
-/* ── Review button in Calendar header ── */
-.cal-review-btn {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 7px 13px;
-  border-radius: 9px;
-  border: 1px solid rgba(107,227,164,0.28);
-  background: rgba(107,227,164,0.07);
-  color: var(--success);
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s, border-color 0.15s;
-}
-.cal-review-btn:hover {
-  background: rgba(107,227,164,0.14);
-  border-color: rgba(107,227,164,0.4);
-}
-
-/* ── Month view review dot ── */
+/* Month view review dot */
 .cal-month-cell { position: relative; }
 .cal-month-review-dot {
-  position: absolute;
-  bottom: 4px; right: 5px;
+  position: absolute; bottom: 4px; right: 5px;
   width: 6px; height: 6px;
-  border-radius: 50%;
-  pointer-events: none;
+  border-radius: 50%; pointer-events: none;
 }
 
-/* ── Mobile ── */
+/* Mobile */
 @media (max-width: 600px) {
+  .cal-main--reviewing { flex-direction: column; }
   .cal-review-panel {
-    width: 100%;
-    border-left: none;
-    border-top: 1px solid rgba(255,255,255,0.09);
-    border-radius: 20px 20px 0 0;
-    top: auto; bottom: 0;
-    height: 88dvh;
-    transform: translateY(100%);
+    width: 100%; border-left: none;
+    border-top: 1px solid rgba(255,255,255,0.07);
+    height: 52dvh; flex-shrink: 0;
   }
-  .cal-review-panel.open { transform: translateY(0); }
-  .cal-review-btn { display: none; }
+  .cal-review-bar-btn { font-size: 14px; padding: 14px; }
 }
-}
+
