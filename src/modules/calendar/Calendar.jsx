@@ -219,7 +219,7 @@ export default function Calendar() {
 
       {/* Body */}
       <div className="cal-body-wrap">
-        <div className="cal-main">
+        <div className={`cal-main${showDayReview && view === 'day' ? ' cal-main--reviewing' : ''}`}>
           {(view === 'week' || view === 'day') && (
             <TimeGrid
               view={view}
@@ -235,6 +235,14 @@ export default function Calendar() {
               onSkipGymWorkout={handleSkipGymWorkout}
             />
           )}
+          {showDayReview && view === 'day' && (
+            <DayReviewPanel
+              date={currentDate}
+              events={events}
+              gymPlanned={gymPlanned}
+              onClose={() => setShowDayReview(false)}
+            />
+          )}
           {view === 'month' && (
             <MonthView
               currentDate={currentDate}
@@ -247,6 +255,15 @@ export default function Calendar() {
           )}
         </div>
       </div>
+
+      {/* Full-width review bar — only when past day, day view, panel not yet open */}
+      {view === 'day' && dayDiff(currentDate) < 0 && !showDayReview && (
+        <div className="cal-review-bar">
+          <button className="cal-review-bar-btn" onClick={() => setShowDayReview(true)}>
+            ◎ Review Day
+          </button>
+        </div>
+      )}
 
       {showSidebar && (
         <EventSidebar
