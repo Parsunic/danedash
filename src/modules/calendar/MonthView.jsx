@@ -29,12 +29,13 @@ export default function MonthView({ currentDate, events, gymPlanned, dayReviews 
         {grid.map((week, wi) => (
           <div key={wi} className="cal-month-week-row">
             {week.map(({ date, inMonth }, di) => {
-              const isToday  = isSameDay(date, today)
+              const isToday    = isSameDay(date, today)
               const isSelected = isSameDay(date, currentDate)
-              const hasGym   = inMonth && hasGymOnDay(date, gymPlanned)
-              const dayEvs   = inMonth ? getDayEvents(date, events, gymPlanned) : []
-              const visible  = dayEvs.slice(0, MAX_CHIPS)
-              const overflow = dayEvs.length - MAX_CHIPS
+              const hasGym     = inMonth && hasGymOnDay(date, gymPlanned)
+              const dayEvs     = inMonth ? getDayEvents(date, events, gymPlanned) : []
+              const visible    = dayEvs.slice(0, MAX_CHIPS)
+              const overflow   = dayEvs.length - MAX_CHIPS
+              const reviewScore = inMonth ? reviewMap[dk(date)] : undefined
 
               return (
                 <div
@@ -45,6 +46,13 @@ export default function MonthView({ currentDate, events, gymPlanned, dayReviews 
                   <div className={`cal-month-date${isToday ? ' today' : ''}`}>
                     {date.getDate()}
                   </div>
+                  {reviewScore !== undefined && (
+                    <div
+                      className="cal-month-review-dot"
+                      style={{ background: reviewDotColor(reviewScore) }}
+                      title={`Adherence: ${reviewScore}%`}
+                    />
+                  )}
                   {visible.map(ev => {
                     const s = getEventStyle(ev)
                     return (
