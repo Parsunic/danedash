@@ -202,6 +202,14 @@ export default function Calendar() {
             <button className="cal-today-btn" onClick={() => setCurrentDate(new Date())}>Today</button>
             <button className="cal-nav-btn" onClick={() => navigate(1)}>›</button>
           </div>
+          {view === 'day' && dayDiff(currentDate) < 0 && (
+            <button
+              className="cal-review-btn"
+              onClick={() => setShowDayReview(true)}
+            >
+              ◎ Review
+            </button>
+          )}
           <button
             className="cal-ai-btn"
             onClick={() => setShowAIPlanner(v => !v)}
