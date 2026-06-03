@@ -175,37 +175,39 @@ Rules:
   const score = results?.overall_adherence_score ?? null
   const circ = 94.2
 
-  return (
+  return createPortal(
     <>
       <div className={`cal-review-backdrop${open ? ' open' : ''}`} onClick={handleClose} />
       <div className={`cal-review-panel${open ? ' open' : ''}`}>
 
-        <div className="cal-sidebar-header">
-          <div>
-            <div className="cal-sidebar-title">Day Review</div>
-            <div style={{ fontSize: 12, color: 'var(--text-tertiary)', marginTop: 2 }}>
+        {/* ── Header ── */}
+        <div className="cal-review-header">
+          <div className="cal-review-header-inner">
+            <div className="cal-review-header-eyebrow">Day Review</div>
+            <div className="cal-review-header-date">
               {date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
             </div>
           </div>
-          <button className="cal-sidebar-close" onClick={handleClose}>&#x2715;</button>
+          <button className="cal-review-close-btn" onClick={handleClose} aria-label="Close">&#x2715;</button>
         </div>
 
-        <div className="cal-sidebar-body">
+        {/* ── Body ── */}
+        <div className="cal-review-body">
           {loadingReview ? (
             <div className="cal-review-loading">Loading&hellip;</div>
           ) : (
             <>
               {review && !pendingResults && (
                 <div className="cal-review-existing-badge">
-                  &#x2713; Reviewed &middot; {new Date(review.created_at).toLocaleDateString()}
+                  &#x2713;&nbsp;Reviewed &middot; {new Date(review.created_at).toLocaleDateString()}
                 </div>
               )}
 
-              <div className="cal-review-section-label">What did you do today?</div>
+              <p className="cal-review-prompt-label">What did you do?</p>
               <div className="cal-review-input-wrap">
                 <textarea
                   className="cal-review-textarea"
-                  placeholder="Describe your day&hellip; e.g. went to the gym at 8am, skipped the afternoon call, had dinner with family."
+                  placeholder="Describe your day in plain language…&#10;e.g. went to the gym at 8am, skipped the afternoon call, had dinner with family."
                   value={rawText}
                   onChange={e => setRawText(e.target.value)}
                   rows={5}
@@ -220,10 +222,11 @@ Rules:
                 </button>
               </div>
 
+              {/* ── Results ── */}
               {results && (
                 <div className="cal-review-results">
                   {score !== null && (
-                    <div className="cal-review-score-row">
+                    <div className="cal-review-score-card">
                       <div className="cal-review-score-ring" style={{ '--score-color': adherenceColor(score) }}>
                         <svg viewBox="0 0 36 36">
                           <circle cx="18" cy="18" r="15" className="cal-review-score-track" />
@@ -237,17 +240,18 @@ Rules:
                         <span className="cal-review-score-num">{score}</span>
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div className="cal-review-score-label">Adherence Score</div>
-                        {results.summary && (
-                          <div className="cal-review-summary">&ldquo;{results.summary}&rdquo;</div>
-                        )}
+                        <div className="cal-review-score-kicker">Adherence Score</div>
+                        {results.summary
+                          ? <div className="cal-review-summary">&ldquo;{results.summary}&rdquo;</div>
+                          : <div className="cal-review-summary-muted">Save to lock in this review.</div>
+                        }
                       </div>
                     </div>
                   )}
 
                   {results.event_outcomes?.length > 0 && (
-                    <>
-                      <div className="cal-review-section-label" style={{ marginTop: 16 }}>Events</div>
+                    <div className="cal-review-events-section">
+                      <div className="cal-review-subsection-label">Events</div>
                       <div className="cal-review-events-list">
                         {results.event_outcomes.map((eo, i) => {
                           const meta = STATUS_META[eo.status] ?? STATUS_META.skipped
@@ -259,8 +263,8 @@ Rules:
                                 {eo.notes && <div className="cal-review-event-notes">{eo.notes}</div>}
                               </div>
                               <span
-                                className="cal-review-status-badge"
-                                style={{ color: meta.color, borderColor: `${meta.color}40` }}
+                                className="cal-review-status-pill"
+                                style={{ color: meta.color, borderColor: `${meta.color}35`, background: `${meta.color}12` }}
                               >
                                 {meta.label}
                               </span>
@@ -268,7 +272,7 @@ Rules:
                           )
                         })}
                       </div>
-                    </>
+                    </div>
                   )}
                 </div>
               )}
@@ -276,15 +280,17 @@ Rules:
           )}
         </div>
 
-        <div className="cal-sidebar-footer" style={{ gap: 8 }}>
+        {/* ── Footer ── */}
+        <div className="cal-review-footer">
           {pendingResults ? (
             <>
-              <button className="cal-review-discard-btn" onClick={() => setPendingResults(null)}>Discard</button>
-              <button className="cal-review-save-btn" onClick={handleSave}>Save Review</button>
+              <button className="cal-review-ghost-btn" onClick={() => setPendingResults(null)}>Discard</button>
+              <button className="cal-review-primary-btn" onClick={handleSave}>Save Review</button>
             </>
           ) : (
             <button
-              className="cal-review-analyze-btn"
+              className="cal-review-primary-btn"
+              style={{ flex: 1 }}
               onClick={handleAnalyze}
               disabled={isLoading || !rawText.trim()}
             >
@@ -294,6 +300,7 @@ Rules:
         </div>
 
       </div>
-    </>
+    </>,
+    document.body
   )
 }
