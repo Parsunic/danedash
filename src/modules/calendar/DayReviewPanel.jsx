@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { createPortal } from 'react-dom'
 import { supabase } from '../../lib/supabase.js'
 import { getDayEvents } from './calendarUtils.js'
 
@@ -27,7 +26,6 @@ const STATUS_META = {
 }
 
 export default function DayReviewPanel({ date, events, gymPlanned, onClose }) {
-  const [open, setOpen] = useState(false)
   const [rawText, setRawText] = useState('')
   const [isListening, setIsListening] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -36,10 +34,6 @@ export default function DayReviewPanel({ date, events, gymPlanned, onClose }) {
   const [pendingResults, setPendingResults] = useState(null)
   const recognitionRef = useRef(null)
   const ds = dateKey(date)
-
-  useEffect(() => {
-    requestAnimationFrame(() => setOpen(true))
-  }, [])
 
   useEffect(() => {
     let cancelled = false
@@ -56,11 +50,6 @@ export default function DayReviewPanel({ date, events, gymPlanned, onClose }) {
       })
     return () => { cancelled = true }
   }, [ds])
-
-  const handleClose = useCallback(() => {
-    setOpen(false)
-    setTimeout(onClose, 270)
-  }, [onClose])
 
   const toggleVoice = useCallback(() => {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition
@@ -175,132 +164,127 @@ Rules:
   const score = results?.overall_adherence_score ?? null
   const circ = 94.2
 
-  return createPortal(
-    <>
-      <div className={`cal-review-backdrop${open ? ' open' : ''}`} onClick={handleClose} />
-      <div className={`cal-review-panel${open ? ' open' : ''}`}>
+  return (
+    <div className="cal-review-panel">
 
-        {/* ── Header ── */}
-        <div className="cal-review-header">
-          <div className="cal-review-header-inner">
-            <div className="cal-review-header-eyebrow">Day Review</div>
-            <div className="cal-review-header-date">
-              {date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
-            </div>
-          </div>
-          <button className="cal-review-close-btn" onClick={handleClose} aria-label="Close">&#x2715;</button>
+      {/* Header */}
+      <div className="cal-review-hd">
+        <div className="cal-review-hd-text">
+          <span className="cal-review-eyebrow">Day Review</span>
+          <span className="cal-review-date-lbl">
+            {date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+          </span>
         </div>
-
-        {/* ── Body ── */}
-        <div className="cal-review-body">
-          {loadingReview ? (
-            <div className="cal-review-loading">Loading&hellip;</div>
-          ) : (
-            <>
-              {review && !pendingResults && (
-                <div className="cal-review-existing-badge">
-                  &#x2713;&nbsp;Reviewed &middot; {new Date(review.created_at).toLocaleDateString()}
-                </div>
-              )}
-
-              <p className="cal-review-prompt-label">What did you do?</p>
-              <div className="cal-review-input-wrap">
-                <textarea
-                  className="cal-review-textarea"
-                  placeholder="Describe your day in plain language…&#10;e.g. went to the gym at 8am, skipped the afternoon call, had dinner with family."
-                  value={rawText}
-                  onChange={e => setRawText(e.target.value)}
-                  rows={5}
-                />
-                <button
-                  className={`cal-review-voice-btn${isListening ? ' listening' : ''}`}
-                  onClick={toggleVoice}
-                  title={isListening ? 'Stop recording' : 'Voice input'}
-                  type="button"
-                >
-                  {isListening ? '⏹' : '🎙'}
-                </button>
-              </div>
-
-              {/* ── Results ── */}
-              {results && (
-                <div className="cal-review-results">
-                  {score !== null && (
-                    <div className="cal-review-score-card">
-                      <div className="cal-review-score-ring" style={{ '--score-color': adherenceColor(score) }}>
-                        <svg viewBox="0 0 36 36">
-                          <circle cx="18" cy="18" r="15" className="cal-review-score-track" />
-                          <circle
-                            cx="18" cy="18" r="15"
-                            className="cal-review-score-arc"
-                            strokeDasharray={circ}
-                            strokeDashoffset={circ - (circ * score / 100)}
-                          />
-                        </svg>
-                        <span className="cal-review-score-num">{score}</span>
-                      </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div className="cal-review-score-kicker">Adherence Score</div>
-                        {results.summary
-                          ? <div className="cal-review-summary">&ldquo;{results.summary}&rdquo;</div>
-                          : <div className="cal-review-summary-muted">Save to lock in this review.</div>
-                        }
-                      </div>
-                    </div>
-                  )}
-
-                  {results.event_outcomes?.length > 0 && (
-                    <div className="cal-review-events-section">
-                      <div className="cal-review-subsection-label">Events</div>
-                      <div className="cal-review-events-list">
-                        {results.event_outcomes.map((eo, i) => {
-                          const meta = STATUS_META[eo.status] ?? STATUS_META.skipped
-                          return (
-                            <div key={i} className="cal-review-event-row">
-                              <span className="cal-review-status-dot" style={{ background: meta.color }} />
-                              <div className="cal-review-event-info">
-                                <div className="cal-review-event-title">{eo.title}</div>
-                                {eo.notes && <div className="cal-review-event-notes">{eo.notes}</div>}
-                              </div>
-                              <span
-                                className="cal-review-status-pill"
-                                style={{ color: meta.color, borderColor: `${meta.color}35`, background: `${meta.color}12` }}
-                              >
-                                {meta.label}
-                              </span>
-                            </div>
-                          )
-                        })}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-            </>
-          )}
-        </div>
-
-        {/* ── Footer ── */}
-        <div className="cal-review-footer">
-          {pendingResults ? (
-            <>
-              <button className="cal-review-ghost-btn" onClick={() => setPendingResults(null)}>Discard</button>
-              <button className="cal-review-primary-btn" onClick={handleSave}>Save Review</button>
-            </>
-          ) : (
-            <button
-              className="cal-review-primary-btn"
-              style={{ flex: 1 }}
-              onClick={handleAnalyze}
-              disabled={isLoading || !rawText.trim()}
-            >
-              {isLoading ? 'Analyzing…' : review ? '↺ Re-analyze' : '✦ Analyze Day'}
-            </button>
-          )}
-        </div>
-
+        <button className="cal-review-x" onClick={onClose} type="button">&#x2715;</button>
       </div>
-    </>,
-    document.body
+
+      {/* Scrollable body */}
+      <div className="cal-review-bd">
+        {loadingReview ? (
+          <div className="cal-review-loading">Loading&hellip;</div>
+        ) : (
+          <>
+            {review && !pendingResults && (
+              <div className="cal-review-done-badge">
+                &#x2713;&nbsp;Reviewed
+              </div>
+            )}
+
+            <p className="cal-review-prompt-lbl">What did you actually do?</p>
+            <div className="cal-review-input-wrap">
+              <textarea
+                className="cal-review-textarea"
+                placeholder="Describe your day in plain language&#8230;"
+                value={rawText}
+                onChange={e => setRawText(e.target.value)}
+                rows={4}
+              />
+              <button
+                className={`cal-review-voice-btn${isListening ? ' listening' : ''}`}
+                onClick={toggleVoice}
+                title={isListening ? 'Stop' : 'Voice input'}
+                type="button"
+              >
+                {isListening ? '⏹' : '🎙'}
+              </button>
+            </div>
+
+            {results && (
+              <div className="cal-review-results">
+                {score !== null && (
+                  <div className="cal-review-score-card">
+                    <div className="cal-review-score-ring" style={{ '--score-color': adherenceColor(score) }}>
+                      <svg viewBox="0 0 36 36">
+                        <circle cx="18" cy="18" r="15" className="cal-review-score-track" />
+                        <circle
+                          cx="18" cy="18" r="15"
+                          className="cal-review-score-arc"
+                          strokeDasharray={circ}
+                          strokeDashoffset={circ - (circ * score / 100)}
+                        />
+                      </svg>
+                      <span className="cal-review-score-num">{score}</span>
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div className="cal-review-score-kicker">Adherence</div>
+                      {results.summary
+                        ? <div className="cal-review-summary">&ldquo;{results.summary}&rdquo;</div>
+                        : <div className="cal-review-summary-muted">Save to lock this in.</div>
+                      }
+                    </div>
+                  </div>
+                )}
+
+                {results.event_outcomes?.length > 0 && (
+                  <div className="cal-review-events-section">
+                    <div className="cal-review-sub-lbl">Events</div>
+                    <div className="cal-review-events-list">
+                      {results.event_outcomes.map((eo, i) => {
+                        const meta = STATUS_META[eo.status] ?? STATUS_META.skipped
+                        return (
+                          <div key={i} className="cal-review-event-row">
+                            <span className="cal-review-status-dot" style={{ background: meta.color }} />
+                            <div className="cal-review-event-info">
+                              <div className="cal-review-event-title">{eo.title}</div>
+                              {eo.notes && <div className="cal-review-event-notes">{eo.notes}</div>}
+                            </div>
+                            <span
+                              className="cal-review-status-pill"
+                              style={{ color: meta.color, borderColor: `${meta.color}35`, background: `${meta.color}10` }}
+                            >
+                              {meta.label}
+                            </span>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </>
+        )}
+      </div>
+
+      {/* Footer */}
+      <div className="cal-review-ft">
+        {pendingResults ? (
+          <>
+            <button className="cal-review-ghost-btn" onClick={() => setPendingResults(null)}>Discard</button>
+            <button className="cal-review-primary-btn" onClick={handleSave}>Save</button>
+          </>
+        ) : (
+          <button
+            className="cal-review-primary-btn"
+            style={{ flex: 1 }}
+            onClick={handleAnalyze}
+            disabled={isLoading || !rawText.trim()}
+          >
+            {isLoading ? 'Analyzing…' : review ? '↺ Re-analyze' : '✶ Analyze Day'}
+          </button>
+        )}
+      </div>
+
+    </div>
   )
 }
