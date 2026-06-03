@@ -276,6 +276,15 @@ export default function Calendar() {
           onClose={() => setShowAIPlanner(false)}
         />
       )}
+
+      {showDayReview && (
+        <DayReviewPanel
+          date={currentDate}
+          events={events}
+          gymPlanned={gymPlanned}
+          onClose={() => setShowDayReview(false)}
+        />
+      )}
     </div>
   )
 }
