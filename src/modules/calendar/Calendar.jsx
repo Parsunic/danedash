@@ -248,6 +248,7 @@ export default function Calendar() {
               currentDate={currentDate}
               events={events}
               gymPlanned={gymPlanned}
+              dayReviews={dayReviews}
               onDateSelect={handleDateSelect}
               onEventClick={handleEventClick}
             />
