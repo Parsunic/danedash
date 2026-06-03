@@ -286,14 +286,6 @@ export default function Calendar() {
         />
       )}
 
-      {showDayReview && (
-        <DayReviewPanel
-          date={currentDate}
-          events={events}
-          gymPlanned={gymPlanned}
-          onClose={() => setShowDayReview(false)}
-        />
-      )}
     </div>
   )
 }
