@@ -3395,3 +3395,322 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
   }
   .journal-day-panel.open { transform: translateY(0); }
 }
+
+/* ════════════════════════════════════════════════
+   DAY REVIEW PANEL
+   ════════════════════════════════════════════════ */
+
+.cal-review-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(4px);
+  z-index: 598;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+}
+.cal-review-backdrop.open { opacity: 1; pointer-events: auto; }
+
+.cal-review-panel {
+  position: fixed;
+  right: 0; top: 0;
+  width: 380px;
+  height: 100%;
+  background: #0d0d0f;
+  border-left: 1px solid rgba(255,255,255,0.09);
+  z-index: 599;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.25s ease;
+  box-shadow: -12px 0 40px rgba(0,0,0,0.55);
+}
+.cal-review-panel.open { transform: translateX(0); }
+
+/* Reuse cal-sidebar-header / body / footer — just need the close button */
+.cal-sidebar-close {
+  background: transparent;
+  border: none;
+  color: var(--text-tertiary);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: color 0.15s, background 0.15s;
+}
+.cal-sidebar-close:hover { color: var(--text-primary); background: rgba(255,255,255,0.06); }
+
+.cal-review-loading {
+  font-size: 13px;
+  color: var(--text-tertiary);
+  text-align: center;
+  margin-top: 48px;
+}
+
+.cal-review-existing-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  background: rgba(107,227,164,0.08);
+  border: 1px solid rgba(107,227,164,0.2);
+  color: var(--success);
+  font-size: 11px;
+  font-weight: 600;
+  margin-bottom: 18px;
+}
+
+.cal-review-section-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--text-tertiary);
+  margin-bottom: 8px;
+}
+
+.cal-review-input-wrap { position: relative; }
+
+.cal-review-textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 12px 44px 12px 14px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 12px;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.65;
+  resize: vertical;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+.cal-review-textarea::placeholder { color: var(--text-tertiary); }
+.cal-review-textarea:focus { border-color: rgba(232,160,32,0.4); }
+
+.cal-review-voice-btn {
+  position: absolute;
+  top: 10px; right: 10px;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: background 0.15s, border-color 0.15s;
+}
+.cal-review-voice-btn:hover { background: rgba(255,255,255,0.07); }
+.cal-review-voice-btn.listening {
+  border-color: var(--danger);
+  background: rgba(255,107,107,0.12);
+  animation: review-mic-pulse 1.2s ease-in-out infinite alternate;
+}
+@keyframes review-mic-pulse {
+  from { box-shadow: 0 0 0 0 rgba(255,107,107,0.35); }
+  to   { box-shadow: 0 0 0 7px rgba(255,107,107,0); }
+}
+
+/* ── Score ring ── */
+.cal-review-results { margin-top: 20px; }
+
+.cal-review-score-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 16px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 14px;
+}
+
+.cal-review-score-ring {
+  position: relative;
+  width: 58px;
+  height: 58px;
+  flex-shrink: 0;
+}
+.cal-review-score-ring svg {
+  width: 58px;
+  height: 58px;
+  transform: rotate(-90deg);
+  overflow: visible;
+}
+.cal-review-score-track {
+  fill: none;
+  stroke: rgba(255,255,255,0.07);
+  stroke-width: 3;
+}
+.cal-review-score-arc {
+  fill: none;
+  stroke: var(--score-color);
+  stroke-width: 3;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.7s cubic-bezier(0.34, 1.3, 0.64, 1);
+}
+.cal-review-score-num {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  color: var(--score-color);
+}
+
+.cal-review-score-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--text-tertiary);
+  margin-bottom: 5px;
+}
+.cal-review-summary {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  font-style: italic;
+}
+
+/* ── Event outcomes list ── */
+.cal-review-events-list { display: flex; flex-direction: column; gap: 6px; }
+
+.cal-review-event-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px;
+}
+.cal-review-status-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.cal-review-event-info { flex: 1; min-width: 0; }
+.cal-review-event-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cal-review-event-notes {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cal-review-status-badge {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 2px 8px;
+  border-radius: 20px;
+  border: 1px solid;
+  flex-shrink: 0;
+}
+
+/* ── Footer buttons ── */
+.cal-review-analyze-btn {
+  flex: 1;
+  padding: 10px 18px;
+  border-radius: 10px;
+  border: none;
+  background: var(--accent);
+  color: #000;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s, opacity 0.15s;
+}
+.cal-review-analyze-btn:hover:not(:disabled) { background: #d4901a; }
+.cal-review-analyze-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.cal-review-save-btn {
+  flex: 1;
+  padding: 10px 18px;
+  border-radius: 10px;
+  border: none;
+  background: var(--accent);
+  color: #000;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.cal-review-save-btn:hover { background: #d4901a; }
+
+.cal-review-discard-btn {
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.cal-review-discard-btn:hover { background: rgba(255,255,255,0.06); }
+
+/* ── Review button in Calendar header ── */
+.cal-review-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 13px;
+  border-radius: 9px;
+  border: 1px solid rgba(107,227,164,0.28);
+  background: rgba(107,227,164,0.07);
+  color: var(--success);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.cal-review-btn:hover {
+  background: rgba(107,227,164,0.14);
+  border-color: rgba(107,227,164,0.45);
+}
+
+/* ── Month view review dot ── */
+.cal-month-cell { position: relative; }
+.cal-month-review-dot {
+  position: absolute;
+  bottom: 4px; right: 5px;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .cal-review-panel {
+    width: 100%;
+    border-left: none;
+    border-top: 1px solid rgba(255,255,255,0.09);
+    border-radius: 20px 20px 0 0;
+    top: auto; bottom: 0;
+    height: 88dvh;
+    transform: translateY(100%);
+  }
+  .cal-review-panel.open { transform: translateY(0); }
+  .cal-review-btn { display: none; }
+}
+}
