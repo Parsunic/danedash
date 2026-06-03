@@ -80,6 +80,20 @@ export default function Calendar() {
     }
   }, [])
 
+  const fetchDayReviews = useCallback(async () => {
+    const { data } = await supabase
+      .from('day_reviews')
+      .select('date, overall_adherence_score')
+    setDayReviews(data || [])
+  }, [])
+
+  useEffect(() => {
+    fetchDayReviews()
+    const onSaved = () => fetchDayReviews()
+    window.addEventListener('day-review-saved', onSaved)
+    return () => window.removeEventListener('day-review-saved', onSaved)
+  }, [fetchDayReviews])
+
   const saveEvents = useCallback((next) => {
     storeSet(STORAGE_KEY, next)
     setEvents(next)
