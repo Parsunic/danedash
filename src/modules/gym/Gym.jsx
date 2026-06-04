@@ -20,9 +20,11 @@ const DESKTOP_PANEL_VIEWS = ['templates', 'ai-coach', 'history', 'stats']
 const INIT_REST = { visible: false, remaining: 0, total: 0, paused: false, lastSecs: 90 }
 
 const isDesktop = typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches
+const isGymMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches
 
 export default function Gym() {
-  const [activeView, setActiveView] = useState(isDesktop ? 'templates' : 'templates')
+  const [activeView, setActiveView] = useState(isGymMobile ? 'log' : 'planner')
+  const [activePanel, setActivePanel] = useState(null) // desktop panel: null = closed
   const [plannerWeekOffset, setPlannerWeekOffset] = useState(0)
   const [activeSession, setActiveSession] = useState(null)
   const [restState, setRestState] = useState(INIT_REST)
@@ -56,7 +58,6 @@ export default function Gym() {
   }, [])
 
   useEffect(() => () => clearInterval(restIntervalRef.current), [])
-
   useEffect(() => { runMuscleMigration().catch(() => {}) }, [])
 
   // ── WORKOUT CONTROL ──
@@ -70,7 +71,8 @@ export default function Gym() {
       })),
     }
     setActiveSession(session)
-    setActiveView('log')
+    if (isDesktop) setActivePanel('log')
+    else setActiveView('log')
   }, [])
 
   const handleLogSet = useCallback((ei, weight, reps, rpe) => {
@@ -141,13 +143,15 @@ export default function Gym() {
     setActiveSession({ __done: true, name: sName })
     setTimeout(() => {
       setActiveSession(null)
-      setActiveView('history')
+      if (isDesktop) setActivePanel('history')
+      else setActiveView('history')
     }, 1200)
   }, [activeSession])
 
   const handleAIPlanLoaded = useCallback(weekOffset => {
     setPlannerWeekOffset(weekOffset)
-    if (!isDesktop) setActiveView('planner')
+    if (isDesktop) setActivePanel('ai-coach')
+    else setActiveView('planner')
   }, [])
 
   const logContent = activeSession?.__done ? (
@@ -173,14 +177,34 @@ export default function Gym() {
     />
   )
 
+  // ── DESKTOP LAYOUT ──
   if (isDesktop) {
+    // Panel is visible when a session is active or user selected a panel view
+    const panelVisible = activePanel !== null || activeSession !== null
+    const panelContent = activeSession
+      ? logContent
+      : activePanel === 'templates' ? <TemplatesView />
+      : activePanel === 'ai-coach' ? <AICoachView onPlanLoaded={handleAIPlanLoaded} />
+      : activePanel === 'history' ? <HistoryView />
+      : activePanel === 'stats' ? <StatsView />
+      : null
+
     return (
       <>
-        <h1 className="dash-title">Gym</h1>
-        <div className="gym-desktop-two-col">
-          {/* Left: Planner — takes all available space */}
+        <div className="gym-desktop-header">
+          <h1 className="dash-title" style={{ margin: 0 }}>Gym</h1>
+          <div className="gym-panel-nav">
+            {DESKTOP_PANEL_VIEWS.map(v => (
+              <button
+                key={v}
+                className={`gym-panel-nav-btn${activePanel === v && !activeSession ? ' active' : ''}`}
+                onClick={() => { if (!activeSession) setActivePanel(prev => prev === v ? null : v) }}
+              >{VIEW_LABELS[v]}</button>
+            ))}
+          </div>
+        </div>
+        <div className={`gym-desktop-two-col${panelVisible ? '' : ' gym-planner-full'}`}>
           <div className="gym-desktop-planner-col">
-            <div className="gym-desktop-col-title">Planner</div>
             <PlannerView
               weekOffset={plannerWeekOffset}
               onWeekOffsetChange={setPlannerWeekOffset}
@@ -188,40 +212,20 @@ export default function Gym() {
               desktopMode
             />
           </div>
-
-          {/* Right: Templates / AI Coach / History / Stats panel */}
-          <div className="gym-desktop-col--panel">
-            <div className="gym-subnav gym-subnav--panel">
-              {DESKTOP_PANEL_VIEWS.map(v => (
-                <button
-                  key={v}
-                  className={`gym-subnav-btn${activeView === v ? ' active' : ''}`}
-                  onClick={() => setActiveView(v)}
-                >{VIEW_LABELS[v]}</button>
-              ))}
-            </div>
-            <div className="gym-panel-scroll">
-              <div className={`gym-panel-view${activeView === 'templates' ? ' active' : ''}`}>
-                <TemplatesView />
-              </div>
-              <div className={`gym-panel-view${activeView === 'ai-coach' ? ' active' : ''}`}>
-                <AICoachView onPlanLoaded={handleAIPlanLoaded} />
-              </div>
-              <div className={`gym-panel-view${activeView === 'history' ? ' active' : ''}`}>
-                <HistoryView />
-              </div>
-              <div className={`gym-panel-view${activeView === 'stats' ? ' active' : ''}`}>
-                <StatsView />
+          {panelVisible && (
+            <div className="gym-desktop-col--panel">
+              <div className="gym-panel-scroll">
+                {panelContent}
               </div>
             </div>
-          </div>
+          )}
         </div>
-
         {restTimer}
       </>
     )
   }
 
+  // ── MOBILE LAYOUT ──
   return (
     <>
       <BackgroundBlob page="gym" />
