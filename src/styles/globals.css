@@ -2410,6 +2410,240 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
 }
 .planner-week-tpl-chevron.open { transform: rotate(90deg); }
 
+/* ── PLANNER HEADER ROW (month/week toggle) ── */
+.planner-header-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.planner-nav-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+.planner-view-toggle {
+  display: flex;
+  gap: 3px;
+  flex-shrink: 0;
+}
+.planner-view-btn {
+  padding: 5px 11px;
+  border-radius: 7px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: transparent;
+  color: var(--text-tertiary);
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.planner-view-btn.active {
+  background: rgba(232,160,32,0.12);
+  border-color: rgba(232,160,32,0.3);
+  color: var(--accent);
+}
+.planner-view-btn:not(.active):hover {
+  background: rgba(255,255,255,0.06);
+  color: var(--text-secondary);
+}
+
+/* ── PLANNER MONTH VIEW ── */
+.planner-month-dow-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+  margin-bottom: 4px;
+}
+.planner-month-dow {
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  padding: 3px 0;
+}
+.planner-month-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+  margin-bottom: 16px;
+}
+.planner-month-cell {
+  min-height: 52px;
+  border-radius: 9px;
+  padding: 5px 4px 6px;
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(255,255,255,0.05);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: visible;
+}
+.planner-month-cell:hover { border-color: rgba(232,160,32,0.28); background: rgba(232,160,32,0.04); }
+.planner-month-cell.other-month { opacity: 0.28; pointer-events: none; }
+.planner-month-cell.is-today { border-color: rgba(232,160,32,0.5); background: rgba(232,160,32,0.06); }
+.planner-month-cell.has-workout { border-color: rgba(255,255,255,0.10); }
+.planner-month-cell.is-completed { background: rgba(107,227,164,0.05); border-color: rgba(107,227,164,0.22); }
+.planner-month-num {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  text-align: center;
+  width: 100%;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.planner-month-num.is-today { color: var(--accent); }
+
+/* ── MUSCLE BLOBS ── */
+.planner-muscle-blobs {
+  display: flex;
+  gap: 3px;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: auto;
+}
+.planner-muscle-blob {
+  width: 16px;
+  height: 12px;
+  opacity: 0.88;
+  flex-shrink: 0;
+}
+.planner-muscle-blob.blob-a {
+  border-radius: 60% 40% 55% 45% / 50% 60% 40% 55%;
+}
+.planner-muscle-blob.blob-b {
+  border-radius: 45% 60% 40% 55% / 60% 45% 55% 40%;
+}
+
+/* ── MONTH CELL TOOLTIP ── */
+.planner-month-tooltip {
+  position: absolute;
+  bottom: calc(100% + 7px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 200;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.12s;
+  background: #0D0D10;
+  border: 1px solid rgba(255,255,255,0.13);
+  border-radius: 10px;
+  padding: 10px 12px;
+  min-width: 148px;
+  max-width: 210px;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.6);
+  white-space: nowrap;
+}
+.planner-month-cell:hover .planner-month-tooltip { opacity: 1; }
+.pmt-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.pmt-exercises { display: flex; flex-direction: column; gap: 2px; margin-bottom: 6px; }
+.pmt-ex {
+  font-size: 10px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.pmt-more { color: var(--text-tertiary); font-style: italic; }
+.pmt-muscles {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  padding-top: 5px;
+}
+.pmt-muscle-tag {
+  font-size: 10px;
+  font-weight: 600;
+  font-family: var(--font-mono);
+}
+
+/* ── MUSCLE COLOR KEY ── */
+.planner-muscle-key {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px 12px;
+  padding: 12px 14px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 10px;
+  margin-top: 4px;
+  margin-bottom: 20px;
+}
+.planner-key-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.planner-key-item span {
+  font-size: 10px;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+}
+.planner-key-blob {
+  width: 12px;
+  height: 9px;
+  opacity: 0.9;
+}
+
+/* ── GYM DESKTOP HEADER (title + panel nav) ── */
+.gym-desktop-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  gap: 16px;
+}
+.gym-panel-nav {
+  display: flex;
+  gap: 5px;
+  flex-shrink: 0;
+}
+.gym-panel-nav-btn {
+  padding: 7px 14px;
+  border-radius: 9px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.03);
+  color: var(--text-tertiary);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.gym-panel-nav-btn:hover { background: rgba(255,255,255,0.07); color: var(--text-secondary); }
+.gym-panel-nav-btn.active {
+  background: rgba(232,160,32,0.12);
+  border-color: rgba(232,160,32,0.32);
+  color: var(--accent);
+}
+
+/* planner full-width when no panel open */
+.gym-desktop-two-col.gym-planner-full {
+  grid-template-columns: 1fr;
+}
+
 /* ── STATS VIEW ── */
 .gym-stats-view { display: flex; flex-direction: column; gap: 0; }
 .gym-stats-search-wrap {
