@@ -172,6 +172,48 @@ function SettingsModal({ onClose }) {
               </>
             )}
           </div>
+
+          <div className="settings-section-divider" />
+          <p className="settings-section-title">Fitbit</p>
+
+          <label className="settings-label">Client ID</label>
+          <div className="settings-input-row">
+            <input
+              className="settings-input"
+              type="text"
+              value={fitbitClientId}
+              onChange={e => setFitbitClientIdState(e.target.value)}
+              placeholder="22XXXXX"
+              autoComplete="off"
+              spellCheck={false}
+            />
+          </div>
+          <p className="settings-hint">From dev.fitbit.com → Register an App. Set redirect URI to <code style={{ fontSize: 10, background: 'rgba(255,255,255,0.07)', borderRadius: 3, padding: '1px 4px' }}>{window.location.origin}</code></p>
+
+          <div className="gcal-status-row">
+            {fitbitConnected ? (
+              <>
+                <span className="gcal-status-text connected">Connected</span>
+                <button className="settings-eye" onClick={handleFitbitDisconnect}>Disconnect</button>
+              </>
+            ) : (
+              <>
+                <span className="gcal-status-text">Not connected</span>
+                <button
+                  className="gcal-connect-btn"
+                  onClick={handleFitbitConnect}
+                  disabled={!fitbitClientId.trim()}
+                >
+                  Connect Fitbit
+                </button>
+              </>
+            )}
+          </div>
+          {fitbitConnected && fitbitLastSync && (
+            <p className="settings-hint" style={{ marginTop: 4 }}>
+              Last synced: {new Date(fitbitLastSync).toLocaleString()}
+            </p>
+          )}
         </div>
         <div className="settings-footer">
           <button className="settings-save" onClick={save}>Save</button>
