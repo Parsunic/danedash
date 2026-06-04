@@ -39,7 +39,7 @@ function LockIcon({ size = 13 }) {
 
 // ── EntryCard ──
 
-function EntryCard({ entry }) {
+function EntryCard({ entry, onAnalyze, analysis, isAnalyzing }) {
   const locked = isEntryLocked(entry)
   const remaining = locked ? lockTimeRemaining(entry) : ''
   const d = new Date(entry.created_at)
@@ -53,6 +53,16 @@ function EntryCard({ entry }) {
             {entry.tags.map(t => <span key={t} className="journal-entry-tag">{t}</span>)}
           </div>
         )}
+        {!locked && onAnalyze && (
+          <button
+            className="journal-analyze-btn"
+            onClick={() => onAnalyze(entry)}
+            disabled={isAnalyzing}
+            title="Analyze with AI"
+          >
+            {isAnalyzing ? '…' : 'Analyze'}
+          </button>
+        )}
       </div>
       {locked ? (
         <div className="journal-entry-locked">
@@ -61,6 +71,11 @@ function EntryCard({ entry }) {
         </div>
       ) : (
         <p className="journal-entry-text">{entry.text}</p>
+      )}
+      {analysis && (
+        <div className="journal-analysis-box">
+          {renderAnalysis(analysis)}
+        </div>
       )}
     </div>
   )
