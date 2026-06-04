@@ -29,16 +29,16 @@ function SettingsModal({ onClose }) {
   const [showGcalSecret, setShowGcalSecret]      = useState(false)
 
   useEffect(() => {
-    const onConnect    = () => { setFitbitConnected(true);  setFitbitLastSync_(getFitbitLastSync()) }
-    const onDisconnect = () => setFitbitConnected(false)
-    const onStatus     = (e) => { if (e.detail?.lastSync) setFitbitLastSync_(e.detail.lastSync) }
-    window.addEventListener('fitbit-connected',    onConnect)
-    window.addEventListener('fitbit-disconnected', onDisconnect)
-    window.addEventListener('fitbit-sync-status',  onStatus)
+    const onConnect    = () => { setGfitConnected(true);  setGfitLastSync_(getGfitLastSync()) }
+    const onDisconnect = () => setGfitConnected(false)
+    const onStatus     = (e) => { if (e.detail?.lastSync) setGfitLastSync_(e.detail.lastSync) }
+    window.addEventListener('gfit-connected',    onConnect)
+    window.addEventListener('gfit-disconnected', onDisconnect)
+    window.addEventListener('gfit-sync-status',  onStatus)
     return () => {
-      window.removeEventListener('fitbit-connected',    onConnect)
-      window.removeEventListener('fitbit-disconnected', onDisconnect)
-      window.removeEventListener('fitbit-sync-status',  onStatus)
+      window.removeEventListener('gfit-connected',    onConnect)
+      window.removeEventListener('gfit-disconnected', onDisconnect)
+      window.removeEventListener('gfit-sync-status',  onStatus)
     }
   }, [])
 
