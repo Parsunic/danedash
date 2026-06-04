@@ -100,6 +100,16 @@ export const modules = [
     ),
     component: Calendar,
   },
+  {
+    path: '/health',
+    label: 'Health',
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <path d="M1 9h3.5l2-4.5 3 9 2-6 1.5 1.5H17" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    ),
+    component: Health,
+  },
 ]
 
 export default function App() {
