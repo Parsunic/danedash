@@ -11,7 +11,6 @@ import {
   getUserEmail, clearTokens, isConnected,
 } from '../lib/api/gcalendar.js'
 import { isGfitConnected, clearGfitTokens, getGfitLastSync } from '../lib/api/googlefit.js'
-import { getClientId } from '../lib/api/gcalendar.js'
 import { initiateGoogleOAuth } from '../modules/calendar/googleSync.js'
 import { initiateGoogleFitOAuth } from '../modules/health/googleFitSync.js'
 
