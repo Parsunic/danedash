@@ -3743,7 +3743,7 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
 .health-sync-btn:disabled { opacity: 0.35; cursor: not-allowed; }
 
 /* ── Fitbit status pill ── */
-.fitbit-sync-pill {
+.gfit-sync-pill {
   display: flex;
   align-items: center;
   gap: 5px;
@@ -3759,9 +3759,9 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
   border-radius: 50%;
   background: var(--text-tertiary);
 }
-.fitbit-sync-pill[data-status="syncing"] .fitbit-sync-dot { background: var(--warning); animation: ledPulse 1s ease-in-out infinite; }
-.fitbit-sync-pill[data-status="synced"]  .fitbit-sync-dot { background: var(--success); }
-.fitbit-sync-pill[data-status="error"]   .fitbit-sync-dot { background: var(--danger); }
+.gfit-sync-pill[data-status="syncing"] .fitbit-sync-dot { background: var(--warning); animation: ledPulse 1s ease-in-out infinite; }
+.gfit-sync-pill[data-status="synced"]  .fitbit-sync-dot { background: var(--success); }
+.gfit-sync-pill[data-status="error"]   .fitbit-sync-dot { background: var(--danger); }
 
 /* ── Connect banner ── */
 .health-connect-banner {
