@@ -89,7 +89,7 @@ export default function Gym() {
     startRestTimer(restState.lastSecs)
   }, [startRestTimer, restState.lastSecs])
 
-  const handleFinishWorkout = useCallback(() => {
+  const handleFinishWorkout = useCallback(async () => {
     if (!activeSession) return
     if (!activeSession.exercises.some(ex => ex.sets.length) && !confirm('No sets logged. Finish anyway?')) return
 
@@ -109,14 +109,23 @@ export default function Gym() {
     })
     storeSet('gym_exercise_history', hist)
 
+    const exNames = activeSession.exercises.map(ex => ex.name).filter(Boolean)
+    const muscleMap = await lookupMusclesBatch(exNames).catch(() => ({}))
+
     const logs = storeGet('gym_workout_logs') || []
     logs.push({
       id: activeSession.id, date: activeSession.date, name: activeSession.name,
       plannedId: activeSession.plannedId, startedAt: activeSession.startedAt,
       completedAt: new Date().toISOString(), duration: Date.now() - activeSession.startedAt,
-      exercises: activeSession.exercises.map(ex => ({
-        name: ex.name, e1rm: ex.sets.length ? Math.max(...ex.sets.map(s => s.e1rm || 0)) : null, sets: ex.sets,
-      })),
+      exercises: activeSession.exercises.map(ex => {
+        const muscle = muscleMap[ex.name] ?? 'other'
+        return {
+          name: ex.name,
+          primary_muscle: muscle,
+          e1rm: ex.sets.length ? Math.max(...ex.sets.map(s => s.e1rm || 0)) : null,
+          sets: ex.sets.map(s => ({ ...s, primary_muscle: muscle })),
+        }
+      }),
     })
     if (logs.length > 200) logs.splice(0, logs.length - 200)
     storeSet('gym_workout_logs', logs)
