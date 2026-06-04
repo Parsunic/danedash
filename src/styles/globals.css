@@ -3221,6 +3221,42 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
   font-style: italic;
 }
 .journal-entry-lock-icon { color: rgba(255,255,255,0.22); display: flex; align-items: center; }
+.journal-analyze-btn {
+  margin-left: auto;
+  font-size: 10px;
+  font-family: var(--font-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: rgba(232,160,32,0.07);
+  border: 1px solid rgba(232,160,32,0.18);
+  border-radius: 5px;
+  padding: 3px 9px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+}
+.journal-analyze-btn:hover { background: rgba(232,160,32,0.14); border-color: rgba(232,160,32,0.35); }
+.journal-analyze-btn:disabled { opacity: 0.45; cursor: wait; }
+.journal-analysis-box {
+  margin-top: 12px;
+  padding: 11px 14px;
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-left: 2px solid rgba(232,160,32,0.38);
+  border-radius: 8px;
+  font-size: 12.5px;
+  line-height: 1.68;
+  color: var(--text-secondary);
+  white-space: pre-wrap;
+}
+.journal-analysis-box strong {
+  color: var(--text-primary);
+  font-weight: 600;
+  display: block;
+  margin-top: 8px;
+}
+.journal-analysis-box strong:first-child { margin-top: 0; }
 
 /* ── Entry Calendar section ── */
 .journal-cal-section { display: flex; flex-direction: column; gap: 0; }
