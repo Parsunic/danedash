@@ -444,6 +444,9 @@ Keep the total response under 220 words. Be direct. Skip affirmations and filler
           dateStr={selectedDay}
           entries={dayPanelEntries}
           onClose={() => setSelectedDay(null)}
+          onAnalyze={analyzeEntry}
+          analyses={analyses}
+          analyzing={analyzing}
         />
       )}
     </div>
