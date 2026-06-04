@@ -15,9 +15,9 @@ function OAuthCallbackHandler() {
   const navigate = useNavigate()
   useEffect(() => {
     if (new URLSearchParams(window.location.search).has('code')) {
-      // Disambiguate: Fitbit stores its state key before redirecting
-      if (localStorage.getItem('fitbit_oauth_state')) {
-        handleFitbitCallback().then(success => {
+      // Disambiguate: Google Fit stores its verifier under a different key than GCal
+      if (localStorage.getItem('googlefit_code_verifier')) {
+        handleGoogleFitCallback().then(success => {
           navigate(success ? '/health' : '/', { replace: true })
           if (success) syncTodayIfStale()
         })
