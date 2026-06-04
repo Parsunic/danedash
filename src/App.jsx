@@ -9,7 +9,7 @@ import Calendar from './modules/calendar/index.jsx'
 import Health from './modules/health/index.jsx'
 import { SyncProvider } from './contexts/SyncContext.jsx'
 import { handleOAuthCallback, syncOnLoad } from './modules/calendar/googleSync.js'
-import { handleFitbitCallback, syncTodayIfStale, loadTokensFromSupabase } from './modules/health/fitbitSync.js'
+import { handleGoogleFitCallback, syncTodayIfStale, loadTokensFromSupabase } from './modules/health/googleFitSync.js'
 
 function OAuthCallbackHandler() {
   const navigate = useNavigate()
