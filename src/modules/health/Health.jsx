@@ -332,8 +332,8 @@ export default function Health() {
             </button>
           )}
           {syncStatus && (
-            <div className="fitbit-sync-pill" data-status={syncStatus}>
-              <span className="fitbit-sync-dot" />
+            <div className="gfit-sync-pill" data-status={syncStatus}>
+              <span className="gfit-sync-dot" />
               <span>{syncStatus}</span>
             </div>
           )}
