@@ -57,6 +57,8 @@ export default function Gym() {
 
   useEffect(() => () => clearInterval(restIntervalRef.current), [])
 
+  useEffect(() => { runMuscleMigration().catch(() => {}) }, [])
+
   // ── WORKOUT CONTROL ──
   const startWorkout = useCallback((exList, plannedId, name) => {
     const session = {
