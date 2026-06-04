@@ -314,7 +314,7 @@ export default function Health() {
           <div className="health-subtitle">
             {lastSync
               ? `Synced ${relativeTime(lastSync)}`
-              : connected ? 'Syncing…' : 'Connect Fitbit in Settings to sync'}
+              : connected ? 'Syncing…' : 'Connect Google Health in Settings to sync'}
           </div>
         </div>
         <div className="health-header-right">
