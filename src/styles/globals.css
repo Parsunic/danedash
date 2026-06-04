@@ -4006,15 +4006,111 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
   letter-spacing: 0.05em;
 }
 
-/* ── Desktop 2-col layout ── */
+/* ── Chart cards ── */
+.health-section-label {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: rgba(250,250,250,0.28);
+  margin: 22px 0 10px;
+}
+.health-chart-card {
+  background: rgba(8,8,12,0.6);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 16px;
+  padding: 16px 16px 12px;
+  margin-bottom: 12px;
+}
+.health-chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.health-chart-meta {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: rgba(250,250,250,0.28);
+  letter-spacing: 0.04em;
+}
+/* Row that sits two charts side by side on desktop, stacks on mobile */
+.health-chart-row {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Glass tooltip */
+.chart-tooltip-glass {
+  background: rgba(8,8,13,0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 10px;
+  padding: 10px 14px;
+  min-width: 148px;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.45);
+}
+.chart-tooltip-label {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: rgba(250,250,250,0.38);
+  letter-spacing: 0.07em;
+  margin-bottom: 7px;
+}
+.chart-tooltip-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  margin-top: 3px;
+}
+.chart-tooltip-name {
+  font-size: 11px;
+  color: rgba(250,250,250,0.5);
+}
+.chart-tooltip-value {
+  font-size: 12px;
+  font-family: var(--font-mono);
+  color: rgba(250,250,250,0.88);
+  font-weight: 600;
+}
+
+/* Sleep stages chart legend */
+.sleep-stages-key {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+.sleep-stages-key-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: rgba(250,250,250,0.38);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+.sleep-stages-key-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* ── Desktop layout ── */
 @media (min-width: 1024px) {
-  .health-desktop-grid {
+  .health-chart-row {
     display: grid;
-    grid-template-columns: 1fr 400px;
-    gap: 22px;
-    align-items: start;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
   }
-  .health-main-col { min-width: 0; }
-  .health-side-col { min-width: 0; position: sticky; top: 20px; }
+  .health-chart-row .health-chart-card {
+    margin-bottom: 0;
+  }
 }
 
