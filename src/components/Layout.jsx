@@ -63,15 +63,14 @@ function SettingsModal({ onClose }) {
     initiateGoogleOAuth()
   }, [gcalClientId, gcalClientSecret])
 
-  const handleFitbitConnect = useCallback(() => {
-    setFitbitClientId(fitbitClientId)
-    initiateFitbitOAuth()
-  }, [fitbitClientId])
+  const handleGfitConnect = useCallback(() => {
+    initiateGoogleFitOAuth()
+  }, [])
 
-  const handleFitbitDisconnect = useCallback(() => {
-    clearFitbitTokens()
-    setFitbitConnected(false)
-    window.dispatchEvent(new Event('fitbit-disconnected'))
+  const handleGfitDisconnect = useCallback(() => {
+    clearGfitTokens()
+    setGfitConnected(false)
+    window.dispatchEvent(new Event('gfit-disconnected'))
   }, [])
 
   return (
