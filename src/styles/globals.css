@@ -122,6 +122,12 @@
   background: radial-gradient(circle, rgba(232,160,32,0.10) 0%, transparent 70%);
   animation: blob-journal 24s ease-in-out infinite;
 }
+.bg-blob--health {
+  top: calc(35% - 320px);
+  right: -140px;
+  background: radial-gradient(circle, rgba(139,92,246,0.20) 0%, rgba(232,160,32,0.08) 55%, transparent 78%);
+  animation: blob-health 10s ease-in-out infinite alternate;
+}
 
 /* ── BASE ── */
 html { font-size: 16px; height: 100%; }
