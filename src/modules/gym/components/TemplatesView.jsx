@@ -148,13 +148,20 @@ export default function TemplatesView() {
     return () => window.removeEventListener('gym-changed', reload)
   }, [reload])
 
-  const handleSave = useCallback((name, exercises) => {
+  const handleSave = useCallback(async (name, exercises) => {
+    const names = exercises.map(e => e.name).filter(Boolean)
+    const muscleMap = await lookupMusclesBatch(names).catch(() => ({}))
+    const enriched = exercises.map(ex => ({
+      ...ex,
+      primary_muscle: muscleMap[ex.name] ?? 'other',
+    }))
+
     const tpls = storeGet('gym_templates') || []
     if (modalTpl?.id) {
       const idx = tpls.findIndex(t => t.id === modalTpl.id)
-      if (idx >= 0) tpls[idx] = { ...tpls[idx], name, exercises }
+      if (idx >= 0) tpls[idx] = { ...tpls[idx], name, exercises: enriched }
     } else {
-      tpls.push({ id: gymUUID(), name, exercises })
+      tpls.push({ id: gymUUID(), name, exercises: enriched })
     }
     storeSet('gym_templates', tpls)
     setModalTpl(undefined)
