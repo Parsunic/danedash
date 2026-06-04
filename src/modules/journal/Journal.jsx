@@ -267,6 +267,51 @@ export default function Journal() {
     }
   }, [entries, generatingPrompt])
 
+  const analyzeEntry = useCallback(async (entry) => {
+    if (analyzing[entry.id]) return
+    const apiKey = localStorage.getItem('anthropic_api_key') || ''
+    if (!apiKey) {
+      setAnalyses(prev => ({ ...prev, [entry.id]: 'No API key set. Add one in Settings to use AI analysis.' }))
+      return
+    }
+    setAnalyzing(prev => ({ ...prev, [entry.id]: true }))
+    try {
+      const resp = await fetch(ANTHROPIC_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true',
+        },
+        body: JSON.stringify({
+          model: 'claude-haiku-4-5-20251001',
+          max_tokens: 350,
+          system: `You are a sharp, honest journal analyst — a thoughtful friend who tells it straight, not a therapist who validates everything. Do not be sycophantic. Your job is to help the writer understand what they're actually thinking, not what they want to hear.
+
+Respond in exactly three sections:
+**What you're actually saying:** Distill the real core of what they wrote. Cut through hedging, repetition, or noise. One to three sentences.
+**What to notice:** Honest observations. Point out patterns, contradictions, avoidance, or blind spots. If something looks like circular thinking or self-deception, name it plainly. Don't soften it.
+**Try this:** 2–3 specific, concrete actions they could take today or this week. Not vague ("work on yourself") — real steps.
+
+Keep the total response under 220 words. Be direct. Skip affirmations and filler phrases.`,
+          messages: [{ role: 'user', content: `Journal entry:\n\n${entry.text}` }],
+        }),
+      })
+      const data = await resp.json()
+      if (!data.error) {
+        setAnalyses(prev => ({ ...prev, [entry.id]: data.content[0].text.trim() }))
+      } else {
+        setAnalyses(prev => ({ ...prev, [entry.id]: 'Analysis failed. Check your API key.' }))
+      }
+    } catch (e) {
+      console.error('[Journal Analyze]', e)
+      setAnalyses(prev => ({ ...prev, [entry.id]: 'Analysis failed. Check your connection.' }))
+    } finally {
+      setAnalyzing(prev => ({ ...prev, [entry.id]: false }))
+    }
+  }, [analyzing])
+
   const allSortedEntries = useMemo(() =>
     [...entries].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)),
     [entries]
