@@ -343,10 +343,10 @@ export default function Health() {
       {/* Connect banner when not linked */}
       {!connected && (
         <div className="health-connect-banner">
-          <div className="health-connect-title">Connect Fitbit</div>
+          <div className="health-connect-title">Connect Google Health</div>
           <div className="health-connect-hint">
-            Sync sleep stages, HRV, heart rate, and daily steps automatically.
-            Enter your Fitbit Client ID in Settings, then tap Connect.
+            Sync sleep stages, HRV, heart rate, and daily steps from Google Fit.
+            Configure your Google OAuth credentials in Settings, then tap Connect.
           </div>
           <button className="health-connect-btn" onClick={() => window.dispatchEvent(new Event('open-settings'))}>
             Open Settings
