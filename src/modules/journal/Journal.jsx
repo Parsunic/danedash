@@ -83,7 +83,7 @@ function EntryCard({ entry, onAnalyze, analysis, isAnalyzing }) {
 
 // ── DayPanel (slide-over for calendar click) ──
 
-function DayPanel({ dateStr, entries, onClose }) {
+function DayPanel({ dateStr, entries, onClose, onAnalyze, analyses, analyzing }) {
   const [open, setOpen] = useState(false)
   useEffect(() => { requestAnimationFrame(() => setOpen(true)) }, [])
   const close = () => { setOpen(false); setTimeout(onClose, 260) }
@@ -101,7 +101,15 @@ function DayPanel({ dateStr, entries, onClose }) {
           {entries.length === 0 ? (
             <div className="journal-day-panel-empty">No entries for this day.</div>
           ) : (
-            entries.map(e => <EntryCard key={e.id} entry={e} />)
+            entries.map(e => (
+              <EntryCard
+                key={e.id}
+                entry={e}
+                onAnalyze={onAnalyze}
+                analysis={analyses?.[e.id]}
+                isAnalyzing={analyzing?.[e.id]}
+              />
+            ))
           )}
         </div>
       </div>
