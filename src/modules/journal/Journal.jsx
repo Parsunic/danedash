@@ -192,6 +192,8 @@ export default function Journal() {
   const [calMonth, setCalMonth] = useState(() => new Date())
   const [selectedDay, setSelectedDay] = useState(null)
   const [lockTick, setLockTick] = useState(0)
+  const [analyses, setAnalyses] = useState({})
+  const [analyzing, setAnalyzing] = useState({})
   const textareaRef = useRef(null)
 
   const todayStr = getJournalDateString()
