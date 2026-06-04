@@ -47,9 +47,8 @@ function SettingsModal({ onClose }) {
     setNotionKey(notionKey)
     setClientId(gcalClientId)
     setClientSecret(gcalClientSecret)
-    setFitbitClientId(fitbitClientId)
     onClose()
-  }, [anthropicKey, notionKey, gcalClientId, gcalClientSecret, fitbitClientId, onClose])
+  }, [anthropicKey, notionKey, gcalClientId, gcalClientSecret, onClose])
 
   const handleDisconnect = useCallback(() => {
     clearTokens()
