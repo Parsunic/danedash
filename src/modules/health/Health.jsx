@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import BackgroundBlob from '../../components/BackgroundBlob.jsx'
-import { isFitbitConnected, getFitbitLastSync } from '../../lib/api/fitbit.js'
-import { syncTodayIfStale, syncFitbitData, fetchHealthHistory } from './fitbitSync.js'
+import { isGfitConnected, getGfitLastSync } from '../../lib/api/googlefit.js'
+import { syncTodayIfStale, syncGfitData, fetchHealthHistory } from './googleFitSync.js'
 
 // ── Utilities ──
 
