@@ -13,6 +13,18 @@ const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages'
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December']
 const DOW = ['Su','Mo','Tu','We','Th','Fr','Sa']
 
+// ── Helpers ──
+
+function renderAnalysis(text) {
+  const parts = text.split(/(\*\*[^*]+\*\*)/g)
+  return parts.map((part, i) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      return <strong key={i}>{part.slice(2, -2)}</strong>
+    }
+    return <span key={i}>{part}</span>
+  })
+}
+
 // ── Icons ──
 
 function LockIcon({ size = 13 }) {
