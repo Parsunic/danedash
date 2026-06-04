@@ -6,20 +6,31 @@ import Todo from './modules/todo/index.jsx'
 import Journal from './modules/journal/index.jsx'
 import Gym from './modules/gym/index.jsx'
 import Calendar from './modules/calendar/index.jsx'
+import Health from './modules/health/index.jsx'
 import { SyncProvider } from './contexts/SyncContext.jsx'
 import { handleOAuthCallback, syncOnLoad } from './modules/calendar/googleSync.js'
+import { handleFitbitCallback, syncTodayIfStale, loadTokensFromSupabase } from './modules/health/fitbitSync.js'
 
 function OAuthCallbackHandler() {
   const navigate = useNavigate()
   useEffect(() => {
     if (new URLSearchParams(window.location.search).has('code')) {
-      handleOAuthCallback().then(success => {
-        console.log('[GCal] OAuth callback result:', success)
-        navigate(success ? '/calendar' : '/', { replace: true })
-        if (success) syncOnLoad()
-      })
+      // Disambiguate: Fitbit stores its state key before redirecting
+      if (localStorage.getItem('fitbit_oauth_state')) {
+        handleFitbitCallback().then(success => {
+          navigate(success ? '/health' : '/', { replace: true })
+          if (success) syncTodayIfStale()
+        })
+      } else {
+        handleOAuthCallback().then(success => {
+          console.log('[GCal] OAuth callback result:', success)
+          navigate(success ? '/calendar' : '/', { replace: true })
+          if (success) syncOnLoad()
+        })
+      }
     } else {
       syncOnLoad()
+      loadTokensFromSupabase()
     }
   }, [navigate])
   return null
