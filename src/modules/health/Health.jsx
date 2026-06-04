@@ -261,9 +261,9 @@ function ActivityCard({ today, history }) {
 export default function Health() {
   const [history,    setHistory]    = useState([])
   const [syncStatus, setSyncStatus] = useState(null)
-  const [lastSync,   setLastSync]   = useState(() => getFitbitLastSync())
+  const [lastSync,   setLastSync]   = useState(() => getGfitLastSync())
   const [syncing,    setSyncing]    = useState(false)
-  const [connected,  setConnected]  = useState(() => isFitbitConnected())
+  const [connected,  setConnected]  = useState(() => isGfitConnected())
 
   const today = history.find(d => d.date === todayStr()) ?? null
 
