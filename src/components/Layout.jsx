@@ -10,7 +10,11 @@ import {
   getClientId, setClientId, getClientSecret, setClientSecret,
   getUserEmail, clearTokens, isConnected,
 } from '../lib/api/gcalendar.js'
+import {
+  getFitbitClientId, setFitbitClientId, isFitbitConnected, clearFitbitTokens, getFitbitLastSync,
+} from '../lib/api/fitbit.js'
 import { initiateGoogleOAuth } from '../modules/calendar/googleSync.js'
+import { initiateFitbitOAuth } from '../modules/health/fitbitSync.js'
 
 function SettingsModal({ onClose }) {
   const [anthropicKey, setAnthropicKeyState] = useState(() => getAnthropicKey())
@@ -19,17 +23,35 @@ function SettingsModal({ onClose }) {
   const [gcalClientSecret, setGcalClientSecretSt] = useState(() => getClientSecret())
   const [gcalEmail, setGcalEmail]                = useState(() => getUserEmail())
   const [gcalConnected, setGcalConnected]        = useState(() => isConnected())
+  const [fitbitClientId, setFitbitClientIdState] = useState(() => getFitbitClientId())
+  const [fitbitConnected, setFitbitConnected]    = useState(() => isFitbitConnected())
+  const [fitbitLastSync, setFitbitLastSync_]     = useState(() => getFitbitLastSync())
   const [showAnthropic, setShowAnthropic]        = useState(false)
   const [showNotion, setShowNotion]              = useState(false)
   const [showGcalSecret, setShowGcalSecret]      = useState(false)
+
+  useEffect(() => {
+    const onConnect    = () => { setFitbitConnected(true);  setFitbitLastSync_(getFitbitLastSync()) }
+    const onDisconnect = () => setFitbitConnected(false)
+    const onStatus     = (e) => { if (e.detail?.lastSync) setFitbitLastSync_(e.detail.lastSync) }
+    window.addEventListener('fitbit-connected',    onConnect)
+    window.addEventListener('fitbit-disconnected', onDisconnect)
+    window.addEventListener('fitbit-sync-status',  onStatus)
+    return () => {
+      window.removeEventListener('fitbit-connected',    onConnect)
+      window.removeEventListener('fitbit-disconnected', onDisconnect)
+      window.removeEventListener('fitbit-sync-status',  onStatus)
+    }
+  }, [])
 
   const save = useCallback(() => {
     setAnthropicKey(anthropicKey)
     setNotionKey(notionKey)
     setClientId(gcalClientId)
     setClientSecret(gcalClientSecret)
+    setFitbitClientId(fitbitClientId)
     onClose()
-  }, [anthropicKey, notionKey, gcalClientId, gcalClientSecret, onClose])
+  }, [anthropicKey, notionKey, gcalClientId, gcalClientSecret, fitbitClientId, onClose])
 
   const handleDisconnect = useCallback(() => {
     clearTokens()
@@ -43,6 +65,17 @@ function SettingsModal({ onClose }) {
     setClientSecret(gcalClientSecret)
     initiateGoogleOAuth()
   }, [gcalClientId, gcalClientSecret])
+
+  const handleFitbitConnect = useCallback(() => {
+    setFitbitClientId(fitbitClientId)
+    initiateFitbitOAuth()
+  }, [fitbitClientId])
+
+  const handleFitbitDisconnect = useCallback(() => {
+    clearFitbitTokens()
+    setFitbitConnected(false)
+    window.dispatchEvent(new Event('fitbit-disconnected'))
+  }, [])
 
   return (
     <div className="settings-backdrop" onClick={onClose}>
