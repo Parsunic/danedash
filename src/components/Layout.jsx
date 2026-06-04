@@ -10,11 +10,10 @@ import {
   getClientId, setClientId, getClientSecret, setClientSecret,
   getUserEmail, clearTokens, isConnected,
 } from '../lib/api/gcalendar.js'
-import {
-  getFitbitClientId, setFitbitClientId, isFitbitConnected, clearFitbitTokens, getFitbitLastSync,
-} from '../lib/api/fitbit.js'
+import { isGfitConnected, clearGfitTokens, getGfitLastSync } from '../lib/api/googlefit.js'
+import { getClientId } from '../lib/api/gcalendar.js'
 import { initiateGoogleOAuth } from '../modules/calendar/googleSync.js'
-import { initiateFitbitOAuth } from '../modules/health/fitbitSync.js'
+import { initiateGoogleFitOAuth } from '../modules/health/googleFitSync.js'
 
 function SettingsModal({ onClose }) {
   const [anthropicKey, setAnthropicKeyState] = useState(() => getAnthropicKey())
