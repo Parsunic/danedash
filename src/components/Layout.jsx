@@ -170,44 +170,39 @@ function SettingsModal({ onClose }) {
           </div>
 
           <div className="settings-section-divider" />
-          <p className="settings-section-title">Fitbit</p>
+          <p className="settings-section-title">Google Health</p>
 
-          <label className="settings-label">Client ID</label>
-          <div className="settings-input-row">
-            <input
-              className="settings-input"
-              type="text"
-              value={fitbitClientId}
-              onChange={e => setFitbitClientIdState(e.target.value)}
-              placeholder="22XXXXX"
-              autoComplete="off"
-              spellCheck={false}
-            />
-          </div>
-          <p className="settings-hint">From dev.fitbit.com → Register an App. Set redirect URI to <code style={{ fontSize: 10, background: 'rgba(255,255,255,0.07)', borderRadius: 3, padding: '1px 4px' }}>{window.location.origin}</code></p>
+          <p className="settings-hint" style={{ marginBottom: 10 }}>
+            Uses the same OAuth client as Google Calendar above. Configure the Client ID &amp; Secret there first, then connect below.
+            In Google Cloud Console, enable the <strong>Fitness API</strong> and add these scopes:
+            <code style={{ display: 'block', fontSize: 9.5, background: 'rgba(255,255,255,0.06)', borderRadius: 4, padding: '5px 8px', marginTop: 5, lineHeight: 1.8, wordBreak: 'break-all' }}>
+              fitness.activity.read · fitness.heart_rate.read · fitness.sleep.read
+            </code>
+          </p>
 
           <div className="gcal-status-row">
-            {fitbitConnected ? (
+            {gfitConnected ? (
               <>
                 <span className="gcal-status-text connected">Connected</span>
-                <button className="settings-eye" onClick={handleFitbitDisconnect}>Disconnect</button>
+                <button className="settings-eye" onClick={handleGfitDisconnect}>Disconnect</button>
               </>
             ) : (
               <>
                 <span className="gcal-status-text">Not connected</span>
                 <button
                   className="gcal-connect-btn"
-                  onClick={handleFitbitConnect}
-                  disabled={!fitbitClientId.trim()}
+                  onClick={handleGfitConnect}
+                  disabled={!getClientId().trim()}
+                  title={!getClientId().trim() ? 'Enter Google OAuth credentials above first' : ''}
                 >
-                  Connect Fitbit
+                  Connect Google Health
                 </button>
               </>
             )}
           </div>
-          {fitbitConnected && fitbitLastSync && (
+          {gfitConnected && gfitLastSync && (
             <p className="settings-hint" style={{ marginTop: 4 }}>
-              Last synced: {new Date(fitbitLastSync).toLocaleString()}
+              Last synced: {new Date(gfitLastSync).toLocaleString()}
             </p>
           )}
         </div>
