@@ -285,13 +285,13 @@ export default function Health() {
     const onConnect    = () => { setConnected(true);  syncTodayIfStale() }
     const onDisconnect = () => setConnected(false)
 
-    window.addEventListener('fitbit-sync-status',  onStatus)
-    window.addEventListener('fitbit-connected',    onConnect)
-    window.addEventListener('fitbit-disconnected', onDisconnect)
+    window.addEventListener('gfit-sync-status',  onStatus)
+    window.addEventListener('gfit-connected',    onConnect)
+    window.addEventListener('gfit-disconnected', onDisconnect)
     return () => {
-      window.removeEventListener('fitbit-sync-status',  onStatus)
-      window.removeEventListener('fitbit-connected',    onConnect)
-      window.removeEventListener('fitbit-disconnected', onDisconnect)
+      window.removeEventListener('gfit-sync-status',  onStatus)
+      window.removeEventListener('gfit-connected',    onConnect)
+      window.removeEventListener('gfit-disconnected', onDisconnect)
     }
   }, [loadHistory])
 
