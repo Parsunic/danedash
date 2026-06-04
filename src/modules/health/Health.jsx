@@ -298,7 +298,7 @@ export default function Health() {
   const handleSync = useCallback(async () => {
     if (syncing || syncStatus === 'syncing') return
     setSyncing(true)
-    await syncFitbitData()
+    await syncGfitData()
     await loadHistory()
     setSyncing(false)
   }, [syncing, syncStatus, loadHistory])
