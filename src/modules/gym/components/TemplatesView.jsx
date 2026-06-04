@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { storeGet, storeSet } from '../../../lib/storage.js'
 import { gymUUID } from '../gymUtils.js'
+import { lookupMusclesBatch } from '../../../lib/muscleUtils.js'
 
 function ExerciseEditorRow({ ex, idx, onChange, onDelete }) {
   return (
