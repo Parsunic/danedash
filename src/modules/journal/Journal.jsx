@@ -408,7 +408,12 @@ Keep the total response under 220 words. Be direct. Skip affirmations and filler
                     return (
                       <div key={`${entry.id}-${lockTick}`}>
                         {isNewDate && <div className="journal-past-date-label">{dateLabel}</div>}
-                        <EntryCard entry={entry} />
+                        <EntryCard
+                          entry={entry}
+                          onAnalyze={analyzeEntry}
+                          analysis={analyses[entry.id]}
+                          isAnalyzing={analyzing[entry.id]}
+                        />
                       </div>
                     )
                   })
