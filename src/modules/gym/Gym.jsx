@@ -20,13 +20,71 @@ const INIT_REST = { visible: false, remaining: 0, total: 0, paused: false, lastS
 
 const isDesktop = typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches
 
+function hexToRgba(hex, alpha) {
+  if (!hex) return `rgba(13,13,13,${alpha})`
+  const r = parseInt(hex.slice(1, 3), 16)
+  const g = parseInt(hex.slice(3, 5), 16)
+  const b = parseInt(hex.slice(5, 7), 16)
+  return `rgba(${r},${g},${b},${alpha})`
+}
+
+function getOverlayStyle(overlay) {
+  if (!overlay) return {}
+  if (overlay.phase === 'start') {
+    return {
+      top: overlay.relRect.top + 'px',
+      left: overlay.relRect.left + 'px',
+      width: overlay.relRect.width + 'px',
+      height: overlay.relRect.height + 'px',
+      background: hexToRgba(overlay.domColor, 0.4),
+      borderRadius: '6px',
+      opacity: 1,
+    }
+  }
+  if (overlay.phase === 'collapsing') {
+    return {
+      top: '30%',
+      left: '25%',
+      width: '50%',
+      height: '40%',
+      background: 'rgba(13,13,13,0)',
+      borderRadius: '12px',
+      opacity: 0,
+    }
+  }
+  return {
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    background: '#0d0d0d',
+    borderRadius: '12px',
+    opacity: 1,
+  }
+}
+
 export default function Gym() {
-  const [overlayOpen, setOverlayOpen] = useState(false)
+  const [flipped, setFlipped] = useState(false)
   const [overlayTab, setOverlayTab] = useState('templates')
   const [plannerWeekOffset, setPlannerWeekOffset] = useState(0)
   const [activeSession, setActiveSession] = useState(null)
   const [restState, setRestState] = useState(INIT_REST)
+  const [expandOverlay, setExpandOverlay] = useState(null)
   const restIntervalRef = useRef(null)
+  const flipperRef = useRef(null)
+  const gymContainerRef = useRef(null)
+
+  // ── FLIP ──
+  const flipToBack = useCallback((tab = 'templates') => {
+    setOverlayTab(tab)
+    if (flipperRef.current) flipperRef.current.style.transition = 'transform 680ms cubic-bezier(0.34, 1.3, 0.64, 1)'
+    setFlipped(true)
+  }, [])
+
+  const flipToFront = useCallback(() => {
+    if (flipperRef.current) flipperRef.current.style.transition = 'transform 520ms cubic-bezier(0.4, 0, 0.2, 1)'
+    setFlipped(false)
+  }, [])
 
   // ── REST TIMER ──
   const startRestTimer = useCallback(secs => {
@@ -58,8 +116,17 @@ export default function Gym() {
   useEffect(() => () => clearInterval(restIntervalRef.current), [])
   useEffect(() => { runMuscleMigration().catch(() => {}) }, [])
 
+  // ── EXPAND OVERLAY CLOSE ──
+  const closeExpandOverlay = useCallback(() => {
+    setExpandOverlay(prev => prev ? { ...prev, phase: 'collapsing' } : prev)
+    setTimeout(() => {
+      setExpandOverlay(null)
+      setActiveSession(null)
+    }, 380)
+  }, [])
+
   // ── WORKOUT CONTROL ──
-  const startWorkout = useCallback((exList, plannedId, name, isTemplate = false) => {
+  const startWorkout = useCallback((exList, plannedId, name, isTemplate = false, cellElement = null, domColor = null) => {
     const session = {
       id: gymUUID(), plannedId: plannedId || null,
       name: name || 'Workout', date: getActiveDateString(), startedAt: Date.now(),
@@ -69,10 +136,29 @@ export default function Gym() {
         notes: ex.notes || '', targetSets: ex.sets || 3, sets: [],
       })),
     }
-    setActiveSession(session)
-    setOverlayTab('log')
-    setOverlayOpen(true)
-  }, [])
+
+    if (cellElement && gymContainerRef.current) {
+      const cellRect = cellElement.getBoundingClientRect()
+      const containerRect = gymContainerRef.current.getBoundingClientRect()
+      const relRect = {
+        top: cellRect.top - containerRect.top,
+        left: cellRect.left - containerRect.left,
+        width: cellRect.width,
+        height: cellRect.height,
+      }
+      setActiveSession(session)
+      setExpandOverlay({ relRect, domColor, phase: 'start' })
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        setExpandOverlay(prev => prev ? { ...prev, phase: 'expanding' } : prev)
+      }))
+      setTimeout(() => {
+        setExpandOverlay(prev => prev ? { ...prev, phase: 'shown' } : prev)
+      }, 520)
+    } else {
+      setActiveSession(session)
+      flipToBack('log')
+    }
+  }, [flipToBack])
 
   const handleLogSet = useCallback((ei, weight, reps, rpe) => {
     setActiveSession(prev => {
@@ -138,20 +224,26 @@ export default function Gym() {
     }
 
     const sName = activeSession.name
+    const hadExpandOverlay = !!expandOverlay
     setActiveSession(null)
     setActiveSession({ __done: true, name: sName })
     setTimeout(() => {
       setActiveSession(null)
-      setOverlayTab('history')
+      if (hadExpandOverlay) {
+        setExpandOverlay(prev => prev ? { ...prev, phase: 'collapsing' } : prev)
+        setTimeout(() => setExpandOverlay(null), 380)
+      } else {
+        setOverlayTab('history')
+      }
     }, 1200)
-  }, [activeSession])
+  }, [activeSession, expandOverlay])
 
   const handleAIPlanLoaded = useCallback(weekOffset => {
     setPlannerWeekOffset(weekOffset)
-    setOverlayOpen(false)
-  }, [])
+    flipToFront()
+  }, [flipToFront])
 
-  const visibleTabs = activeSession ? ['log', ...OVERLAY_TABS] : OVERLAY_TABS
+  const visibleTabs = (activeSession && !expandOverlay) ? ['log', ...OVERLAY_TABS] : OVERLAY_TABS
 
   const logContent = activeSession?.__done ? (
     <div className="gym-log-idle">
@@ -171,55 +263,70 @@ export default function Gym() {
     <>
       <BackgroundBlob page="gym" />
 
-      <div className={`gym-page-content${overlayOpen && isDesktop ? ' overlay-open' : ''}`}>
-        <h1 className="dash-title">Gym</h1>
-        <PlannerView
-          weekOffset={plannerWeekOffset}
-          onWeekOffsetChange={setPlannerWeekOffset}
-          onStartWorkout={startWorkout}
-          desktopMode={isDesktop}
-        />
-      </div>
+      <div className="gym-page-content" ref={gymContainerRef}>
+        <div className="gym-flip-container">
+          <div ref={flipperRef} className={`gym-flipper${flipped ? ' is-flipped' : ''}`}>
 
-      {/* Persistent handle */}
-      <button
-        className={`gym-overlay-handle${overlayOpen ? ' open' : ''}`}
-        onClick={() => setOverlayOpen(o => !o)}
-        aria-label="Toggle panel"
-      >
-        <span className="gym-overlay-chevron">{overlayOpen ? '‹' : '›'}</span>
-      </button>
+            {/* FRONT FACE — Planner */}
+            <div className="gym-face gym-face-front">
+              <div className="gym-face-top">
+                <h1 className="dash-title">Gym</h1>
+                <button className="gym-flip-trigger" onClick={() => flipToBack()}>
+                  Stats ›
+                </button>
+              </div>
+              <PlannerView
+                weekOffset={plannerWeekOffset}
+                onWeekOffsetChange={setPlannerWeekOffset}
+                onStartWorkout={startWorkout}
+                desktopMode={isDesktop}
+              />
+            </div>
 
-      {/* Blur backdrop — click outside to close */}
-      <div
-        className={`gym-overlay-backdrop${overlayOpen ? ' visible' : ''}`}
-        onClick={() => setOverlayOpen(false)}
-      />
+            {/* BACK FACE — Templates / AI Coach / History / Stats / Log */}
+            <div className="gym-face gym-face-back">
+              <div className="gym-back-header">
+                <button className="gym-back-btn" onClick={flipToFront}>‹ Planner</button>
+                <div className="gym-overlay-tabs">
+                  {visibleTabs.map(tab => (
+                    <button
+                      key={tab}
+                      className={`gym-overlay-tab-btn${overlayTab === tab ? ' active' : ''}`}
+                      onClick={() => setOverlayTab(tab)}
+                    >
+                      {OVERLAY_LABELS[tab]}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="gym-overlay-content">
+                {overlayTab === 'templates' && <TemplatesView />}
+                {overlayTab === 'ai-coach' && <AICoachView onPlanLoaded={handleAIPlanLoaded} />}
+                {overlayTab === 'history' && <HistoryView />}
+                {overlayTab === 'stats' && <StatsView />}
+                {overlayTab === 'log' && logContent}
+              </div>
+            </div>
 
-      {/* Slide-in overlay panel */}
-      <div className={`gym-overlay-panel${overlayOpen ? ' open' : ''}`}>
-        <div className="gym-overlay-header">
-          <div className="gym-overlay-tabs">
-            {visibleTabs.map(tab => (
-              <button
-                key={tab}
-                className={`gym-overlay-tab-btn${overlayTab === tab ? ' active' : ''}`}
-                onClick={() => setOverlayTab(tab)}
-              >
-                {OVERLAY_LABELS[tab]}
-              </button>
-            ))}
           </div>
-          <button className="gym-overlay-close" onClick={() => setOverlayOpen(false)}>×</button>
         </div>
 
-        <div className="gym-overlay-content">
-          {overlayTab === 'templates' && <TemplatesView />}
-          {overlayTab === 'ai-coach' && <AICoachView onPlanLoaded={handleAIPlanLoaded} />}
-          {overlayTab === 'history' && <HistoryView />}
-          {overlayTab === 'stats' && <StatsView />}
-          {overlayTab === 'log' && logContent}
-        </div>
+        {/* Cell expand overlay */}
+        {expandOverlay && (
+          <div
+            className={`gym-expand-overlay${expandOverlay.phase === 'collapsing' ? ' gym-expand-overlay--collapsing' : ''}`}
+            style={getOverlayStyle(expandOverlay)}
+          >
+            {expandOverlay.phase === 'shown' && (
+              <div className="gym-expand-content">
+                <div className="gym-expand-back">
+                  <button className="gym-back-btn" onClick={closeExpandOverlay}>‹ Back</button>
+                </div>
+                {logContent}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       <RestTimer
