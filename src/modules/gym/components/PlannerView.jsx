@@ -105,7 +105,7 @@ function DayModal({ ds, existing, templates, onClose, onSave, onRemove, onStartW
     if (sel === '') { onRemove(); return }
     let name, templateId, exercises
     if (sel === '__custom__') {
-      name = customName.trim() || 'Custom Workout'; templateId = null; exercises = []
+      name = customName.trim() || 'Freestyle Workout'; templateId = null; exercises = []
     } else {
       const tpl = templates.find(t => t.id === sel)
       name = tpl ? tpl.name : 'Workout'; templateId = sel; exercises = tpl ? tpl.exercises : []
