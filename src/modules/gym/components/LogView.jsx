@@ -424,10 +424,14 @@ export default function LogView({ activeSession, onLogSet, onFinish, onStartWork
       activeSession.exercises.forEach((ex, i) => {
         if (next[i]) return
         const rec = getExRec(ex.name, ex.repRange, hist)
+        const sessions = hist[ex.name]?.sessions
+        const last = sessions && sessions.length > 0 ? sessions[sessions.length - 1] : null
         const defRow = {
-          weight: rec.suggest ? String(rec.suggest.weight) : '',
-          reps: rec.suggest ? String(rec.suggest.reps) : '',
+          weight: last ? String(last.weight) : '',
+          reps: last ? String(last.reps) : '',
           rpe: null,
+          phWeight: rec.suggest ? String(rec.suggest.weight) : '',
+          phReps: rec.suggest ? String(rec.suggest.reps) : '',
         }
         if (activeSession.isTemplate) {
           next[i] = Array.from({ length: ex.targetSets }, () => ({ ...defRow }))
