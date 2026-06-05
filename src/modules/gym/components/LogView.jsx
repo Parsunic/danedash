@@ -334,7 +334,7 @@ function LogIdle({ onStartWorkout }) {
           </ul>
         )}
         <button className="btn-gym-primary" style={{ width: '100%', padding: 14, fontSize: 15 }}
-          onClick={() => onStartWorkout(pw.exercises, pw.id, pw.name, !!pw.templateId)}>
+          onClick={() => onStartWorkout(pw.exercises, pw.id, pw.name, true)}>
           ▶ Start Workout
         </button>
         <button className="btn-gym-secondary" style={{ width: '100%', marginTop: 8 }}
