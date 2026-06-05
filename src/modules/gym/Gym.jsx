@@ -13,18 +13,16 @@ import HistoryView from './components/HistoryView.jsx'
 import RestTimer from './components/RestTimer.jsx'
 import StatsView from './components/StatsView.jsx'
 
-const VIEWS = ['templates', 'planner', 'ai-coach', 'log', 'history', 'stats']
-const VIEW_LABELS = { templates: 'Templates', planner: 'Planner', 'ai-coach': 'AI Coach', log: 'Log', history: 'History', stats: 'Stats' }
-const DESKTOP_PANEL_VIEWS = ['templates', 'ai-coach', 'history', 'stats']
+const OVERLAY_TABS = ['templates', 'ai-coach', 'history', 'stats']
+const OVERLAY_LABELS = { templates: 'Templates', 'ai-coach': 'AI Coach', history: 'History', stats: 'Stats', log: 'Log' }
 
 const INIT_REST = { visible: false, remaining: 0, total: 0, paused: false, lastSecs: 90 }
 
 const isDesktop = typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches
-const isGymMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches
 
 export default function Gym() {
-  const [activeView, setActiveView] = useState(isGymMobile ? 'log' : 'planner')
-  const [activePanel, setActivePanel] = useState(null) // desktop panel: null = closed
+  const [overlayOpen, setOverlayOpen] = useState(false)
+  const [overlayTab, setOverlayTab] = useState('templates')
   const [plannerWeekOffset, setPlannerWeekOffset] = useState(0)
   const [activeSession, setActiveSession] = useState(null)
   const [restState, setRestState] = useState(INIT_REST)
@@ -71,8 +69,8 @@ export default function Gym() {
       })),
     }
     setActiveSession(session)
-    if (isDesktop) setActivePanel('log')
-    else setActiveView('log')
+    setOverlayTab('log')
+    setOverlayOpen(true)
   }, [])
 
   const handleLogSet = useCallback((ei, weight, reps, rpe) => {
@@ -143,16 +141,16 @@ export default function Gym() {
     setActiveSession({ __done: true, name: sName })
     setTimeout(() => {
       setActiveSession(null)
-      if (isDesktop) setActivePanel('history')
-      else setActiveView('history')
+      setOverlayTab('history')
     }, 1200)
   }, [activeSession])
 
   const handleAIPlanLoaded = useCallback(weekOffset => {
     setPlannerWeekOffset(weekOffset)
-    if (isDesktop) setActivePanel('ai-coach')
-    else setActiveView('planner')
+    setOverlayOpen(false)
   }, [])
+
+  const visibleTabs = activeSession ? ['log', ...OVERLAY_TABS] : OVERLAY_TABS
 
   const logContent = activeSession?.__done ? (
     <div className="gym-log-idle">
@@ -168,102 +166,67 @@ export default function Gym() {
     />
   )
 
-  const restTimer = (
-    <RestTimer
-      restState={restState}
-      onDismiss={() => { clearInterval(restIntervalRef.current); setRestState(INIT_REST) }}
-      onPreset={startRestTimer}
-      onTogglePause={() => setRestState(prev => prev.remaining > 0 ? { ...prev, paused: !prev.paused } : prev)}
-    />
-  )
-
-  // ── DESKTOP LAYOUT ──
-  if (isDesktop) {
-    // Panel is visible when a session is active or user selected a panel view
-    const panelVisible = activePanel !== null || activeSession !== null
-    const panelContent = activeSession
-      ? logContent
-      : activePanel === 'templates' ? <TemplatesView />
-      : activePanel === 'ai-coach' ? <AICoachView onPlanLoaded={handleAIPlanLoaded} />
-      : activePanel === 'history' ? <HistoryView />
-      : activePanel === 'stats' ? <StatsView />
-      : null
-
-    return (
-      <>
-        <div className="gym-desktop-header">
-          <h1 className="dash-title" style={{ margin: 0 }}>Gym</h1>
-          <div className="gym-panel-nav">
-            {DESKTOP_PANEL_VIEWS.map(v => (
-              <button
-                key={v}
-                className={`gym-panel-nav-btn${activePanel === v && !activeSession ? ' active' : ''}`}
-                onClick={() => { if (!activeSession) setActivePanel(prev => prev === v ? null : v) }}
-              >{VIEW_LABELS[v]}</button>
-            ))}
-          </div>
-        </div>
-        <div className={`gym-desktop-two-col${panelVisible ? '' : ' gym-planner-full'}`}>
-          <div className="gym-desktop-planner-col">
-            <PlannerView
-              weekOffset={plannerWeekOffset}
-              onWeekOffsetChange={setPlannerWeekOffset}
-              onStartWorkout={startWorkout}
-              desktopMode
-            />
-          </div>
-          {panelVisible && (
-            <div className="gym-desktop-col--panel">
-              <div className="gym-panel-scroll">
-                {panelContent}
-              </div>
-            </div>
-          )}
-        </div>
-        {restTimer}
-      </>
-    )
-  }
-
-  // ── MOBILE LAYOUT ──
   return (
     <>
       <BackgroundBlob page="gym" />
-      <h1 className="dash-title">Gym</h1>
-      <div className="gym-subnav" style={{ overflowX: 'auto' }}>
-        {VIEWS.map(v => (
-          <button
-            key={v}
-            className={`gym-subnav-btn${activeView === v ? ' active' : ''}`}
-            onClick={() => setActiveView(v)}
-          >{VIEW_LABELS[v]}</button>
-        ))}
-      </div>
 
-      <div className={`gym-view${activeView === 'templates' ? ' active' : ''}`}>
-        <TemplatesView />
-      </div>
-      <div className={`gym-view${activeView === 'planner' ? ' active' : ''}`}>
+      <div className={`gym-page-content${overlayOpen && isDesktop ? ' overlay-open' : ''}`}>
+        <h1 className="dash-title">Gym</h1>
         <PlannerView
           weekOffset={plannerWeekOffset}
           onWeekOffsetChange={setPlannerWeekOffset}
           onStartWorkout={startWorkout}
+          desktopMode={isDesktop}
         />
       </div>
-      <div className={`gym-view${activeView === 'ai-coach' ? ' active' : ''}`}>
-        <AICoachView onPlanLoaded={handleAIPlanLoaded} />
-      </div>
-      <div className={`gym-view${activeView === 'log' ? ' active' : ''}`}>
-        {logContent}
-      </div>
-      <div className={`gym-view${activeView === 'history' ? ' active' : ''}`}>
-        <HistoryView />
-      </div>
-      <div className={`gym-view${activeView === 'stats' ? ' active' : ''}`}>
-        <StatsView />
+
+      {/* Persistent handle */}
+      <button
+        className={`gym-overlay-handle${overlayOpen ? ' open' : ''}`}
+        onClick={() => setOverlayOpen(o => !o)}
+        aria-label="Toggle panel"
+      >
+        <span className="gym-overlay-chevron">{overlayOpen ? '‹' : '›'}</span>
+      </button>
+
+      {/* Blur backdrop — click outside to close */}
+      <div
+        className={`gym-overlay-backdrop${overlayOpen ? ' visible' : ''}`}
+        onClick={() => setOverlayOpen(false)}
+      />
+
+      {/* Slide-in overlay panel */}
+      <div className={`gym-overlay-panel${overlayOpen ? ' open' : ''}`}>
+        <div className="gym-overlay-header">
+          <div className="gym-overlay-tabs">
+            {visibleTabs.map(tab => (
+              <button
+                key={tab}
+                className={`gym-overlay-tab-btn${overlayTab === tab ? ' active' : ''}`}
+                onClick={() => setOverlayTab(tab)}
+              >
+                {OVERLAY_LABELS[tab]}
+              </button>
+            ))}
+          </div>
+          <button className="gym-overlay-close" onClick={() => setOverlayOpen(false)}>×</button>
+        </div>
+
+        <div className="gym-overlay-content">
+          {overlayTab === 'templates' && <TemplatesView />}
+          {overlayTab === 'ai-coach' && <AICoachView onPlanLoaded={handleAIPlanLoaded} />}
+          {overlayTab === 'history' && <HistoryView />}
+          {overlayTab === 'stats' && <StatsView />}
+          {overlayTab === 'log' && logContent}
+        </div>
       </div>
 
-      {restTimer}
+      <RestTimer
+        restState={restState}
+        onDismiss={() => { clearInterval(restIntervalRef.current); setRestState(INIT_REST) }}
+        onPreset={startRestTimer}
+        onTogglePause={() => setRestState(prev => prev.remaining > 0 ? { ...prev, paused: !prev.paused } : prev)}
+      />
     </>
   )
 }
