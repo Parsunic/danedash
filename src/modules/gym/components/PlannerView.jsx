@@ -318,7 +318,7 @@ export default function PlannerView({ weekOffset = 0, onWeekOffsetChange = () =>
                   className={['planner-month-cell', !inMonth && 'other-month', isToday && 'is-today', pw && 'has-workout', isDone && 'is-completed'].filter(Boolean).join(' ')}
                   style={domColor ? { boxShadow: `0 0 10px 2px ${domColor}44, inset 0 0 0 1px ${domColor}22` } : {}}
                   onClick={() => {
-                    if (pw && pw.exercises?.length > 0) onStartWorkout(pw.exercises, pw.id, pw.name)
+                    if (pw && pw.exercises?.length > 0) onStartWorkout(pw.exercises, pw.id, pw.name, !!pw.templateId)
                     else setDayModal({ ds, existing: pw || null })
                   }}
                 >
