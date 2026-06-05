@@ -9,8 +9,8 @@ A PostToolUse hook **automatically commits and pushes** after every `Write` or `
 ## Stack
 - Vite + React 18, React Router v6
 - Single CSS file: `src/styles/globals.css` (~2000+ lines, no CSS modules)
-- Dark theme: `#050506` bg, `#F2C063` amber accent (`--accent`), `#6BE3A4` success green
-- Fonts: `var(--font-body)` (sans), `var(--font-mono)` (monospace)
+- Dark theme: `#050506` bg, `#E8A020` warm amber (`--accent`), `#6BE3A4` success green (`--success`), `#F2C063` secondary amber (`--warning`)
+- Fonts: `var(--font-body)` (Geist Sans), `var(--font-display)` (Plus Jakarta Sans), `var(--font-mono)` (Geist Mono)
 
 ## Data Layer
 - **localStorage** is primary — `storeGet`/`storeSet` from `src/lib/storage.js`
