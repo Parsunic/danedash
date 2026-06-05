@@ -136,3 +136,7 @@ human. Ex: "One down. Don't stop now." This is not optional decoration.
 ### Emotional Data Principle
 Data should feel like a conversation with yourself, not a spreadsheet.
 Big number → tiny label beneath → micro-copy. This hierarchy is sacred.
+
+
+
+Feel free to add to this file as you go, but only add information you think is critical to the project.
