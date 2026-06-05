@@ -1149,6 +1149,7 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
   transition:border-color 0.2s;
 }
 .gym-set-compact-input:focus { border-color:rgba(232,160,32,0.4); }
+.gym-set-compact-input::placeholder { color:rgba(232,160,32,0.45); font-style:italic; }
 .rpe-compact-select {
   padding:7px 8px; border-radius:8px; border:1px solid rgba(255,255,255,0.08);
   background:rgba(255,255,255,0.05); color:var(--text-tertiary); font-size:12px;
