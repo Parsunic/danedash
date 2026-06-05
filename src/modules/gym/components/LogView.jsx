@@ -351,7 +351,7 @@ function LogIdle({ onStartWorkout }) {
         <div className="gym-log-idle-title">✓ {pw.name}</div>
         <div className="gym-log-idle-sub">Today's workout already logged.</div>
         <button className="btn-gym-secondary" style={{ marginTop: 12 }}
-          onClick={() => onStartWorkout(pw.exercises, null, pw.name + ' (extra)', !!pw.templateId)}>
+          onClick={() => onStartWorkout(pw.exercises, null, pw.name + ' (extra)', true)}>
           Log Another Session
         </button>
         <button className="btn-gym-secondary" style={{ marginTop: 8 }}
