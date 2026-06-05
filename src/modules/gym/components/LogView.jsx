@@ -467,10 +467,14 @@ export default function LogView({ activeSession, onLogSet, onFinish, onStartWork
     const ex = activeSession?.exercises[ei]
     if (!ex) return
     const rec = getExRec(ex.name, ex.repRange, exHistory)
+    const sessions = exHistory[ex.name]?.sessions
+    const last = sessions && sessions.length > 0 ? sessions[sessions.length - 1] : null
     const newRow = {
-      weight: rec.suggest ? String(rec.suggest.weight) : '',
-      reps: rec.suggest ? String(rec.suggest.reps) : '',
+      weight: last ? String(last.weight) : '',
+      reps: last ? String(last.reps) : '',
       rpe: null,
+      phWeight: rec.suggest ? String(rec.suggest.weight) : '',
+      phReps: rec.suggest ? String(rec.suggest.reps) : '',
     }
     setInputs(prev => ({ ...prev, [ei]: [...(prev[ei] || []), newRow] }))
   }, [activeSession, exHistory])
