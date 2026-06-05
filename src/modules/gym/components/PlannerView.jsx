@@ -325,10 +325,13 @@ export default function PlannerView({ weekOffset = 0, onWeekOffsetChange = () =>
             {monthCells.map(({ date, ds, inMonth }) => {
               const pw = planned.find(p => p.date === ds)
               const md = muscleDayData[ds]
-              const topMuscles = md?.hasPlan ? (md.topMuscles.length ? md.topMuscles : ['other']) : []
+              const rawMuscles = md?.hasPlan ? (md.topMuscles.length ? md.topMuscles : ['other']) : []
+              // Strip 'other' for visuals — show gray only when there are truly no tagged muscles
+              const realMuscles = rawMuscles.filter(m => m !== 'other')
+              const displayMuscles = realMuscles.length > 0 ? realMuscles : (rawMuscles.length > 0 ? ['other'] : [])
               const isToday = ds === todayStr
               const isDone = pw?.status === 'completed'
-              const domColor = topMuscles[0] ? MUSCLE_COLORS[topMuscles[0]] : null
+              const domColor = displayMuscles[0] ? MUSCLE_COLORS[displayMuscles[0]] : null
 
               return (
                 <div
@@ -340,8 +343,8 @@ export default function PlannerView({ weekOffset = 0, onWeekOffsetChange = () =>
                     else setDayModal({ ds, existing: pw || null })
                   }}
                 >
-                  {topMuscles.length > 0 && (
-                    <div className="planner-cell-bg" style={{ background: buildCellGradient(topMuscles) }} />
+                  {displayMuscles.length > 0 && (
+                    <div className="planner-cell-bg" style={{ background: buildCellGradient(displayMuscles) }} />
                   )}
                   <div className={`planner-month-num${isToday ? ' is-today' : ''}`}>{date.getDate()}</div>
                   {pw && (
@@ -353,9 +356,9 @@ export default function PlannerView({ weekOffset = 0, onWeekOffsetChange = () =>
                           {pw.exercises.length > 5 && <div className="pmt-ex pmt-more">+{pw.exercises.length - 5} more</div>}
                         </div>
                       )}
-                      {topMuscles.length > 0 && (
+                      {rawMuscles.length > 0 && (
                         <div className="pmt-muscles">
-                          {topMuscles.map(mg => (
+                          {rawMuscles.map(mg => (
                             <span key={mg} className="pmt-muscle-tag" style={{ color: MUSCLE_COLORS[mg] }}>{MUSCLE_LABELS[mg]}</span>
                           ))}
                         </div>
