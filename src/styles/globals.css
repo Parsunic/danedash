@@ -1062,7 +1062,14 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
   background:var(--card-bg); border-radius:14px; border:1px solid rgba(255,255,255,0.07);
   padding:16px; margin-bottom:14px; backdrop-filter:blur(12px); box-shadow:0 6px 24px rgba(0,0,0,0.3);
 }
-.gym-log-ex-name { font-size:15px; font-weight:700; color:var(--text-primary); margin-bottom:5px; }
+.gym-log-ex-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:5px; }
+.gym-log-ex-name { font-size:15px; font-weight:700; color:var(--text-primary); }
+.gym-log-ex-progress {
+  font-family:var(--font-mono); font-size:11px; font-weight:700; color:var(--text-tertiary);
+  background:rgba(255,255,255,0.06); border-radius:999px; padding:2px 10px;
+  transition:background 0.2s, color 0.2s;
+}
+.gym-log-ex-progress.done { background:rgba(107,227,164,0.15); color:var(--success); }
 .gym-log-po-rec {
   font-size:11px; color:var(--text-tertiary); font-family:var(--font-mono); margin-bottom:12px;
   line-height:1.6; padding:7px 10px; background:rgba(255,255,255,0.03); border-radius:7px;
