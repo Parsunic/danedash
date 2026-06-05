@@ -59,10 +59,11 @@ export default function Gym() {
   useEffect(() => { runMuscleMigration().catch(() => {}) }, [])
 
   // ── WORKOUT CONTROL ──
-  const startWorkout = useCallback((exList, plannedId, name) => {
+  const startWorkout = useCallback((exList, plannedId, name, isTemplate = false) => {
     const session = {
       id: gymUUID(), plannedId: plannedId || null,
       name: name || 'Workout', date: getActiveDateString(), startedAt: Date.now(),
+      isTemplate: !!isTemplate,
       exercises: exList.filter(ex => ex.name).map(ex => ({
         name: ex.name, repRange: ex.repRange || '8-10',
         notes: ex.notes || '', targetSets: ex.sets || 3, sets: [],
