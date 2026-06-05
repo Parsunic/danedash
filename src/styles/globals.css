@@ -3463,6 +3463,126 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
 .ai-planner-go-btn:disabled { opacity: 0.35; cursor: not-allowed; }
 .ai-planner-go-btn:not(:disabled):hover { opacity: 0.85; }
 
+/* ── Mode pill switcher ── */
+.ai-mode-switcher {
+  display: flex;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 12px;
+  padding: 3px;
+  gap: 3px;
+  margin-bottom: 14px;
+}
+.ai-mode-pill {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 9px;
+  border: none;
+  background: transparent;
+  color: var(--text-tertiary);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+.ai-mode-pill:hover { color: var(--text-secondary); background: rgba(255,255,255,0.05); }
+.ai-mode-pill.active {
+  background: rgba(232,160,32,0.14);
+  color: var(--accent);
+  border: 1px solid rgba(232,160,32,0.28);
+}
+
+/* ── Goals block (Optimize mode) ── */
+.ai-goals-block {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ai-goals-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+.ai-goals-input {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.55;
+  padding: 10px 12px;
+  resize: vertical;
+  min-height: 64px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.ai-goals-input:focus { border-color: rgba(232,160,32,0.35); }
+.ai-goals-input::placeholder { color: var(--text-tertiary); opacity: 0.7; }
+.ai-goals-save-btn {
+  align-self: flex-end;
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.06);
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.ai-goals-save-btn:hover:not(:disabled) { background: rgba(232,160,32,0.14); color: var(--accent); }
+.ai-goals-save-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ── Reasoning block ── */
+.ai-reasoning-block {
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+.ai-reasoning-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: rgba(232,160,32,0.05);
+  border: none;
+  cursor: pointer;
+  color: var(--accent);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+.ai-reasoning-toggle:hover { background: rgba(232,160,32,0.09); }
+.ai-reasoning-chevron {
+  display: inline-block;
+  transition: transform 0.2s;
+  font-size: 14px;
+  line-height: 1;
+}
+.ai-reasoning-chevron.open { transform: rotate(90deg); }
+.ai-reasoning-body {
+  padding: 12px 14px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  background: rgba(255,255,255,0.02);
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
 /* ── Ask mode ── */
 .ai-planner-ask {
   display: flex;
