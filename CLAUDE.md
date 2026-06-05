@@ -151,6 +151,7 @@ Per-tab blob position and drift:
 - Gym: bottom-right, slow upward drift 30px
 - Calendar: top-left, drifts 25px right
 - Journal: dead center, minimal drift, emphasis on opacity pulse
+- Health: top-right (35%), multi-color gradient (purple + amber)
 
 ### Sidebar
 Active item: left accent bar only (border-l-2 border-[--accent],
