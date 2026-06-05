@@ -1200,7 +1200,7 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
 .gym-ex-search:focus { border-color:rgba(232,160,32,0.4); }
 .gym-ex-search-spinner {
   position:absolute; right:12px; font-size:16px; color:var(--text-tertiary);
-  letter-spacing:2px; line-height:1; animation:pulse 1s ease-in-out infinite alternate;
+  letter-spacing:2px; line-height:1; animation:ledPulse 1s ease-in-out infinite;
 }
 .gym-neglect-hint {
   font-size:11px; color:var(--accent); font-family:var(--font-mono); opacity:0.75;
