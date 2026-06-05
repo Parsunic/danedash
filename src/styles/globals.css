@@ -2644,6 +2644,158 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
   grid-template-columns: 1fr;
 }
 
+/* ── GYM OVERLAY PANEL SYSTEM ── */
+
+/* Page content — compresses on desktop when overlay is open */
+.gym-page-content {
+  transition: padding-right 300ms ease-out;
+}
+@media (min-width: 1024px) {
+  .gym-page-content.overlay-open {
+    padding-right: 67vw;
+  }
+}
+
+/* Persistent handle on right viewport edge */
+.gym-overlay-handle {
+  position: fixed;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 120px;
+  background: rgba(232,160,32,0.13);
+  border: 1px solid rgba(232,160,32,0.28);
+  border-right: none;
+  border-radius: 8px 0 0 8px;
+  cursor: pointer;
+  z-index: 401;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, border-color 0.2s, width 0.2s;
+  padding: 0;
+}
+.gym-overlay-handle:hover {
+  background: rgba(232,160,32,0.24);
+  border-color: rgba(232,160,32,0.48);
+  width: 24px;
+}
+.gym-overlay-chevron {
+  color: var(--accent);
+  font-size: 15px;
+  line-height: 1;
+  font-weight: 300;
+  margin-right: 2px;
+}
+
+/* Dark blur backdrop */
+.gym-overlay-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 399;
+  background: rgba(0,0,0,0);
+  backdrop-filter: blur(0px);
+  -webkit-backdrop-filter: blur(0px);
+  pointer-events: none;
+  transition: background 0.3s ease-out, backdrop-filter 0.3s ease-out;
+}
+.gym-overlay-backdrop.visible {
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  pointer-events: all;
+}
+
+/* Sliding panel */
+.gym-overlay-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  z-index: 400;
+  background: #0a0a0c;
+  border-left: 1px solid rgba(255,255,255,0.07);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 300ms ease-out;
+  overflow: hidden;
+}
+.gym-overlay-panel.open {
+  transform: translateX(0);
+}
+@media (min-width: 1024px) {
+  .gym-overlay-panel {
+    width: 65%;
+  }
+}
+
+/* Panel header: tabs + close */
+.gym-overlay-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 28px 24px 18px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  flex-shrink: 0;
+}
+.gym-overlay-tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  flex: 1;
+}
+.gym-overlay-tab-btn {
+  padding: 11px 20px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.03);
+  color: var(--text-tertiary);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  letter-spacing: 0.01em;
+}
+.gym-overlay-tab-btn:hover {
+  background: rgba(255,255,255,0.07);
+  color: var(--text-secondary);
+}
+.gym-overlay-tab-btn.active {
+  background: rgba(232,160,32,0.13);
+  border-color: rgba(232,160,32,0.34);
+  color: var(--accent);
+}
+.gym-overlay-close {
+  font-size: 22px;
+  color: var(--text-tertiary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  line-height: 1;
+  padding: 8px 10px;
+  border-radius: 9px;
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+  margin-top: 1px;
+  font-weight: 300;
+}
+.gym-overlay-close:hover {
+  background: rgba(255,255,255,0.08);
+  color: var(--text-primary);
+}
+
+/* Scrollable content area */
+.gym-overlay-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 28px 24px 40px;
+  min-height: 0;
+}
+
 /* ── STATS VIEW ── */
 .gym-stats-view { display: flex; flex-direction: column; gap: 0; }
 .gym-stats-search-wrap {
