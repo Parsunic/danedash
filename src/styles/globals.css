@@ -2644,30 +2644,22 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
   width: 100%;
   line-height: 1;
   margin-bottom: 4px;
+  position: relative;
+  z-index: 1;
 }
 .planner-month-num.is-today { color: var(--accent); }
 
-/* ── MUSCLE BLOBS ── */
-.planner-muscle-blobs {
-  display: flex;
-  gap: 3px;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
-  margin-top: auto;
+/* ── CELL BACKGROUND GRADIENT ── */
+.planner-cell-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: 8px;
+  opacity: 0.85;
+  transition: opacity 0.2s;
 }
-.planner-muscle-blob {
-  width: 16px;
-  height: 12px;
-  opacity: 0.88;
-  flex-shrink: 0;
-}
-.planner-muscle-blob.blob-a {
-  border-radius: 60% 40% 55% 45% / 50% 60% 40% 55%;
-}
-.planner-muscle-blob.blob-b {
-  border-radius: 45% 60% 40% 55% / 60% 45% 55% 40%;
-}
+.planner-month-cell:hover .planner-cell-bg { opacity: 1; }
 
 /* ── MONTH CELL TOOLTIP ── */
 .planner-month-tooltip {
