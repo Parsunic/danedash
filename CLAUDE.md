@@ -31,16 +31,27 @@ AI calls are made directly from the browser (no proxy) across multiple modules. 
 ```
 src/
   App.jsx                    # Route definitions + modules array (used by nav)
-  main.jsx
+  main.jsx                   # Entry point: doRollover + injectRecurringTasks on startup
   components/
     Layout.jsx               # Shell: sidebar + bottom nav + settings modal + sync status
     Sidebar.jsx              # Desktop sidebar nav
     BottomNav.jsx            # Mobile bottom tab bar
+    BackgroundBlob.jsx       # Animated per-page blob background
   contexts/
-    SyncContext.jsx          # Supabase sync provider
+    SyncContext.jsx          # Supabase sync provider (debounced)
   lib/
-    storage.js               # storeGet / storeSet
-    dateHelpers.js           # getActiveDateString
+    storage.js               # storeGet / storeSet / storeDelete / storeListKeys
+    dateHelpers.js           # getActiveDateString (rolls at 5 AM), getTomorrowDateString, formatDate
+    init.js                  # doRollover / injectRecurringTasks
+    supabase.js              # Supabase client init
+    muscleUtils.js           # Exercise → primary_muscle lookup (Supabase exercises table)
+    muscleMigration.js       # Back-fills primary_muscle on existing logs/templates
+    api/
+      anthropic.js           # getAnthropicKey / setAnthropicKey
+      gcalendar.js           # GCal OAuth token storage + connection status
+      googlefit.js           # Google Fit token storage (shares GCal credentials)
+      fitbit.js              # Fitbit token storage (not actively integrated)
+      notion.js              # Notion API key storage (not actively integrated)
   styles/
     globals.css              # ALL CSS (single file)
   modules/
@@ -58,7 +69,7 @@ src/
         TemplatesView.jsx    # Workout templates CRUD — collapsible cards (collapsed by default)
         PlannerView.jsx      # Weekly planner grid + week templates (collapsible section)
                              # desktopMode prop: shows exercise list inside day cells
-        AICoachView.jsx      # Anthropic API → populates planner; ONLY file making AI calls
+        AICoachView.jsx      # Anthropic API → populates planner
         LogView.jsx          # Active workout logger (mobile primary)
         HistoryView.jsx      # Past workout sessions (expandable)
         RestTimer.jsx        # Rest timer overlay
@@ -69,8 +80,21 @@ src/
       MonthView.jsx          # Month grid
       MiniMonth.jsx          # Mini calendar overlay inside TimeGrid
       EventModal.jsx         # Create/edit event form
+      EventSidebar.jsx       # Event list sidebar
+      AIPlannerPanel.jsx     # AI-powered day/week planning panel
+      DayReviewPanel.jsx     # Daily review panel
       calendarUtils.js       # getDayEvents, getWeekDays, gymPlannedToEvent, etc.
                              # getDayEvents merges calendar_events + gym_planned for a day
+      googleSync.js          # GCal OAuth flow + sync functions
+    journal/
+      Journal.jsx            # Daily entries, AI analysis, tags, rotating prompts, 24h lock
+      journalUtils.js        # Entry dating, prompts, streak calc, AI model list
+    health/
+      Health.jsx             # Google Fit data display: sleep, HR, HRV, activity
+      HealthCharts.jsx       # Recharts components (SleepTrend, HRVTrend, RestingHR,
+                             # SleepStages, WeeklyActivity)
+      googleFitSync.js       # Google Fit OAuth + data fetching
+      fitbitSync.js          # Fitbit sync (exists, unused)
 ```
 
 ## Key Data Shapes
