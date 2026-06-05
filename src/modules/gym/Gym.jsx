@@ -317,7 +317,7 @@ export default function Gym() {
             className={`gym-expand-overlay${expandOverlay.phase === 'collapsing' ? ' gym-expand-overlay--collapsing' : ''}`}
             style={getOverlayStyle(expandOverlay)}
           >
-            {expandOverlay.phase === 'shown' && (
+            {(expandOverlay.phase === 'shown' || expandOverlay.phase === 'collapsing') && (
               <div className="gym-expand-content">
                 <div className="gym-expand-back">
                   <button className="gym-back-btn" onClick={closeExpandOverlay}>‹ Back</button>
