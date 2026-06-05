@@ -1,6 +1,17 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
+import { supabase } from '../../lib/supabase.js'
+import { JOURNAL_KEY } from '../journal/journalUtils.js'
+
+// Required Supabase table (run once):
+// CREATE TABLE user_context (
+//   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+//   user_id text NOT NULL DEFAULT 'dane',
+//   goals text,
+//   created_at timestamptz DEFAULT now()
+// );
 
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages'
+const USER_ID = 'dane'
 
 function getEventsInRange(allEvents, fromDate, toDate) {
   return allEvents.filter(ev => {
@@ -33,32 +44,124 @@ function formatDateShort(iso) {
   return new Date(iso).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
 }
 
-export default function AIPlannerPanel({ events, gymPlanned, onEventsAdd, onClose }) {
-  const [open, setOpen] = useState(false)
-  const [tab, setTab] = useState('plan')
-  const [planInput, setPlanInput] = useState('')
-  const [reviewMode, setReviewMode] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [status, setStatus] = useState(null)
-  const [proposed, setProposed] = useState(null)
-  const [messages, setMessages] = useState([])
-  const [askInput, setAskInput] = useState('')
-  const [streaming, setStreaming] = useState(false)
-  const messagesEndRef = useRef(null)
-  const askInputRef = useRef(null)
+function nDaysAgoStr(n) {
+  const d = new Date()
+  d.setDate(d.getDate() - n)
+  return d.toISOString().slice(0, 10)
+}
 
-  useEffect(() => {
-    requestAnimationFrame(() => setOpen(true))
-  }, [])
+// ── Fetch rich context for Optimize mode ──
+async function fetchOptimizeContext() {
+  const sevenDaysAgo = nDaysAgoStr(7)
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
+  const [journalResult, reviewsResult, healthResult, goalsResult] = await Promise.allSettled([
+    // Journal entries from localStorage
+    Promise.resolve(
+      (JSON.parse(localStorage.getItem(JOURNAL_KEY) || '[]'))
+        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+        .slice(0, 5)
+    ),
+    // Day reviews from Supabase
+    supabase
+      .from('day_reviews')
+      .select('date, overall_adherence_score, raw_text, event_outcomes')
+      .gte('date', sevenDaysAgo)
+      .order('date', { ascending: false }),
+    // Health metrics from Supabase
+    supabase
+      .from('health_metrics')
+      .select('date, sleep_score, hrv')
+      .eq('user_id', USER_ID)
+      .gte('date', sevenDaysAgo)
+      .order('date', { ascending: false }),
+    // User goals from Supabase
+    supabase
+      .from('user_context')
+      .select('goals')
+      .eq('user_id', USER_ID)
+      .maybeSingle(),
+  ])
 
-  const handleClose = () => {
-    setOpen(false)
-    setTimeout(onClose, 260)
+  return {
+    journals:  journalResult.status === 'fulfilled' ? journalResult.value : [],
+    dayReviews: reviewsResult.status === 'fulfilled' ? (reviewsResult.value.data ?? []) : [],
+    health:    healthResult.status === 'fulfilled' ? (healthResult.value.data ?? []) : [],
+    goals:     goalsResult.status === 'fulfilled' ? (goalsResult.value.data?.goals ?? '') : '',
   }
+}
+
+function buildOptimizeContextBlock({ journals, dayReviews, health, goals }) {
+  const lines = []
+
+  if (goals) {
+    lines.push(`## User's Goals\n${goals}`)
+  }
+
+  if (health.length) {
+    lines.push('## Recent Health Data (last 7 days)')
+    health.forEach(h => {
+      const parts = [`${h.date}`]
+      if (h.sleep_score != null) parts.push(`Sleep score: ${h.sleep_score}/100`)
+      if (h.hrv != null)         parts.push(`HRV: ${Math.round(h.hrv)}ms`)
+      lines.push('- ' + parts.join(' | '))
+    })
+  }
+
+  if (dayReviews.length) {
+    lines.push('## Adherence History (last 7 days)')
+    dayReviews.forEach(r => {
+      const score = r.overall_adherence_score != null ? `${r.overall_adherence_score}% adherence` : 'no score'
+      const note = r.raw_text ? ` — "${r.raw_text.slice(0, 120)}${r.raw_text.length > 120 ? '…' : ''}"` : ''
+      lines.push(`- ${r.date}: ${score}${note}`)
+    })
+  }
+
+  if (journals.length) {
+    lines.push('## Recent Journal Entries (last 5)')
+    journals.forEach(j => {
+      const date = j.date || j.created_at?.slice(0, 10) || ''
+      const excerpt = (j.content || j.text || '').slice(0, 200)
+      if (excerpt) lines.push(`- ${date}: "${excerpt}${excerpt.length === 200 ? '…' : ''}"`)
+    })
+  }
+
+  return lines.join('\n\n')
+}
+
+export default function AIPlannerPanel({ events, gymPlanned, onEventsAdd, onClose }) {
+  const [open, setOpen]             = useState(false)
+  const [tab, setTab]               = useState('plan')
+  const [planMode, setPlanMode]     = useState('execute')
+  const [planInput, setPlanInput]   = useState('')
+  const [reviewMode, setReviewMode] = useState(false)
+  const [loading, setLoading]       = useState(false)
+  const [status, setStatus]         = useState(null)
+  const [proposed, setProposed]     = useState(null)
+  const [reasoning, setReasoning]   = useState(null)
+  const [reasoningOpen, setReasoningOpen] = useState(false)
+  const [messages, setMessages]     = useState([])
+  const [askInput, setAskInput]     = useState('')
+  const [streaming, setStreaming]   = useState(false)
+  // Optimize mode: user goals (loaded + editable)
+  const [goals, setGoals]           = useState('')
+  const [goalsSaving, setGoalsSaving] = useState(false)
+  const [goalsLoaded, setGoalsLoaded] = useState(false)
+  const messagesEndRef = useRef(null)
+  const askInputRef    = useRef(null)
+
+  useEffect(() => { requestAnimationFrame(() => setOpen(true)) }, [])
+  useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages])
+
+  // Load goals when switching to optimize mode
+  useEffect(() => {
+    if (planMode !== 'optimize' || goalsLoaded) return
+    supabase.from('user_context').select('goals').eq('user_id', USER_ID).maybeSingle()
+      .then(({ data }) => { if (data?.goals) setGoals(data.goals) })
+      .catch(() => {})
+      .finally(() => setGoalsLoaded(true))
+  }, [planMode, goalsLoaded])
+
+  const handleClose = () => { setOpen(false); setTimeout(onClose, 260) }
 
   const getApiKey = () => {
     const key = localStorage.getItem('anthropic_api_key') || ''
@@ -66,7 +169,23 @@ export default function AIPlannerPanel({ events, gymPlanned, onEventsAdd, onClos
     return key
   }
 
-  const buildPlanContext = useCallback(() => {
+  const saveGoals = useCallback(async () => {
+    setGoalsSaving(true)
+    try {
+      const { data: existing } = await supabase.from('user_context').select('id').eq('user_id', USER_ID).maybeSingle()
+      if (existing) {
+        await supabase.from('user_context').update({ goals }).eq('user_id', USER_ID)
+      } else {
+        await supabase.from('user_context').insert({ user_id: USER_ID, goals })
+      }
+    } catch (e) {
+      console.error('[Goals save]', e)
+    } finally {
+      setGoalsSaving(false)
+    }
+  }, [goals])
+
+  const buildBaseContext = useCallback(() => {
     const now = new Date()
     const past7  = new Date(now); past7.setDate(now.getDate() - 7)
     const next14 = new Date(now); next14.setDate(now.getDate() + 14)
@@ -90,16 +209,32 @@ ${formatEventsForPrompt(pastEvs)}
 
 Available category colors:
 #E03131 Routine · #E8590C Personal · #F59F00 Transportation
-#2F9E44 Hygiene · #1971C2 Work · #7048E8 School · #868E96 Other
+#2F9E44 Hygiene · #1971C2 Work · #7048E8 School · #868E96 Other`
+  }, [events])
+
+  const EXECUTE_SYSTEM = `You are a strict scheduling executor.
+Schedule ONLY what the user explicitly states — nothing more.
+Never infer, suggest, or add anything not directly requested.
+No buffer tasks, no assumptions, no extras.
 
 Return ONLY valid JSON — no markdown fences, no explanation — in this exact format:
-{"summary":"e.g. Planned 3 study sessions this week.","events":[{"title":"Event name","date":"YYYY-MM-DD","start_time":"HH:MM","end_time":"HH:MM","color":"#hex","description":"Optional notes"}]}
+{"summary":"<what you scheduled>","events":[{"title":"Event name","date":"YYYY-MM-DD","start_time":"HH:MM","end_time":"HH:MM","color":"#hex","description":"Optional notes"}]}
 
-Additional rules:
-- date: YYYY-MM-DD · times: 24-hour HH:MM
-- Do not overlap with existing events
-- Assign the most fitting color per event type`
-  }, [events])
+Rules: date YYYY-MM-DD · times 24-hour HH:MM · do not overlap existing events · assign fitting color per event type`
+
+  const OPTIMIZE_SYSTEM = `You are an intelligent day optimizer with deep context about the user's health, habits, and goals.
+
+Design a schedule that:
+- Places hard cognitive tasks during peak energy windows (avoid after HRV < 40ms or sleep score < 60)
+- Inserts recovery buffers (10–15 min walks, breaks) after intense 90+ min focus blocks
+- Learns from past skipped events — don't reschedule patterns that consistently fail
+- Sequences tasks by cognitive load: creative/analytical work first, admin/logistics last
+- Respects the user's stated goals and what they journal about
+
+Return ONLY valid JSON — no markdown fences — in this exact format:
+{"summary":"<brief summary>","reasoning":"<2-3 sentences explaining the cognitive sequencing and energy considerations>","events":[{"title":"Event name","date":"YYYY-MM-DD","start_time":"HH:MM","end_time":"HH:MM","color":"#hex","description":"Optional notes"}]}
+
+Rules: date YYYY-MM-DD · times 24-hour HH:MM · do not overlap existing events · assign fitting color per event type`
 
   const handlePlan = useCallback(async () => {
     if (!planInput.trim()) return
@@ -107,11 +242,23 @@ Additional rules:
     if (!apiKey) return
 
     setLoading(true)
-    setStatus({ type: 'info', text: 'Planning your schedule…' })
+    setStatus({ type: 'info', text: planMode === 'optimize' ? 'Analyzing your data and optimizing…' : 'Planning your schedule…' })
     setProposed(null)
+    setReasoning(null)
 
     try {
-      const context = buildPlanContext()
+      const baseContext = buildBaseContext()
+      let fullContext = baseContext
+
+      if (planMode === 'optimize') {
+        const richData = await fetchOptimizeContext()
+        const richBlock = buildOptimizeContextBlock(richData)
+        if (richBlock) fullContext = `${baseContext}\n\n${richBlock}`
+      }
+
+      const systemPrompt = planMode === 'optimize' ? OPTIMIZE_SYSTEM : EXECUTE_SYSTEM
+      const userMessage  = `${fullContext}\n\nUser request: ${planInput.trim()}`
+
       const resp = await fetch(ANTHROPIC_URL, {
         method: 'POST',
         headers: {
@@ -123,8 +270,8 @@ Additional rules:
         body: JSON.stringify({
           model: 'claude-sonnet-4-6',
           max_tokens: 2048,
-          system: 'You are a personal scheduling assistant. Create calendar events based on the user\'s request and their existing schedule. Follow all constraints exactly.',
-          messages: [{ role: 'user', content: `${context}\n\nUser request: ${planInput.trim()}` }],
+          system: systemPrompt,
+          messages: [{ role: 'user', content: userMessage }],
         }),
       })
 
@@ -135,9 +282,11 @@ Additional rules:
         .replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '')
       const parsed = JSON.parse(raw)
 
+      if (parsed.reasoning) setReasoning(parsed.reasoning)
+
       const newEvents = (parsed.events || []).map(ev => ({
         id: crypto.randomUUID(),
-        user_id: 'dane',
+        user_id: USER_ID,
         title: ev.title,
         description: ev.description || '',
         start_time: new Date(`${ev.date}T${ev.start_time}`).toISOString(),
@@ -161,7 +310,7 @@ Additional rules:
     } finally {
       setLoading(false)
     }
-  }, [planInput, reviewMode, buildPlanContext, onEventsAdd])
+  }, [planInput, planMode, reviewMode, buildBaseContext, onEventsAdd])
 
   const confirmProposed = useCallback(() => {
     if (!proposed) return
@@ -269,17 +418,62 @@ Additional rules:
         {/* Plan mode */}
         {tab === 'plan' && (
           <div className="ai-planner-plan">
-            <p className="ai-planner-hint">
-              Tell me what you need scheduled. I'll plan around your existing events, respecting your wake and sleep times.
-            </p>
+            {/* Mode pill switcher */}
+            <div className="ai-mode-switcher">
+              <button
+                className={`ai-mode-pill${planMode === 'execute' ? ' active' : ''}`}
+                onClick={() => setPlanMode('execute')}
+              >
+                Execute
+              </button>
+              <button
+                className={`ai-mode-pill${planMode === 'optimize' ? ' active' : ''}`}
+                onClick={() => setPlanMode('optimize')}
+              >
+                ✦ Optimize My Day
+              </button>
+            </div>
+
+            {planMode === 'execute' ? (
+              <p className="ai-planner-hint">
+                Tell me exactly what to schedule. I'll add it precisely — no extras, no assumptions.
+              </p>
+            ) : (
+              <>
+                <p className="ai-planner-hint">
+                  I'll pull your health data, journal entries, and past adherence to build a schedule optimized for your energy and goals.
+                </p>
+                <div className="ai-goals-block">
+                  <div className="ai-goals-label">YOUR GOALS</div>
+                  <textarea
+                    className="ai-goals-input"
+                    placeholder="e.g. Improve sleep consistency, finish AP Chemistry by June, get to the gym 4x/week, reduce screen time after 8pm…"
+                    value={goals}
+                    onChange={e => setGoals(e.target.value)}
+                    rows={3}
+                  />
+                  <button
+                    className="ai-goals-save-btn"
+                    onClick={saveGoals}
+                    disabled={goalsSaving}
+                  >
+                    {goalsSaving ? 'Saving…' : 'Save Goals'}
+                  </button>
+                </div>
+              </>
+            )}
 
             <textarea
               className="ai-planner-textarea"
-              placeholder={'e.g. "Block 2-hour study sessions for my chemistry exam on Friday, leaving evenings free after 8pm."'}
+              placeholder={
+                planMode === 'execute'
+                  ? 'e.g. "Block 2-hour study sessions for my chemistry exam on Friday, leaving evenings free after 8pm."'
+                  : 'e.g. "Plan tomorrow" or "Optimize the rest of this week around my gym sessions."'
+              }
               value={planInput}
               onChange={e => setPlanInput(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter' && e.metaKey) handlePlan() }}
-              rows={5}
+              rows={4}
               disabled={loading}
             />
 
@@ -295,6 +489,22 @@ Additional rules:
 
             {status && (
               <div className={`ai-planner-status ${status.type}`}>{status.text}</div>
+            )}
+
+            {/* Reasoning collapsible (Optimize mode only) */}
+            {reasoning && (
+              <div className="ai-reasoning-block">
+                <button
+                  className="ai-reasoning-toggle"
+                  onClick={() => setReasoningOpen(v => !v)}
+                >
+                  <span>Why I planned it this way</span>
+                  <span className={`ai-reasoning-chevron${reasoningOpen ? ' open' : ''}`}>›</span>
+                </button>
+                {reasoningOpen && (
+                  <div className="ai-reasoning-body">{reasoning}</div>
+                )}
+              </div>
             )}
 
             {proposed && (
@@ -324,7 +534,9 @@ Additional rules:
               onClick={handlePlan}
               disabled={loading || !planInput.trim()}
             >
-              {loading ? 'Planning…' : '✦ Plan'}
+              {loading
+                ? planMode === 'optimize' ? 'Optimizing…' : 'Planning…'
+                : planMode === 'optimize' ? '✦ Optimize' : '✦ Plan'}
             </button>
           </div>
         )}
