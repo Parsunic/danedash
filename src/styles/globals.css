@@ -2805,6 +2805,15 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
 }
+/* Hide front face content after flip completes so it doesn't bleed through */
+.gym-face-front {
+  visibility: visible;
+  transition: visibility 0s 0s;
+}
+.gym-flipper.is-flipped .gym-face-front {
+  visibility: hidden;
+  transition: visibility 0s 340ms;
+}
 .gym-face-back {
   transform: rotateY(180deg);
   display: flex;
