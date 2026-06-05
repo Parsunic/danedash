@@ -268,7 +268,7 @@ export default function Gym() {
           <div ref={flipperRef} className={`gym-flipper${flipped ? ' is-flipped' : ''}`}>
 
             {/* FRONT FACE — Planner */}
-            <div className="gym-face gym-face-front">
+            <div className="gym-face gym-face-front" style={flipped ? { pointerEvents: 'none' } : {}}>
               <div className="gym-face-top">
                 <h1 className="dash-title">Gym</h1>
                 <button className="gym-flip-trigger" onClick={() => flipToBack()}>
