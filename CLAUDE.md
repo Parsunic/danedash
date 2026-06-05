@@ -25,7 +25,7 @@ AI calls are made directly from the browser (no proxy) across multiple modules. 
 - Breakpoint: `window.matchMedia('(min-width: 1024px)').matches` — computed once at module scope (not reactive)
 - CSS: `@media (min-width: 1024px)` blocks in `globals.css`
 - `page-wrap` max-width: 1440px, centered
-- Sidebar width: `var(--sidebar-w)` (~180px on desktop)
+- Sidebar width: `var(--sidebar-w)` (220px on desktop)
 
 ## Directory Structure
 ```
