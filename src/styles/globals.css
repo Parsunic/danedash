@@ -2736,9 +2736,11 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
   font-family: var(--font-mono);
 }
 .planner-key-blob {
-  width: 12px;
-  height: 9px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
   opacity: 0.9;
+  flex-shrink: 0;
 }
 
 /* ── GYM DESKTOP HEADER (title + panel nav) ── */
