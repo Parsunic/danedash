@@ -102,9 +102,9 @@ active states, CTAs, progress rings, streak counters, hover indicators.
 No Tailwind approximations like amber-400. Import as a CSS variable --accent.
 
 ### Typography
-- UI font: Geist Sans (via next/font/google or CDN)
-- Display font: Plus Jakarta Sans, weight 300 (for large headings, date heroes, streak numbers, calendar entry counts). Applied via `var(--font-display)`. Do not use Instrument Serif.
-- Monospace: Geist Mono for all stats, timestamps, data strings
+- UI font: Geist Sans (via next/font/google or CDN) — `var(--font-body)`. Default for all controls, inputs, and body copy.
+- Display font: Plus Jakarta Sans, weight 300–500 (for large headings, date heroes, streak numbers, primary data-entry inputs like weight/reps). Applied via `var(--font-display)`. Do not use Instrument Serif.
+- Monospace: Geist Mono (`var(--font-mono)`) for **displayed** secondary data only — e1RM strings, timestamps, RPE badges, set history table cells, log metadata. Never on input fields or controls.
 - Section labels: uppercase, tracking-widest, text-xs, muted (opacity 40%).
   Never bold. This is a whisper, not a shout.
 
