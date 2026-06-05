@@ -2727,6 +2727,13 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
   font-family: var(--font-mono);
 }
 
+@media (min-width: 1024px) {
+  /* Month grid fills the viewport on desktop — cell height = (vh minus header overhead) / 6 rows */
+  .planner-month-cell {
+    min-height: calc((100vh - 260px) / 6);
+  }
+}
+
 /* ── MUSCLE COLOR KEY ── */
 .planner-muscle-key {
   display: flex;
