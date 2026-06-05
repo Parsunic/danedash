@@ -2629,8 +2629,9 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
   align-items: center;
   position: relative;
   overflow: visible;
+  z-index: 1;
 }
-.planner-month-cell:hover { border-color: rgba(232,160,32,0.28); background: rgba(232,160,32,0.04); }
+.planner-month-cell:hover { border-color: rgba(232,160,32,0.28); background: rgba(232,160,32,0.04); z-index: 20; }
 .planner-month-cell.other-month { opacity: 0.28; pointer-events: none; }
 .planner-month-cell.is-today { border-color: rgba(232,160,32,0.5); background: rgba(232,160,32,0.06); }
 .planner-month-cell.has-workout { border-color: rgba(255,255,255,0.10); }
