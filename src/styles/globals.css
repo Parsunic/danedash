@@ -2866,6 +2866,12 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
   margin-bottom: 16px;
 }
 .gym-face-top .dash-title { margin-bottom: 0; }
+@media (min-width: 1024px) {
+  /* Reserve space for fixed sync + GCal status indicators top-right */
+  .gym-face-top {
+    padding-right: 120px;
+  }
+}
 
 /* Back face header */
 .gym-back-header {
