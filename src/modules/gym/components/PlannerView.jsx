@@ -334,19 +334,16 @@ export default function PlannerView({ weekOffset = 0, onWeekOffsetChange = () =>
                 <div
                   key={ds}
                   className={['planner-month-cell', !inMonth && 'other-month', isToday && 'is-today', pw && 'has-workout', isDone && 'is-completed'].filter(Boolean).join(' ')}
-                  style={domColor ? { boxShadow: `0 0 10px 2px ${domColor}44, inset 0 0 0 1px ${domColor}22` } : {}}
-                  onClick={() => {
-                    if (pw && pw.exercises?.length > 0) onStartWorkout(pw.exercises, pw.id, pw.name, !!pw.templateId)
+                  style={domColor ? { boxShadow: `0 0 0 1px ${hexToRgba(domColor, 0.4)}` } : {}}
+                  onClick={(e) => {
+                    if (pw && pw.exercises?.length > 0) onStartWorkout(pw.exercises, pw.id, pw.name, !!pw.templateId, e.currentTarget, domColor)
                     else setDayModal({ ds, existing: pw || null })
                   }}
                 >
-                  <div className={`planner-month-num${isToday ? ' is-today' : ''}`}>{date.getDate()}</div>
                   {topMuscles.length > 0 && (
-                    <div className="planner-muscle-blobs">
-                      <div className="planner-muscle-blob blob-a" style={{ background: MUSCLE_COLORS[topMuscles[0]] }} />
-                      {topMuscles[1] && <div className="planner-muscle-blob blob-b" style={{ background: MUSCLE_COLORS[topMuscles[1]] }} />}
-                    </div>
+                    <div className="planner-cell-bg" style={{ background: buildCellGradient(topMuscles) }} />
                   )}
+                  <div className={`planner-month-num${isToday ? ' is-today' : ''}`}>{date.getDate()}</div>
                   {pw && (
                     <div className="planner-month-tooltip">
                       <div className="pmt-name">{pw.name || 'Workout'}</div>
