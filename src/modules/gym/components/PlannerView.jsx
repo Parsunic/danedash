@@ -131,7 +131,7 @@ function DayModal({ ds, existing, templates, onClose, onSave, onRemove, onStartW
         {sel === '__custom__' && (
           <div className="gym-field">
             <label>Workout Name</label>
-            <input className="gym-input" placeholder="Custom Workout" value={customName} onChange={e => setCustomName(e.target.value)} />
+            <input className="gym-input" placeholder="Freestyle Workout" value={customName} onChange={e => setCustomName(e.target.value)} />
           </div>
         )}
         {existing && (
