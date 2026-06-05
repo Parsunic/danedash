@@ -42,3 +42,14 @@ export async function lookupMusclesBatch(names) {
   }
   return result
 }
+
+// Search exercises by name (partial match), returns [{ name, primary_muscle }]
+export async function searchExercises(query, limit = 12) {
+  if (!query || query.trim().length < 2) return []
+  const { data } = await supabase
+    .from('exercises')
+    .select('name, primary_muscle')
+    .ilike('name', `%${query.trim()}%`)
+    .limit(limit)
+  return data || []
+}
