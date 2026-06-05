@@ -1245,7 +1245,7 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
 }
 .gym-added-ex-row:last-child { border-bottom:none; }
 .gym-added-ex-info { flex:1; display:flex; align-items:center; gap:8px; min-width:0; }
-.gym-added-ex-name { font-size:13px; color:var(--text-primary); font-weight:500; truncate; }
+.gym-added-ex-name { font-size:13px; color:var(--text-primary); font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .gym-sets-stepper {
   display:flex; align-items:center; gap:8px; flex-shrink:0;
 }
