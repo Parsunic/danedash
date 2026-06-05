@@ -80,13 +80,13 @@ function SetRow({ setNum, row, isTemplate, onChange, onLog, onRemove, canRemove 
       <div className="gym-set-row-compact">
         <span className="gym-set-row-label">Set {setNum}</span>
         <input
-          type="number" inputMode="decimal" placeholder={row.phWeight || 'lbs'}
+          type="text" inputMode="decimal" placeholder={row.phWeight || 'lbs'}
           className="gym-set-compact-input"
           value={row.weight}
           onChange={e => onChange('weight', e.target.value)}
         />
         <input
-          type="number" inputMode="numeric" placeholder={row.phReps || 'reps'}
+          type="text" inputMode="numeric" placeholder={row.phReps || 'reps'}
           className="gym-set-compact-input"
           value={row.reps}
           onChange={e => onChange('reps', e.target.value)}
