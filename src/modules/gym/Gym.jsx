@@ -284,7 +284,7 @@ export default function Gym() {
             </div>
 
             {/* BACK FACE — Templates / AI Coach / History / Stats / Log */}
-            <div className="gym-face gym-face-back">
+            <div className="gym-face gym-face-back" style={!flipped ? { pointerEvents: 'none' } : {}}>
               <div className="gym-back-header">
                 <button className="gym-back-btn" onClick={flipToFront}>‹ Planner</button>
                 <div className="gym-overlay-tabs">
