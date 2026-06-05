@@ -124,7 +124,7 @@ function DayModal({ ds, existing, templates, onClose, onSave, onRemove, onStartW
           <label>Assign Template</label>
           <select className="template-select" value={sel} onChange={e => setSel(e.target.value)}>
             <option value="">— Rest Day —</option>
-            <option value="__custom__">Custom Workout</option>
+            <option value="__custom__">Freestyle Workout</option>
             {templates.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
           </select>
         </div>
