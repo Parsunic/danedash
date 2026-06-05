@@ -19,7 +19,7 @@ A PostToolUse hook **automatically commits and pushes** after every `Write` or `
 - Cross-module events: `window.dispatchEvent(new Event('gym-changed'))`, `'goals-changed'`, `'schedule-sync'`
 
 ## Anthropic API
-All AI calls go through `src/modules/gym/components/AICoachView.jsx` directly from the browser (no proxy). API key stored in `localStorage` as `anthropic_api_key`, entered via Settings modal in `src/components/Layout.jsx`.
+AI calls are made directly from the browser (no proxy) across multiple modules. API key stored in `localStorage` as `anthropic_api_key`, entered via Settings modal in `src/components/Layout.jsx`.
 
 ## Desktop Layout Pattern
 - Breakpoint: `window.matchMedia('(min-width: 1024px)').matches` — computed once at module scope (not reactive)
