@@ -9,6 +9,24 @@ const MUSCLE_COLORS = {
   biceps: '#7048E8', triceps: '#E8590C', abs: '#20C997',
   legs: '#2F9E44', other: '#868E96',
 }
+
+function hexToRgba(hex, alpha) {
+  const r = parseInt(hex.slice(1, 3), 16)
+  const g = parseInt(hex.slice(3, 5), 16)
+  const b = parseInt(hex.slice(5, 7), 16)
+  return `rgba(${r},${g},${b},${alpha})`
+}
+
+function buildCellGradient(topMuscles) {
+  if (!topMuscles.length) return undefined
+  const c1 = MUSCLE_COLORS[topMuscles[0]]
+  if (topMuscles.length === 1) {
+    return `radial-gradient(ellipse at 50% 90%, ${hexToRgba(c1, 0.55)} 0%, transparent 58%)`
+  }
+  const c2 = MUSCLE_COLORS[topMuscles[1]]
+  return `radial-gradient(ellipse at 20% 90%, ${hexToRgba(c1, 0.55)} 0%, transparent 50%), radial-gradient(ellipse at 80% 90%, ${hexToRgba(c2, 0.55)} 0%, transparent 50%)`
+}
+
 const MUSCLE_LABELS = {
   chest: 'Chest', shoulders: 'Shoulders', back: 'Back',
   biceps: 'Biceps', triceps: 'Triceps', abs: 'Abs', legs: 'Legs', other: 'Other',
