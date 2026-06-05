@@ -434,7 +434,7 @@ export default function PlannerView({ weekOffset = 0, onWeekOffsetChange = () =>
           onClose={() => setDayModal(null)}
           onSave={handleDaySave}
           onRemove={handleDayRemove}
-          onStartWorkout={pw => onStartWorkout(pw.exercises, pw.id, pw.name)}
+          onStartWorkout={pw => onStartWorkout(pw.exercises, pw.id, pw.name, !!pw.templateId)}
         />
       )}
       {weekTplModal && <WeekTemplateModal onClose={() => setWeekTplModal(false)} onSave={saveWeekTpl} />}
