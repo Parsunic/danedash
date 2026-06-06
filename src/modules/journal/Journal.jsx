@@ -343,7 +343,7 @@ Keep the total response under 220 words. Be direct. Skip affirmations and filler
               <span className="journal-streak-label">day streak</span>
             </>
           ) : (
-            <span className="journal-streak-empty">Start your streak today</span>
+            <span className="page-subtitle">Start your streak today</span>
           )}
         </div>
 
