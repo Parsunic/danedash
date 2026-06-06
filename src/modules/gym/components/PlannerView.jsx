@@ -165,7 +165,7 @@ function DayModal({ ds, existing, templates, onClose, onSave, onRemove, onStartW
           <button className="btn-primary" style={{ width: '100%', marginTop: 14, marginBottom: 4, padding: 12, fontSize: 14 }} onClick={() => { onStartWorkout(existing); onClose() }}>▶ Start Workout</button>
         )}
         <div className="gym-modal-footer" style={{ flexWrap: 'wrap' }}>
-          {existing && <button className="btn-gym-danger" onClick={onRemove}>Remove</button>}
+          {existing && <button className="btn-ghost" style={{ color: 'var(--danger)', borderColor: 'rgba(255,107,107,0.3)' }} onClick={onRemove}>Remove</button>}
           <button className="btn-secondary" style={{ flex: 1 }} onClick={onClose}>Cancel</button>
           <button className="btn-primary" style={{ flex: 2 }} onClick={save}>Save</button>
         </div>
