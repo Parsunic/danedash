@@ -293,7 +293,7 @@ export default function Layout({ children }) {
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
-        <div className="page-wrap">
+        <div key={location.key} className="page-wrap page-enter">
           {children}
         </div>
       </main>
