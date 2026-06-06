@@ -330,7 +330,7 @@ Keep the total response under 220 words. Be direct. Skip affirmations and filler
       <BackgroundBlob page="journal" />
 
       {/* Left col: write area */}
-      <div className="journal-left-col">
+      <div className="journal-left-col stagger-1">
         <div className="journal-eyebrow">TODAY'S REFLECTION</div>
 
         <h1 className="journal-date-heading">{formatDate(todayStr)}</h1>
