@@ -556,7 +556,7 @@ function RecurringSection({ className }) {
   }
 
   return (
-    <div className="section">
+    <div className={`section${className ? ' ' + className : ''}`}>
       <div className="section-title">
         <button className="recurring-toggle" onClick={toggleOpen}>
           Recurring
