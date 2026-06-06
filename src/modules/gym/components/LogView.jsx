@@ -337,7 +337,7 @@ function LogIdle({ onStartWorkout }) {
           onClick={() => onStartWorkout(pw.exercises, pw.id, pw.name, true)}>
           ▶ Start Workout
         </button>
-        <button className="btn-gym-secondary" style={{ width: '100%', marginTop: 8 }}
+        <button className="btn-secondary" style={{ width: '100%', marginTop: 8 }}
           onClick={() => setMode('freestyle')}>
           ⚡ Freestyle Instead
         </button>
@@ -350,11 +350,11 @@ function LogIdle({ onStartWorkout }) {
       <div className="gym-log-idle">
         <div className="gym-log-idle-title">✓ {pw.name}</div>
         <div className="gym-log-idle-sub">Today's workout already logged.</div>
-        <button className="btn-gym-secondary" style={{ marginTop: 12 }}
+        <button className="btn-secondary" style={{ marginTop: 12 }}
           onClick={() => onStartWorkout(pw.exercises, null, pw.name + ' (extra)', true)}>
           Log Another Session
         </button>
-        <button className="btn-gym-secondary" style={{ marginTop: 8 }}
+        <button className="btn-secondary" style={{ marginTop: 8 }}
           onClick={() => setMode('freestyle')}>
           ⚡ Freestyle Workout
         </button>
