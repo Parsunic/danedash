@@ -246,7 +246,7 @@ function TopTasksWidget() {
   }, [load])
 
   return (
-    <div className="dash-widget">
+    <div className="dash-widget card-interactive">
       <div className="dash-widget-header">
         <span className="dash-widget-label">Queue</span>
         <Link to="/todo" className="dash-widget-link">To-Do →</Link>
