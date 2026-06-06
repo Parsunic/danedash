@@ -22,9 +22,33 @@ function todayStr() {
   return new Date().toISOString().slice(0, 10)
 }
 
+// ── Count-up hook ──
+
+function useCountUp(target, duration = 700) {
+  const [display, setDisplay] = useState(target == null ? null : 0)
+  const rafRef = useRef(null)
+  useEffect(() => {
+    if (rafRef.current) cancelAnimationFrame(rafRef.current)
+    if (target == null) { setDisplay(null); return }
+    setDisplay(0)
+    const start = performance.now()
+    const step = (now) => {
+      const t = Math.min((now - start) / duration, 1)
+      setDisplay(Math.round(t * target))
+      if (t < 1) rafRef.current = requestAnimationFrame(step)
+      else setDisplay(target)
+    }
+    rafRef.current = requestAnimationFrame(step)
+    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current) }
+  }, [target, duration])
+  return display
+}
+
 // ── Hero stat card ──
 
-function HeroCard({ label, value, unit, gradient, micro }) {
+function HeroCard({ label, value, unit, gradient, micro, formatter }) {
+  const numValue = typeof value === 'number' ? value : null
+  const animated = useCountUp(numValue)
   const glows = {
     purple: 'radial-gradient(ellipse at 10% 90%, rgba(139,92,246,0.45) 0%, transparent 60%)',
     green:  'radial-gradient(ellipse at 90% 10%, rgba(107,227,164,0.35) 0%, transparent 60%)',
@@ -32,12 +56,15 @@ function HeroCard({ label, value, unit, gradient, micro }) {
     amber:  'radial-gradient(ellipse at 10% 10%, rgba(232,160,32,0.38) 0%, transparent 60%)',
   }
   const hasValue = value != null
+  const displayed = numValue != null
+    ? (formatter ? formatter(animated) : animated)
+    : value
   return (
     <div className="health-stat-card">
       <div className="health-stat-glow" style={{ background: glows[gradient] ?? glows.amber }} />
       <div className="health-stat-label">{label}</div>
       <div className="health-stat-value" style={{ color: hasValue ? 'var(--text-primary)' : 'rgba(250,250,250,0.18)' }}>
-        {hasValue ? value : '—'}
+        {hasValue ? displayed : '—'}
         {hasValue && unit && <span className="health-stat-unit">{unit}</span>}
       </div>
       {micro && <div className="health-stat-micro">{micro}</div>}
