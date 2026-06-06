@@ -151,13 +151,13 @@ function SetRow({ setNum, row, isTemplate, onChange, onLog, onRemove, canRemove 
 
 // ── EXERCISE CARD ─────────────────────────────────────────────────────────
 
-function ExerciseCard({ ex, exIdx, isTemplate, inputRows, exHistory, onInputChange, onLogSet, onAddRow, onRemoveRow }) {
+function ExerciseCard({ ex, exIdx, isTemplate, inputRows, exHistory, onInputChange, onLogSet, onAddRow, onRemoveRow, isActiveCard }) {
   const rec = getExRec(ex.name, ex.repRange, exHistory)
   const loggedCount = ex.sets.length
   const totalTarget = ex.targetSets || 0
 
   return (
-    <div className="gym-log-exercise-card">
+    <div className={`gym-log-exercise-card${isActiveCard ? ' card-breathing' : ''}`}>
       <div className="gym-log-ex-header">
         <div className="gym-log-ex-name">{ex.name}</div>
         {totalTarget > 0 && (
