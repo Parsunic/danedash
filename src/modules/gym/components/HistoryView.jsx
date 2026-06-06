@@ -49,7 +49,7 @@ function HistorySession({ log }) {
           <div key={i} className="gym-history-ex">
             <div className="gym-history-ex-name">
               {ex.name}
-              {ex.e1rm && <span className="gym-history-ex-e1rm">e1RM {ex.e1rm} lbs</span>}
+              {ex.e1rm && <span className="gym-history-ex-e1rm">e1RM <AnimatedNum value={ex.e1rm} /> lbs</span>}
             </div>
             <div className="gym-history-sets">
               {ex.sets.map((s, si) => (
