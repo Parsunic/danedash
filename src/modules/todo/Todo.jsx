@@ -483,7 +483,7 @@ function TomorrowCard({ goals, goalKey, onGoalsChange }) {
 }
 
 // ── RECURRING SECTION ──
-function RecurringSection() {
+function RecurringSection({ className }) {
   const [recurring, setRecurring] = useState(() => storeGet('recurring_tasks') || [])
   const [isOpen, setIsOpen] = useState(() => localStorage.getItem('ui_recurring_open') === 'true')
   const [selectedFreq, setSelectedFreq] = useState('daily')
