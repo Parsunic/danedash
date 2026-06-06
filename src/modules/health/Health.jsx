@@ -246,16 +246,16 @@ export default function Health() {
       </div>
 
       {/* Sleep section */}
-      <div className="health-section-label">Sleep</div>
+      <div className="health-section-label stagger-2">Sleep</div>
       <SleepCard today={today} />
-      <div className="health-chart-row">
+      <div className="health-chart-row stagger-3">
         <SleepTrendChart history={history} />
         <SleepStagesChart history={history} />
       </div>
 
       {/* Recovery section */}
-      <div className="health-section-label">Recovery</div>
-      <div className="health-chart-row">
+      <div className="health-section-label stagger-4">Recovery</div>
+      <div className="health-chart-row stagger-4">
         <HRVTrendChart history={history} />
         <RestingHRChart history={history} />
       </div>
