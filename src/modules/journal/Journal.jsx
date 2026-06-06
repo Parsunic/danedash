@@ -426,7 +426,7 @@ Keep the total response under 220 words. Be direct. Skip affirmations and filler
       </div>
 
       {/* Right col: calendar heatmap */}
-      <div className="journal-cal-section">
+      <div className="journal-cal-section stagger-2">
         <div className="journal-cal-section-header">
           <span className="journal-eyebrow" style={{ marginBottom: 0 }}>ENTRIES</span>
         </div>
