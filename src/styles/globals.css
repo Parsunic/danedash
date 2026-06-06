@@ -616,7 +616,7 @@ body::after {
 .day-ring-wrap svg { width: 100%; height: 100%; }
 .ring-fill-circle {
   transition: stroke-dashoffset 1.2s cubic-bezier(0.22,1,0.36,1), stroke 1.2s cubic-bezier(0.22,1,0.36,1);
-  filter: drop-shadow(0 0 5px #E8A020) drop-shadow(0 0 14px rgba(232,160,32,0.55)) drop-shadow(0 0 28px rgba(232,160,32,0.25));
+  animation: ring-glow-breathe 8s ease-in-out infinite;
 }
 .day-ring-overlay {
   position: absolute; inset: 0; display: flex; flex-direction: column;
