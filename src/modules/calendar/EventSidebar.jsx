@@ -186,9 +186,9 @@ export default function EventSidebar({ event, defaultSlot, currentDate, events, 
         <div className="cal-sidebar-footer">
           {!isNew && (
             <button
-              className="btn-gym-danger"
+              className="btn-ghost"
               onClick={handleDelete}
-              style={{ marginRight: 'auto' }}
+              style={{ marginRight: 'auto', color: 'var(--danger)', borderColor: 'rgba(255,107,107,0.3)' }}
             >
               Delete
             </button>
