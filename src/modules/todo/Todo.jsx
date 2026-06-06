@@ -447,6 +447,13 @@ function TodayCard({ goals, goalKey, streak, onGoalsChange }) {
   const total = goals.length
   const allDone = total > 0 && done === total
   const hasPending = goals.some(g => !g.done)
+  const [showBurst, setShowBurst] = useState(false)
+  const prevAllDoneRef = useRef(false)
+
+  useEffect(() => {
+    if (allDone && !prevAllDoneRef.current && total > 0) setShowBurst(true)
+    prevAllDoneRef.current = allDone
+  }, [allDone, total])
 
   let progressLabel = 'no goals yet'
   if (total > 0 && allDone) progressLabel = 'all done — solid day'
