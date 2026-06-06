@@ -402,10 +402,13 @@ Keep the total response under 220 words. Be direct. Skip affirmations and filler
               <div className="journal-past-list">
                 {(() => {
                   let lastDate = null
+                  let todayCardShown = false
                   return allSortedEntries.map(entry => {
                     const isNewDate = entry.date !== lastDate
                     lastDate = entry.date
                     const dateLabel = entry.date === todayStr ? 'Today' : formatDate(entry.date)
+                    const isLatestToday = entry.date === todayStr && !todayCardShown
+                    if (isLatestToday) todayCardShown = true
                     return (
                       <div key={`${entry.id}-${lockTick}`}>
                         {isNewDate && <div className="journal-past-date-label">{dateLabel}</div>}
@@ -414,6 +417,7 @@ Keep the total response under 220 words. Be direct. Skip affirmations and filler
                           onAnalyze={analyzeEntry}
                           analysis={analyses[entry.id]}
                           isAnalyzing={analyzing[entry.id]}
+                          isLatestToday={isLatestToday}
                         />
                       </div>
                     )
