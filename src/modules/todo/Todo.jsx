@@ -726,7 +726,7 @@ export default function Todo() {
           onGoalsChange={reload}
         />
       </div>
-      <RecurringSection />
+      <RecurringSection className="stagger-2" />
     </div>
   )
 }
