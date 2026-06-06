@@ -2558,6 +2558,7 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
   align-items: center;
   gap: 10px;
   margin-bottom: 14px;
+  transition: padding-right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .planner-nav-group {
   display: flex;
