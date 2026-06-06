@@ -434,7 +434,7 @@ export default function PlannerView({ weekOffset = 0, onWeekOffsetChange = () =>
                       </div>
                       <div className="week-template-actions">
                         <button className="btn-secondary" onClick={() => applyWeekTpl(wt.id)}>Apply to Week</button>
-                        <button className="btn-gym-danger" onClick={() => deleteWeekTpl(wt.id)}>Del</button>
+                        <button className="btn-ghost" style={{ color: 'var(--danger)', borderColor: 'rgba(255,107,107,0.3)' }} onClick={() => deleteWeekTpl(wt.id)}>Del</button>
                       </div>
                     </div>
                   )
