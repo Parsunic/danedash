@@ -321,10 +321,10 @@ export default function Dashboard() {
       <h1 className="dash-title">Dane's Dashboard</h1>
       <GoalTicker />
       <div className="dash-desktop-layout">
-        <div className="dash-main-col">
+        <div className="dash-main-col stagger-1">
           <DayRing />
         </div>
-        <div className="dash-side-col">
+        <div className="dash-side-col stagger-2">
           <TopTasksWidget />
           <CalendarNowWidget />
         </div>
