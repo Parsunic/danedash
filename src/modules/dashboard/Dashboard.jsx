@@ -321,7 +321,7 @@ function CalendarNowWidget() {
   }
 
   return (
-    <div className="dash-widget">
+    <div className="dash-widget card-interactive">
       <div className="dash-widget-header">
         <span className="dash-widget-label">Schedule</span>
         <Link to="/calendar" className="dash-widget-link">Calendar →</Link>
