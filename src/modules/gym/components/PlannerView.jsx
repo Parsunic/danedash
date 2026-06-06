@@ -433,7 +433,7 @@ export default function PlannerView({ weekOffset = 0, onWeekOffsetChange = () =>
                         <div className="week-template-meta">{cnt} workout day{cnt !== 1 ? 's' : ''}</div>
                       </div>
                       <div className="week-template-actions">
-                        <button className="btn-gym-secondary" onClick={() => applyWeekTpl(wt.id)}>Apply to Week</button>
+                        <button className="btn-secondary" onClick={() => applyWeekTpl(wt.id)}>Apply to Week</button>
                         <button className="btn-gym-danger" onClick={() => deleteWeekTpl(wt.id)}>Del</button>
                       </div>
                     </div>
