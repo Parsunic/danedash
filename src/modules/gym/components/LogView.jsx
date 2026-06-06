@@ -92,7 +92,7 @@ function SetRow({ setNum, row, isTemplate, onChange, onLog, onRemove, canRemove 
           onChange={e => onChange('reps', e.target.value)}
         />
         <RPESelect value={row.rpe} onChange={v => onChange('rpe', v)} highlight={rpeHigh} />
-        <button className="btn-log-set-compact" onClick={attempt}>✓</button>
+        <button className="btn-ghost" style={{ padding: '7px 12px', fontSize: '0.8125rem', color: 'var(--accent)', borderColor: 'rgba(232,160,32,0.3)' }} onClick={attempt}>✓</button>
         {canRemove && <button className="gym-set-remove-btn" onClick={onRemove}>×</button>}
       </div>
     )
