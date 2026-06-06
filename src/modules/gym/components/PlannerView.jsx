@@ -156,8 +156,8 @@ function DayModal({ ds, existing, templates, onClose, onSave, onRemove, onStartW
           <div className="gym-field">
             <label>Status</label>
             <div style={{ display: 'flex', gap: 8 }}>
-              <button className="btn-gym-secondary" style={{ flex: 1, background: status !== 'completed' ? 'rgba(232,160,32,0.14)' : '' }} onClick={() => setStatus('upcoming')}>Upcoming</button>
-              <button className="btn-gym-secondary" style={{ flex: 1, background: status === 'completed' ? 'rgba(107,227,164,0.14)' : '' }} onClick={() => setStatus('completed')}>✓ Completed</button>
+              <button className={status !== 'completed' ? 'btn-primary' : 'btn-secondary'} style={{ flex: 1 }} onClick={() => setStatus('upcoming')}>Upcoming</button>
+              <button className={status === 'completed' ? 'btn-primary' : 'btn-secondary'} style={{ flex: 1 }} onClick={() => setStatus('completed')}>✓ Completed</button>
             </div>
           </div>
         )}
