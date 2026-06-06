@@ -2,6 +2,25 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { storeGet } from '../../../lib/storage.js'
 import { MONTHS, fmtElapsed } from '../gymUtils.js'
 
+function AnimatedNum({ value, duration = 600 }) {
+  const [display, setDisplay] = useState(0)
+  const rafRef = useRef(null)
+  useEffect(() => {
+    if (!value) { setDisplay(value || 0); return }
+    setDisplay(0)
+    const start = performance.now()
+    const step = (now) => {
+      const t = Math.min((now - start) / duration, 1)
+      setDisplay(Math.round(t * value))
+      if (t < 1) rafRef.current = requestAnimationFrame(step)
+      else setDisplay(value)
+    }
+    rafRef.current = requestAnimationFrame(step)
+    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current) }
+  }, [value, duration])
+  return <>{display}</>
+}
+
 function HistorySession({ log }) {
   const [expanded, setExpanded] = useState(false)
   const prNames = (log.exercises || []).filter(ex => ex.sets?.some(s => s.isPR)).map(ex => ex.name)
