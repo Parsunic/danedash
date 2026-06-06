@@ -688,7 +688,6 @@ body::after {
 .goal-row:hover .goal-drag-handle,
 .goal-row:hover .goal-delete { opacity: 1; }
 .goal-row.goal-row-done { opacity: 0.45; background: rgba(107,227,164,0.04); }
-.goal-row.goal-row-done .goal-text { text-decoration: line-through; text-decoration-color: rgba(255,255,255,0.4); }
 .goal-row.goal-row-queued { background: rgba(232,160,32,0.10); box-shadow: inset 3px 0 0 0 var(--accent); }
 .goal-row.goal-row-queued .goal-text { color: #FFE2A8; }
 .goal-row.is-queue-flashing { animation: gm-queue-flash 0.48s ease forwards; }
