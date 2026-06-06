@@ -160,9 +160,9 @@ export default function EventModal({ event, defaultSlot, currentDate, onSave, on
         <div className="cal-modal-footer">
           {!isNew && (
             <button
-              className="btn-gym-danger"
+              className="btn-ghost"
               onClick={() => onDelete(event.id)}
-              style={{ marginRight: 'auto' }}
+              style={{ marginRight: 'auto', color: 'var(--danger)', borderColor: 'rgba(255,107,107,0.3)' }}
             >
               Delete
             </button>
