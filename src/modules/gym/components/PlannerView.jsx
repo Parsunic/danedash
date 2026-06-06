@@ -421,7 +421,7 @@ export default function PlannerView({ weekOffset = 0, onWeekOffsetChange = () =>
               <>
                 <div className="gym-section-header" style={{ marginBottom: 12, marginTop: 10 }}>
                   <div style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>Save or apply a full weekly split</div>
-                  <button className="btn-gym-secondary" onClick={() => setWeekTplModal(true)}>Save This Week</button>
+                  <button className="btn-secondary" onClick={() => setWeekTplModal(true)}>Save This Week</button>
                 </div>
                 {weekTpls.length === 0 && <div className="empty-state">No week templates saved yet.</div>}
                 {weekTpls.map(wt => {
