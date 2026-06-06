@@ -4,7 +4,28 @@ import { getActiveDateString } from '../../../lib/dateHelpers.js'
 import { getExRec, fmtElapsed } from '../gymUtils.js'
 import { searchExercises } from '../../../lib/muscleUtils.js'
 
-// ── HELPERS ──────────────────────────────────────────────────────────────
+// ── ANIMATED NUMBER ───────────────────────────────────────────────────────
+
+function AnimatedNum({ value, duration = 600 }) {
+  const [display, setDisplay] = useState(0)
+  const rafRef = useRef(null)
+  useEffect(() => {
+    if (!value) { setDisplay(value || 0); return }
+    setDisplay(0)
+    const start = performance.now()
+    const step = (now) => {
+      const t = Math.min((now - start) / duration, 1)
+      setDisplay(Math.round(t * value))
+      if (t < 1) rafRef.current = requestAnimationFrame(step)
+      else setDisplay(value)
+    }
+    rafRef.current = requestAnimationFrame(step)
+    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current) }
+  }, [value, duration])
+  return <>{display}</>
+}
+
+// ── HELPERS ───────────────────────────────────────────────────────────────
 
 function getMostNeglectedMuscle() {
   const logs = storeGet('gym_workout_logs') || []
