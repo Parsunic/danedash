@@ -167,9 +167,9 @@ export default function EventModal({ event, defaultSlot, currentDate, onSave, on
               Delete
             </button>
           )}
-          <button className="btn-gym-secondary" onClick={onClose}>Cancel</button>
+          <button className="btn-secondary" onClick={onClose}>Cancel</button>
           <button
-            className="btn-gym-primary"
+            className="btn-primary"
             onClick={handleSave}
             disabled={!form.title.trim()}
           >
