@@ -68,6 +68,7 @@ function GoalRow({ goal, index, goals, goalKey, readOnly, hasFinePointer, onGoal
   const textRef = useRef(null)
   const originalTextRef = useRef('')
   const isEditingRef = useRef(false)
+  const [cbPopping, setCbPopping] = useState(false)
 
   // Keep text content in sync when goal.text changes from external source
   useEffect(() => {
