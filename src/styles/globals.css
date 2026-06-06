@@ -2872,6 +2872,7 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
   align-items: center;
   justify-content: space-between;
   margin-bottom: 16px;
+  transition: padding-right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .gym-face-top .dash-title { margin-bottom: 0; }
 
