@@ -161,7 +161,7 @@ function GoalRow({ goal, index, goals, goalKey, readOnly, hasFinePointer, onGoal
           title={readOnly ? 'Activates at 6 AM tomorrow' : undefined}
           onChange={e => handleCheck(e.target.checked)}
         />
-        <div className="goal-cb-box" />
+        <div className={`goal-cb-box${cbPopping ? ' is-popping' : ''}`} />
       </label>
       <div
         ref={textRef}
