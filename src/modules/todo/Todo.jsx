@@ -488,10 +488,11 @@ function TodayCard({ goals, goalKey, streak, onGoalsChange }) {
           <span className="gm-streak-label">day streak</span>
         </div>
       </div>
-      <div className="gm-bar">
+      <div className="gm-bar" style={{ position: 'relative' }}>
         {goals.map((g, i) => (
           <div key={i} className={`gm-bar-seg${g.done ? ' gm-bar-seg-done' : ''}`} />
         ))}
+        {showBurst && <ParticleBurst onDone={() => setShowBurst(false)} />}
       </div>
       {goals.length === 0 && (
         <div className="empty-state">No goals for today yet — add one below.</div>
