@@ -494,7 +494,7 @@ export default function LogView({ activeSession, onLogSet, onFinish, onStartWork
           <div className="gym-session-name">{activeSession.name}</div>
           <div className="gym-session-timer">{fmtElapsed(elapsed)}</div>
         </div>
-        <button className="btn-finish-workout" onClick={onFinish}>✓ Finish</button>
+        <button className="btn-primary" style={{ background: 'linear-gradient(135deg,#6BE3A4 0%,#3dba7e 100%)', color: '#050506' }} onClick={onFinish}>✓ Finish</button>
       </div>
       {activeSession.exercises.map((ex, ei) => (
         <ExerciseCard
