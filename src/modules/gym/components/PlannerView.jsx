@@ -309,8 +309,8 @@ export default function PlannerView({ weekOffset = 0, onWeekOffsetChange = () =>
           <button className="planner-nav-btn" onClick={() => viewMode === 'month' ? setMonthOffset(v => v + 1) : onWeekOffsetChange(weekOffset + 1)}>›</button>
         </div>
         <div className="planner-view-toggle">
-          <button className={`planner-view-btn${viewMode === 'month' ? ' active' : ''}`} onClick={() => setViewMode('month')}>Month</button>
-          <button className={`planner-view-btn${viewMode === 'week' ? ' active' : ''}`} onClick={() => setViewMode('week')}>Week</button>
+          <button className={viewMode === 'month' ? 'btn-primary' : 'btn-secondary'} style={{ fontSize: '0.8125rem', padding: '5px 11px' }} onClick={() => setViewMode('month')}>Month</button>
+          <button className={viewMode === 'week' ? 'btn-primary' : 'btn-secondary'} style={{ fontSize: '0.8125rem', padding: '5px 11px' }} onClick={() => setViewMode('week')}>Week</button>
         </div>
       </div>
 
