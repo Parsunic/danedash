@@ -39,13 +39,13 @@ function LockIcon({ size = 13 }) {
 
 // ── EntryCard ──
 
-function EntryCard({ entry, onAnalyze, analysis, isAnalyzing }) {
+function EntryCard({ entry, onAnalyze, analysis, isAnalyzing, isLatestToday }) {
   const locked = isEntryLocked(entry)
   const remaining = locked ? lockTimeRemaining(entry) : ''
   const d = new Date(entry.created_at)
   const timeLabel = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
   return (
-    <div className="journal-entry-card">
+    <div className={`journal-entry-card${isLatestToday ? ' card-breathing' : ''}`}>
       <div className="journal-entry-meta">
         <span className="journal-entry-time">{timeLabel}</span>
         {entry.tags?.length > 0 && (
