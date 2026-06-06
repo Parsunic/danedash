@@ -264,7 +264,7 @@ export default function Gym() {
     <>
       <BackgroundBlob page="gym" />
 
-      <div className="gym-page-content" ref={gymContainerRef}>
+      <div className="gym-page-content stagger-1" ref={gymContainerRef}>
         <div className="gym-flip-container">
           <div ref={flipperRef} className={`gym-flipper${flipped ? ' is-flipped' : ''}`}>
 
