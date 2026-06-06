@@ -52,6 +52,15 @@
   40%  { background: rgba(232,160,32,0.32); transform: scale(1.015); }
   100% { background: transparent; transform: scale(1); }
 }
+@keyframes cbBoxPop {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.22); }
+  100% { transform: scale(1); }
+}
+@keyframes particle-fly {
+  0%   { transform: translate(0, 0) scale(1); opacity: 0.9; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(0.15); opacity: 0; }
+}
 @keyframes page-enter {
   from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
