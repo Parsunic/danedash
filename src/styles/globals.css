@@ -2434,6 +2434,7 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
   color: var(--success);
   text-transform: uppercase;
   margin-bottom: 5px;
+  animation: live-pulse 2.5s ease-in-out infinite;
 }
 .dash-now-title { font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 3px; }
 .dash-now-time { font-family: var(--font-mono); font-size: 11px; color: var(--text-secondary); }
