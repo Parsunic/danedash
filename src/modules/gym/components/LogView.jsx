@@ -171,7 +171,7 @@ function ExerciseCard({ ex, exIdx, isTemplate, inputRows, exHistory, onInputChan
           ? <span className="po-seed">No history — enter a working weight to seed the engine</span>
           : (
             <>
-              {rec.e1rmStr}{rec.lastStr}
+              {rec.e1rm ? <>e1RM <AnimatedNum value={rec.e1rm} /> · </> : ''}{rec.lastStr}
               <br />
               <span className="po-suggest">
                 → Try <strong>{rec.sW} lbs × {rec.sR}</strong>{' '}
