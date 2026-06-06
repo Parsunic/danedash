@@ -122,7 +122,7 @@ function SetRow({ setNum, row, isTemplate, onChange, onLog, onRemove, canRemove 
         <div className="gym-new-set-label">RPE</div>
         <RPEStrip selected={row.rpe} onSelect={v => onChange('rpe', v)} highlight={rpeHigh} />
       </div>
-      <button className="btn-log-set" onClick={attempt}>✓ Log</button>
+      <button className="btn-ghost" style={{ alignSelf: 'flex-end', color: 'var(--accent)', borderColor: 'rgba(232,160,32,0.3)' }} onClick={attempt}>✓ Log</button>
       {canRemove && <button className="gym-set-remove-btn" onClick={onRemove}>×</button>}
     </div>
   )
