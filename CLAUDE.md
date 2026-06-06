@@ -168,3 +168,20 @@ Big number → tiny label beneath → micro-copy. This hierarchy is sacred.
 
 
 Feel free to add to this file as you go, but only add information you think is critical to the project.
+
+## Design System — UI Standards
+
+### Button Hierarchy
+Always use exactly one of three button classes. Never create one-off button styles.
+
+- `.btn-primary` — amber fill. One per screen max. The dominant action.
+- `.btn-secondary` — dark fill, white text, subtle border. Supporting actions and inactive toggle states.
+- `.btn-ghost` — transparent, low-emphasis. AI features, cancel, nav links.
+
+Active toggle state = btn-primary. Inactive toggle state = btn-secondary.
+
+### Page Subtitles
+All page-level subtitles use `.page-subtitle`: uppercase, letter-spacing 0.12em, 0.7rem, rgba(255,255,255,0.4), not italic, not bold. Never use sentence-case or italic for page-level descriptors.
+
+### Adding New Modules
+Any new module must use only btn-primary / btn-secondary / btn-ghost for all interactive controls, and .page-subtitle for any page-level descriptor. No new button styles may be introduced without updating this section first.
