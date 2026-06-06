@@ -55,7 +55,8 @@ function EntryCard({ entry, onAnalyze, analysis, isAnalyzing }) {
         )}
         {!locked && onAnalyze && (
           <button
-            className="journal-analyze-btn"
+            className="btn-ghost"
+            style={{ marginLeft: 'auto', fontSize: '0.75rem', padding: '5px 10px', flexShrink: 0 }}
             onClick={() => onAnalyze(entry)}
             disabled={isAnalyzing}
             title="Analyze with AI"
