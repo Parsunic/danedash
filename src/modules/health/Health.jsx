@@ -268,7 +268,8 @@ export default function Health() {
         <HeroCard label="Resting HR"  gradient="orange" unit="bpm" value={today?.resting_hr} />
         <HeroCard
           label="Steps" gradient="amber"
-          value={today?.steps != null ? today.steps.toLocaleString() : null}
+          value={today?.steps ?? null}
+          formatter={(v) => v.toLocaleString()}
         />
       </div>
 
