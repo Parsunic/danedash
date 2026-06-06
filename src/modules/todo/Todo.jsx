@@ -452,7 +452,7 @@ function TodayCard({ goals, goalKey, streak, onGoalsChange }) {
       )}
       <GoalList goals={goals} goalKey={goalKey} readOnly={false} onGoalsChange={onGoalsChange} />
       {hasPending && (
-        <button className="gm-push-btn" onClick={handlePushRemaining}>
+        <button className="btn-ghost" style={{ width: '100%' }} onClick={handlePushRemaining}>
           → Push remaining to tomorrow
         </button>
       )}
