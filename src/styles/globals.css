@@ -1816,6 +1816,7 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
   flex-shrink: 0;
   box-shadow: 0 0 7px rgba(232,160,32,0.65);
   margin-left: -3px;
+  animation: live-pulse 3s ease-in-out infinite;
 }
 .cal-now-time-pill {
   font-family: var(--font-mono);
@@ -1828,6 +1829,7 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
   white-space: nowrap;
   margin-left: 3px;
   letter-spacing: 0.04em;
+  animation: live-pulse 3s ease-in-out infinite;
 }
 .cal-now-bar {
   flex: 1;
