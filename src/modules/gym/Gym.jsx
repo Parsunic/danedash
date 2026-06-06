@@ -13,7 +13,7 @@ import HistoryView from './components/HistoryView.jsx'
 import RestTimer from './components/RestTimer.jsx'
 import StatsView from './components/StatsView.jsx'
 
-const OVERLAY_TABS = ['templates', 'ai-coach', 'history', 'stats']
+const OVERLAY_TABS = ['stats', 'templates', 'ai-coach', 'history']
 const OVERLAY_LABELS = { templates: 'Templates', 'ai-coach': 'AI Coach', history: 'History', stats: 'Stats', log: 'Log' }
 
 const INIT_REST = { visible: false, remaining: 0, total: 0, paused: false, lastSecs: 90 }
