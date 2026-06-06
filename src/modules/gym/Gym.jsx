@@ -270,7 +270,7 @@ export default function Gym() {
 
             {/* FRONT FACE — Planner */}
             <div className="gym-face gym-face-front" style={flipped ? { pointerEvents: 'none' } : {}}>
-              <div className="gym-face-top" style={isDesktop && plannerViewMode === 'week' ? { paddingRight: 120 } : {}}>
+              <div className="gym-face-top" style={isDesktop && plannerViewMode === 'month' ? { paddingRight: 90 } : {}}>
                 <h1 className="dash-title">Gym</h1>
                 <button className="gym-flip-trigger" onClick={() => flipToBack('stats')}>
                   Stats ›
