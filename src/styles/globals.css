@@ -2456,6 +2456,31 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
 .dash-next-title { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 2px; }
 .dash-next-time { font-family: var(--font-mono); font-size: 11px; color: var(--text-tertiary); }
 
+/* ── PARTICLE BURST ── */
+.particle-burst {
+  position: absolute; left: 0; right: 0; top: 64px;
+  height: 0; pointer-events: none; z-index: 10;
+  display: flex; align-items: center; justify-content: center;
+}
+.particle {
+  position: absolute; border-radius: 50%; top: 0; left: 0;
+  animation: particle-fly 800ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* ── CARD INTERACTIVE HOVER (desktop only) ── */
+@media (min-width: 1024px) {
+  .card-interactive {
+    transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1),
+                border-color 200ms cubic-bezier(0.22, 1, 0.36, 1),
+                box-shadow 200ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .card-interactive:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255,255,255,0.13);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3), 0 0 0 1px rgba(232,160,32,0.08);
+  }
+}
+
 /* ── TODO DESKTOP 2-COLUMN ── */
 @media (min-width: 1024px) {
   .todo-desktop-grid {
