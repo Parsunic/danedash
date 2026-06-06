@@ -302,7 +302,7 @@ export default function PlannerView({ weekOffset = 0, onWeekOffsetChange = () =>
   return (
     <div>
       {/* ── Header: nav + view toggle ── */}
-      <div className="planner-header-row">
+      <div className="planner-header-row" style={viewMode === 'month' ? { paddingRight: 90 } : {}}>
         <div className="planner-nav-group">
           <button className="planner-nav-btn" onClick={() => viewMode === 'month' ? setMonthOffset(v => v - 1) : onWeekOffsetChange(weekOffset - 1)}>‹</button>
           <span className="planner-week-label">{viewMode === 'month' ? monthLabel : weekLabel}</span>
