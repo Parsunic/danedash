@@ -100,8 +100,8 @@ function WeekTemplateModal({ onClose, onSave }) {
           />
         </div>
         <div className="gym-modal-footer">
-          <button className="btn-gym-secondary" style={{ flex: 1 }} onClick={onClose}>Cancel</button>
-          <button className="btn-gym-primary" style={{ flex: 2 }} onClick={() => name.trim() && onSave(name.trim())}>Save</button>
+          <button className="btn-secondary" style={{ flex: 1 }} onClick={onClose}>Cancel</button>
+          <button className="btn-primary" style={{ flex: 2 }} onClick={() => name.trim() && onSave(name.trim())}>Save</button>
         </div>
       </div>
     </div>
