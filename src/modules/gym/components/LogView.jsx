@@ -518,8 +518,6 @@ export default function LogView({ activeSession, onLogSet, onFinish, onStartWork
         <button className="btn-primary" style={{ background: 'linear-gradient(135deg,#6BE3A4 0%,#3dba7e 100%)', color: '#050506' }} onClick={onFinish}>✓ Finish</button>
       </div>
       {activeSession.exercises.map((ex, ei) => {
-        const loggedCount = ex.sets.length
-        const totalTarget = ex.targetSets || 0
         const isActiveCard = ei === activeSession.exercises.findIndex(
           (e) => e.sets.length < (e.targetSets || 1)
         )
