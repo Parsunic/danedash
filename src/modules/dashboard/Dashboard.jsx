@@ -147,22 +147,56 @@ function GoalTicker() {
 // ── DAY RING ──
 function DayRing() {
   const [data, setData] = useState(computeRingData)
+  const [animOffset, setAnimOffset] = useState(RING_C)
+  const [animPct, setAnimPct] = useState(() => {
+    const d = computeRingData()
+    return d.pct === '—' ? '—' : '0%'
+  })
+  const animRaf = useRef(null)
+  const hasMounted = useRef(false)
 
+  // Minute tick — update data and snap display values forward
   useEffect(() => {
-    const timer = setInterval(() => setData(computeRingData()), 60000)
+    const timer = setInterval(() => {
+      const d = computeRingData()
+      setData(d)
+      setAnimOffset(d.dashOffset)
+      setAnimPct(d.pct)
+    }, 60000)
     return () => clearInterval(timer)
   }, [])
+
+  // Mount animation — arc draws, counter counts up
+  useEffect(() => {
+    if (hasMounted.current) return
+    hasMounted.current = true
+    const d = data
+    const targetOffset = d.dashOffset
+    const pctNum = d.pct !== '—' ? parseInt(d.pct) : null
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => setAnimOffset(targetOffset))
+    })
+
+    if (pctNum !== null) {
+      const DURATION = 1200
+      const start = performance.now()
+      const step = (now) => {
+        const t = Math.min((now - start) / DURATION, 1)
+        const eased = 1 - Math.pow(1 - t, 3)
+        setAnimPct(Math.round(eased * pctNum) + '%')
+        if (t < 1) { animRaf.current = requestAnimationFrame(step) }
+        else { setAnimPct(d.pct) }
+      }
+      animRaf.current = requestAnimationFrame(step)
+    }
+    return () => { if (animRaf.current) cancelAnimationFrame(animRaf.current) }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="day-ring-section">
       <div className="day-ring-wrap">
         <svg viewBox="0 0 120 120" fill="none">
-          <defs>
-            <filter id="ringGlow" x="-30%" y="-30%" width="160%" height="160%">
-              <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur" />
-              <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
-            </filter>
-          </defs>
           <circle cx="60" cy="60" r="52" stroke="rgba(255,255,255,0.06)" strokeWidth="8" />
           <circle
             className="ring-fill-circle"
@@ -171,14 +205,13 @@ function DayRing() {
             stroke={data.strokeColor}
             strokeWidth="8"
             strokeLinecap="round"
-            filter="url(#ringGlow)"
             transform="rotate(-90 60 60)"
             strokeDasharray={RING_C}
-            strokeDashoffset={data.dashOffset}
+            strokeDashoffset={animOffset}
           />
         </svg>
         <div className="day-ring-overlay">
-          <div className="day-ring-pct">{data.pct}</div>
+          <div className="day-ring-pct">{animPct}</div>
           <div className="day-ring-phase">{data.phase}</div>
           <div className="day-ring-clock">{data.clock}</div>
         </div>
