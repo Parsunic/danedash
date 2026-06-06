@@ -190,7 +190,8 @@ export default function Calendar() {
             {['day', 'week', 'month'].map(v => (
               <button
                 key={v}
-                className={`cal-view-btn${view === v ? ' active' : ''}`}
+                className={view === v ? 'btn-primary' : 'btn-secondary'}
+                style={{ padding: '6px 14px', fontSize: '0.8125rem' }}
                 onClick={() => setView(v)}
               >
                 {v.charAt(0).toUpperCase() + v.slice(1)}
@@ -199,17 +200,19 @@ export default function Calendar() {
           </div>
           <div className="cal-nav-group">
             <button className="cal-nav-btn" onClick={() => navigate(-1)}>‹</button>
-            <button className="cal-today-btn" onClick={() => setCurrentDate(new Date())}>Today</button>
+            <button className="btn-secondary" style={{ padding: '7px 14px', fontSize: '0.8125rem' }} onClick={() => setCurrentDate(new Date())}>Today</button>
             <button className="cal-nav-btn" onClick={() => navigate(1)}>›</button>
           </div>
           <button
-            className="cal-ai-btn"
+            className="btn-ghost"
+            style={{ padding: '8px 14px', fontSize: '0.8125rem' }}
             onClick={() => setShowAIPlanner(v => !v)}
           >
             ✦ AI
           </button>
           <button
-            className="cal-add-btn"
+            className="btn-primary"
+            style={{ padding: '8px 16px', fontSize: '0.8125rem' }}
             onClick={() => { setDefaultSlot(null); setEditEvent(null); setShowSidebar(true) }}
           >
             + New
