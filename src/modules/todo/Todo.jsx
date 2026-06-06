@@ -4,6 +4,43 @@ import { getActiveDateString, getTomorrowDateString, formatDate, ordinal } from 
 import BackgroundBlob from '../../components/BackgroundBlob.jsx'
 
 const DAY_NAMES = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
+const BURST_COLORS = ['#E8A020', '#6BE3A4', '#F2C063']
+const BURST_COUNT = 14
+
+// ── PARTICLE BURST ──
+function ParticleBurst({ onDone }) {
+  useEffect(() => {
+    const t = setTimeout(onDone, 900)
+    return () => clearTimeout(t)
+  }, [onDone])
+
+  return (
+    <div className="particle-burst" aria-hidden="true">
+      {Array.from({ length: BURST_COUNT }, (_, i) => {
+        const angle = (i / BURST_COUNT) * 360 + (Math.random() * (360 / BURST_COUNT))
+        const dist = 35 + Math.random() * 55
+        const dx = (Math.cos((angle * Math.PI) / 180) * dist).toFixed(1)
+        const dy = (Math.sin((angle * Math.PI) / 180) * dist).toFixed(1)
+        const size = (3.5 + Math.random() * 4).toFixed(1)
+        const delay = Math.floor(Math.random() * 120)
+        return (
+          <div
+            key={i}
+            className="particle"
+            style={{
+              '--dx': dx + 'px',
+              '--dy': dy + 'px',
+              width: size + 'px',
+              height: size + 'px',
+              background: BURST_COLORS[i % BURST_COLORS.length],
+              animationDelay: delay + 'ms',
+            }}
+          />
+        )
+      })}
+    </div>
+  )
+}
 
 // ── STREAK ──
 function computeStreak() {
