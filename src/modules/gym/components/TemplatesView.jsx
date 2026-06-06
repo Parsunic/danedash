@@ -116,7 +116,7 @@ function TemplateCard({ tpl, onEdit, onDelete }) {
           )}
         </div>
         <div className="template-card-actions" onClick={e => e.stopPropagation()}>
-          <button className="btn-gym-secondary" onClick={() => onEdit(tpl)}>Edit</button>
+          <button className="btn-secondary" onClick={() => onEdit(tpl)}>Edit</button>
           <button className="btn-gym-danger" onClick={() => onDelete(tpl)}>Delete</button>
         </div>
       </div>
