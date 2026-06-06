@@ -523,8 +523,8 @@ Rules: date YYYY-MM-DD · times 24-hour HH:MM · do not overlap existing events 
                   </div>
                 ))}
                 <div className="ai-planner-proposed-actions">
-                  <button className="btn-gym-secondary" onClick={() => { setProposed(null); setStatus(null) }}>Discard</button>
-                  <button className="btn-gym-primary" onClick={confirmProposed}>Add All</button>
+                  <button className="btn-secondary" onClick={() => { setProposed(null); setStatus(null) }}>Discard</button>
+                  <button className="btn-primary" onClick={confirmProposed}>Add All</button>
                 </div>
               </div>
             )}
