@@ -390,8 +390,8 @@ function AddGoalForm({ goalKey, placeholder, onGoalsChange }) {
           onChange={e => setInputVal(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && addGoal(inputVal)}
         />
-        <button className="btn-add" onClick={() => addGoal(inputVal)}>+ Add</button>
-        <button className="btn-polish" disabled={polishing} onClick={handlePolish}>
+        <button className="btn-primary" onClick={() => addGoal(inputVal)}>+ Add</button>
+        <button className="btn-ghost" disabled={polishing} onClick={handlePolish}>
           {polishing ? '…' : '✨ Polish'}
         </button>
       </div>
