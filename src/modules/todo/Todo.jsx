@@ -713,7 +713,7 @@ export default function Todo() {
     <div className="section">
       <BackgroundBlob page="todo" />
       <div className="section-title">To Do List</div>
-      <div className="todo-desktop-grid">
+      <div className="todo-desktop-grid stagger-1">
         <TodayCard
           goals={todayGoals}
           goalKey={todayKey}
