@@ -385,7 +385,7 @@ Keep the total response under 220 words. Be direct. Skip affirmations and filler
 
         {/* Save — only when there's content */}
         {isDirty && (
-          <button className="journal-save-btn" onClick={saveEntry}>
+          <button className="btn-primary" style={{ width: '100%', justifyContent: 'center' }} onClick={saveEntry}>
             Save entry
           </button>
         )}
