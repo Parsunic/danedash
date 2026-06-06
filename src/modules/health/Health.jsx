@@ -221,7 +221,7 @@ export default function Health() {
             Sync sleep stages, HRV, heart rate, and daily steps from Google Fit.
             Configure your Google OAuth credentials in Settings, then tap Connect.
           </div>
-          <button className="health-connect-btn" onClick={() => window.dispatchEvent(new Event('open-settings'))}>
+          <button className="btn-primary" onClick={() => window.dispatchEvent(new Event('open-settings'))}>
             Open Settings
           </button>
         </div>
