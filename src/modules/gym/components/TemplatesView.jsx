@@ -179,7 +179,7 @@ export default function TemplatesView() {
     <div>
       <div className="gym-section-header">
         <div className="section-title" style={{ marginBottom: 0 }}>Workout Templates</div>
-        <button className="btn-gym-primary" onClick={() => setModalTpl(null)}>+ New</button>
+        <button className="btn-primary" onClick={() => setModalTpl(null)}>+ New</button>
       </div>
       {templates.length === 0 && (
         <div className="empty-state">No templates yet — create one to get started.</div>
