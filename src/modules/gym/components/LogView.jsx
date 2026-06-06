@@ -309,7 +309,7 @@ function LogIdle({ onStartWorkout }) {
         )}
 
         <button
-          className="btn-gym-primary"
+          className="btn-primary"
           disabled={!addedExs.length}
           style={{ width: '100%', padding: 14, fontSize: 15, marginTop: 20, opacity: addedExs.length ? 1 : 0.4 }}
           onClick={startFreestyle}
@@ -333,7 +333,7 @@ function LogIdle({ onStartWorkout }) {
             ))}
           </ul>
         )}
-        <button className="btn-gym-primary" style={{ width: '100%', padding: 14, fontSize: 15 }}
+        <button className="btn-primary" style={{ width: '100%', padding: 14, fontSize: 15 }}
           onClick={() => onStartWorkout(pw.exercises, pw.id, pw.name, true)}>
           ▶ Start Workout
         </button>
@@ -373,7 +373,7 @@ function LogIdle({ onStartWorkout }) {
             {templates.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
           </select>
           <button
-            className="btn-gym-primary"
+            className="btn-primary"
             style={{ width: '100%', padding: 14, fontSize: 15, opacity: selTpl ? 1 : 0.4 }}
             disabled={!selTpl}
             onClick={() => {
@@ -384,7 +384,7 @@ function LogIdle({ onStartWorkout }) {
         </>
       )}
       <button
-        className="btn-gym-primary"
+        className="btn-primary"
         style={{ width: '100%', padding: 14, fontSize: 15, marginTop: 10, background: 'rgba(107,227,164,0.1)', borderColor: 'rgba(107,227,164,0.25)', color: 'var(--success)' }}
         onClick={() => setMode('freestyle')}
       >⚡ Freestyle Workout</button>
