@@ -181,7 +181,7 @@ export default function Health() {
       <div className="health-page-header">
         <div>
           <h1 className="health-title">Health</h1>
-          <div className="health-subtitle">
+          <div className="page-subtitle">
             {lastSync
               ? `Synced ${relativeTime(lastSync)}`
               : connected ? 'Syncing…' : 'Connect Google Health in Settings to sync'}
