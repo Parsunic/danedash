@@ -193,9 +193,9 @@ export default function EventSidebar({ event, defaultSlot, currentDate, events, 
               Delete
             </button>
           )}
-          <button className="btn-gym-secondary" onClick={handleClose}>Cancel</button>
+          <button className="btn-secondary" onClick={handleClose}>Cancel</button>
           <button
-            className="btn-gym-primary"
+            className="btn-primary"
             onClick={handleSave}
             disabled={!form.title.trim()}
           >
