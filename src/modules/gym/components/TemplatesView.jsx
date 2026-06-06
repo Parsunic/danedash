@@ -92,11 +92,11 @@ function TemplateModal({ tpl, onClose, onSave }) {
               <ExerciseEditorRow key={i} ex={ex} idx={i} onChange={changeEx} onDelete={deleteEx} />
             ))}
           </div>
-          <button className="btn-add-exercise" onClick={addEx}>+ Add Exercise</button>
+          <button className="btn-ghost" style={{ width: '100%' }} onClick={addEx}>+ Add Exercise</button>
         </div>
         <div className="gym-modal-footer">
-          <button className="btn-gym-secondary" style={{ flex: 1 }} onClick={onClose}>Cancel</button>
-          <button className="btn-gym-primary" style={{ flex: 2 }} onClick={save}>Save Template</button>
+          <button className="btn-secondary" style={{ flex: 1 }} onClick={onClose}>Cancel</button>
+          <button className="btn-primary" style={{ flex: 2 }} onClick={save}>Save Template</button>
         </div>
       </div>
     </div>
