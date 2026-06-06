@@ -623,7 +623,7 @@ function RecurringSection() {
                 ))}
               </div>
             )}
-            <button className="btn-recurring-add" onClick={handleAdd}>
+            <button className="btn-primary" style={{ width: '100%', justifyContent: 'center' }} onClick={handleAdd}>
               + Add Recurring Task
             </button>
           </div>
