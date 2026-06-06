@@ -115,6 +115,7 @@ function GoalRow({ goal, index, goals, goalKey, readOnly, hasFinePointer, onGoal
   }
 
   function handleCheck(checked) {
+    if (checked) { setCbPopping(true); setTimeout(() => setCbPopping(false), 200) }
     const newGoals = [...goals]
     newGoals[index] = { ...newGoals[index], done: checked }
     if (checked) newGoals[index].doneAt = Date.now()
