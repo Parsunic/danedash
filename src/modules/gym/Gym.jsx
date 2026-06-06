@@ -293,7 +293,8 @@ export default function Gym() {
                   {visibleTabs.map(tab => (
                     <button
                       key={tab}
-                      className={`gym-overlay-tab-btn${overlayTab === tab ? ' active' : ''}`}
+                      className={overlayTab === tab ? 'btn-primary' : 'btn-secondary'}
+                      style={{ fontSize: '0.8125rem', padding: '7px 14px' }}
                       onClick={() => setOverlayTab(tab)}
                     >
                       {OVERLAY_LABELS[tab]}
