@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import BackgroundBlob from '../../components/BackgroundBlob.jsx'
 import { isGfitConnected, getGfitLastSync } from '../../lib/api/googlefit.js'
 import { syncTodayIfStale, syncGfitData, fetchHealthHistory } from './googleFitSync.js'
