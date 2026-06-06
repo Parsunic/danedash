@@ -180,7 +180,7 @@ export default function Calendar() {
         </div>
       )}
       {/* Header */}
-      <div className="cal-header">
+      <div className="cal-header stagger-1">
         <div className="cal-header-left">
           <h1 className="dash-title" style={{ marginBottom: 0 }}>Calendar</h1>
           <div className="page-subtitle">{headerLabel(view, currentDate)}</div>
