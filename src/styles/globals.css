@@ -716,6 +716,7 @@ body::after {
   border: 1.5px solid rgba(255,255,255,0.18); background: rgba(255,255,255,0.04);
   position: relative; transition: background 0.2s, border-color 0.2s, box-shadow 0.2s; pointer-events: none;
 }
+.goal-cb-box.is-popping { animation: cbBoxPop 200ms ease-out; }
 .goal-cb-wrap input:checked + .goal-cb-box {
   background: #6BE3A4; border-color: #6BE3A4; box-shadow: 0 0 12px rgba(107,227,164,0.40);
 }
