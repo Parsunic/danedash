@@ -228,7 +228,7 @@ export default function Health() {
       )}
 
       {/* Hero stats row */}
-      <div className="health-hero-grid">
+      <div className="health-hero-grid stagger-1">
         <HeroCard
           label="Sleep Score" gradient="purple"
           value={today?.sleep_score}
