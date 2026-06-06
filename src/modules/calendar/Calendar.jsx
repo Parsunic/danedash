@@ -221,7 +221,7 @@ export default function Calendar() {
       </div>
 
       {/* Body */}
-      <div className="cal-body-wrap">
+      <div className="cal-body-wrap stagger-2">
         <div className={`cal-main${showDayReview && view === 'day' ? ' cal-main--reviewing' : ''}`}>
           {(view === 'week' || view === 'day') && (
             <TimeGrid
