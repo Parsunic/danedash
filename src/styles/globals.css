@@ -682,7 +682,7 @@ body::after {
   display: flex; flex-direction: row; align-items: center; gap: 10px;
   padding: 11px 12px; margin-bottom: 6px;
   background: rgba(255,255,255,0.035); border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.06); transition: background 0.2s; position: relative;
+  border: 1px solid rgba(255,255,255,0.06); transition: background 0.2s, opacity 400ms ease; position: relative;
 }
 .goal-row:hover { background: rgba(255,255,255,0.055); }
 .goal-row:hover .goal-drag-handle,
