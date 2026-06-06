@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { storeGet } from '../../../lib/storage.js'
 import { getActiveDateString } from '../../../lib/dateHelpers.js'
 import { getExRec, fmtElapsed } from '../gymUtils.js'
