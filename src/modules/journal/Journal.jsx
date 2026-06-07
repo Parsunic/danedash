@@ -53,7 +53,7 @@ function EntryCard({ entry, onAnalyze, analysis, isAnalyzing, isLatestToday }) {
             {entry.tags.map(t => <span key={t} className="journal-entry-tag">{t}</span>)}
           </div>
         )}
-        {!locked && onAnalyze && (
+        {!locked && !analysis && onAnalyze && (
           <button
             className="btn-ghost"
             style={{ marginLeft: 'auto', fontSize: '0.75rem', padding: '5px 10px', flexShrink: 0 }}
@@ -65,6 +65,9 @@ function EntryCard({ entry, onAnalyze, analysis, isAnalyzing, isLatestToday }) {
           </button>
         )}
       </div>
+      {entry.prompt && (
+        <div className="journal-entry-prompt-label">{entry.prompt}</div>
+      )}
       {locked ? (
         <div className="journal-entry-locked">
           <span className="journal-entry-lock-icon"><LockIcon size={12} /></span>
