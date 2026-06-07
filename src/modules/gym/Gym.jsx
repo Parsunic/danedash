@@ -65,11 +65,13 @@ function getOverlayStyle(overlay) {
 }
 
 export default function Gym() {
-  const [flipped, setFlipped] = useState(false)
-  const [overlayTab, setOverlayTab] = useState('stats')
+  const _savedSession = storeGet(ACTIVE_SESSION_KEY)
+  const _hasSession = !!(_savedSession && !_savedSession.__done)
+  const [flipped, setFlipped] = useState(_hasSession)
+  const [overlayTab, setOverlayTab] = useState(_hasSession ? 'log' : 'stats')
   const [plannerViewMode, setPlannerViewMode] = useState('month')
   const [plannerWeekOffset, setPlannerWeekOffset] = useState(0)
-  const [activeSession, setActiveSession] = useState(null)
+  const [activeSession, setActiveSession] = useState(_savedSession || null)
   const [restState, setRestState] = useState(INIT_REST)
   const [expandOverlay, setExpandOverlay] = useState(null)
   const restIntervalRef = useRef(null)
