@@ -14,8 +14,8 @@ import RestTimer from './components/RestTimer.jsx'
 import StatsView from './components/StatsView.jsx'
 import ExercisesView from './components/ExercisesView.jsx'
 
-const OVERLAY_TABS = ['stats', 'templates', 'ai-coach', 'history']
-const OVERLAY_LABELS = { templates: 'Templates', 'ai-coach': 'AI Coach', history: 'History', stats: 'Stats', log: 'Log' }
+const OVERLAY_TABS = ['stats', 'exercises', 'templates', 'ai-coach', 'history']
+const OVERLAY_LABELS = { templates: 'Templates', 'ai-coach': 'AI Coach', history: 'History', stats: 'Stats', log: 'Log', exercises: 'Exercises' }
 
 const INIT_REST = { visible: false, remaining: 0, total: 0, paused: false, lastSecs: 90 }
 const ACTIVE_SESSION_KEY = 'gym_active_session'
