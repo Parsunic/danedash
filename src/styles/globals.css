@@ -4339,6 +4339,32 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
   font-style: italic;
 }
 
+/* ── Mode toggle ── */
+.journal-mode-toggle {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.journal-mode-btn {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px;
+  color: rgba(255,255,255,0.38);
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.journal-mode-btn:hover { color: rgba(255,255,255,0.6); border-color: rgba(255,255,255,0.14); }
+.journal-mode-btn.active {
+  background: rgba(232,160,32,0.12);
+  border-color: rgba(232,160,32,0.35);
+  color: var(--accent);
+}
+
 /* ── Prompt row ── */
 .journal-prompt-row {
   display: flex;
