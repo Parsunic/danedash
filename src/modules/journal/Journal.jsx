@@ -278,6 +278,11 @@ export default function Journal() {
   }, [entries, generatingPrompt])
 
   const analyzeEntry = useCallback(async (entry) => {
+    if (analyses[entry.id]) return
+    if (entry.analysis) {
+      setAnalyses(prev => ({ ...prev, [entry.id]: entry.analysis }))
+      return
+    }
     if (analyzing[entry.id]) return
     const apiKey = localStorage.getItem('anthropic_api_key') || ''
     if (!apiKey) {
@@ -310,7 +315,13 @@ Keep the total response under 220 words. Be direct. Skip affirmations and filler
       })
       const data = await resp.json()
       if (!data.error) {
-        setAnalyses(prev => ({ ...prev, [entry.id]: data.content[0].text.trim() }))
+        const analysisText = data.content[0].text.trim()
+        setAnalyses(prev => ({ ...prev, [entry.id]: analysisText }))
+        setEntries(prev => {
+          const updated = prev.map(e => e.id === entry.id ? { ...e, analysis: analysisText } : e)
+          storeSet(JOURNAL_KEY, updated)
+          return updated
+        })
       } else {
         setAnalyses(prev => ({ ...prev, [entry.id]: 'Analysis failed. Check your API key.' }))
       }
@@ -320,7 +331,7 @@ Keep the total response under 220 words. Be direct. Skip affirmations and filler
     } finally {
       setAnalyzing(prev => ({ ...prev, [entry.id]: false }))
     }
-  }, [analyzing])
+  }, [analyzing, analyses])
 
   const allSortedEntries = useMemo(() =>
     [...entries].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)),
