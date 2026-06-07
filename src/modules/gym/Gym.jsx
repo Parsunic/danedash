@@ -120,6 +120,15 @@ export default function Gym() {
   useEffect(() => () => clearInterval(restIntervalRef.current), [])
   useEffect(() => { runMuscleMigration().catch(() => {}) }, [])
 
+  // Persist active session so it survives app close/reopen
+  useEffect(() => {
+    if (activeSession && !activeSession.__done) {
+      storeSet(ACTIVE_SESSION_KEY, activeSession)
+    } else {
+      storeDelete(ACTIVE_SESSION_KEY)
+    }
+  }, [activeSession])
+
   // ── EXPAND OVERLAY CLOSE ──
   const closeExpandOverlay = useCallback(() => {
     setExpandOverlay(prev => prev ? { ...prev, phase: 'collapsing' } : prev)
