@@ -111,6 +111,19 @@ export const modules = [
     ),
     component: Health,
   },
+  {
+    path: '/overseer',
+    label: 'Overseer',
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <circle cx="9" cy="9" r="7.5" stroke="currentColor" strokeWidth="1.4" fill="none" opacity="0.7" />
+        <circle cx="9" cy="9" r="4" stroke="currentColor" strokeWidth="1.4" fill="none" />
+        <circle cx="9" cy="9" r="1.5" fill="currentColor" />
+        <path d="M9 1.5V4M9 14v2.5M1.5 9H4M14 9h2.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" opacity="0.5" />
+      </svg>
+    ),
+    component: Overseer,
+  },
 ]
 
 export default function App() {
