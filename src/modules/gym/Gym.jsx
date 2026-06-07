@@ -238,6 +238,7 @@ export default function Gym() {
 
     const sName = activeSession.name
     const hadExpandOverlay = !!expandOverlay
+    storeDelete(ACTIVE_SESSION_KEY)
     setActiveSession(null)
     setActiveSession({ __done: true, name: sName })
     setTimeout(() => {
