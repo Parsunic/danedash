@@ -1276,6 +1276,23 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
   font-family:var(--font-body); transition:background 0.15s, color 0.15s;
 }
 .gym-add-set-btn:hover { background:rgba(255,255,255,0.06); color:var(--text-secondary); }
+.gym-card-footer { display:flex; align-items:center; gap:8px; margin-top:10px; }
+.gym-logged-sets-wrap { position:relative; padding-right:46px; }
+.gym-edit-sets-btn {
+  position:absolute; top:0; right:0; background:none; border:none;
+  color:var(--text-tertiary); font-size:11px; cursor:pointer; padding:2px 4px;
+  transition:color 0.15s; white-space:nowrap;
+}
+.gym-edit-sets-btn:hover { color:var(--accent); }
+.gym-edit-badge {
+  font-size:10px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase;
+  color:var(--accent); background:rgba(232,160,32,0.1); border-radius:4px; padding:2px 6px;
+}
+.gym-card-extra-actions {
+  display:flex; gap:2px; margin-top:8px; padding-top:8px;
+  border-top:1px solid rgba(255,255,255,0.05);
+}
+.gym-sub-search { margin-top:10px; border-top:1px solid rgba(255,255,255,0.06); padding-top:10px; }
 
 /* ── FREESTYLE WORKOUT (LogIdle) ── */
 .gym-back-btn {
