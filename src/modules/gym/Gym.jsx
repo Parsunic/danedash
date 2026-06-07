@@ -17,6 +17,7 @@ const OVERLAY_TABS = ['stats', 'templates', 'ai-coach', 'history']
 const OVERLAY_LABELS = { templates: 'Templates', 'ai-coach': 'AI Coach', history: 'History', stats: 'Stats', log: 'Log' }
 
 const INIT_REST = { visible: false, remaining: 0, total: 0, paused: false, lastSecs: 90 }
+const ACTIVE_SESSION_KEY = 'gym_active_session'
 
 const isDesktop = typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches
 
