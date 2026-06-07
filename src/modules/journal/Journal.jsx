@@ -225,7 +225,7 @@ export default function Journal() {
       created_at: new Date().toISOString(),
       text: text.trim(),
       tags: [...selectedTags],
-      prompt,
+      ...(activePrompt ? { prompt: activePrompt } : {}),
     }
     const updated = [newEntry, ...entries]
     storeSet(JOURNAL_KEY, updated)
@@ -234,7 +234,7 @@ export default function Journal() {
     setSelectedTags([])
     setAiPrompt(null)
     textareaRef.current?.focus()
-  }, [text, selectedTags, prompt, entries, todayStr])
+  }, [text, selectedTags, activePrompt, entries, todayStr])
 
   const toggleTag = useCallback((tag) => {
     setSelectedTags(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag])
