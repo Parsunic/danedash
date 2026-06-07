@@ -379,6 +379,7 @@ export default function Gym() {
                 {overlayTab === 'ai-coach' && <AICoachView onPlanLoaded={handleAIPlanLoaded} />}
                 {overlayTab === 'history' && <HistoryView />}
                 {overlayTab === 'stats' && <StatsView />}
+                {overlayTab === 'exercises' && <ExercisesView />}
                 {overlayTab === 'log' && logContent}
               </div>
             </div>
