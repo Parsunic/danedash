@@ -322,7 +322,10 @@ export default function Gym() {
   ) : (
     <LogView
       activeSession={activeSession}
-      onLogSet={handleLogSet}
+      onLogAllSets={handleLogAllSets}
+      onEditSets={handleEditSets}
+      onSkip={handleSkipExercise}
+      onSubstitute={handleSubstituteExercise}
       onFinish={handleFinishWorkout}
       onStartWorkout={startWorkout}
     />
