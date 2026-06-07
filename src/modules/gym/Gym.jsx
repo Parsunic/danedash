@@ -12,6 +12,7 @@ import LogView from './components/LogView.jsx'
 import HistoryView from './components/HistoryView.jsx'
 import RestTimer from './components/RestTimer.jsx'
 import StatsView from './components/StatsView.jsx'
+import ExercisesView from './components/ExercisesView.jsx'
 
 const OVERLAY_TABS = ['stats', 'templates', 'ai-coach', 'history']
 const OVERLAY_LABELS = { templates: 'Templates', 'ai-coach': 'AI Coach', history: 'History', stats: 'Stats', log: 'Log' }
