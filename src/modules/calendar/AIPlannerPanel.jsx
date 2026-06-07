@@ -269,7 +269,7 @@ Rules: date YYYY-MM-DD · times 24-hour HH:MM · do not overlap existing events 
         },
         body: JSON.stringify({
           model: 'claude-sonnet-4-6',
-          max_tokens: 2048,
+          max_tokens: 8192,
           system: systemPrompt,
           messages: [{ role: 'user', content: userMessage }],
         }),
