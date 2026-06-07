@@ -1360,33 +1360,35 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
 .gym-ex-remove-btn:hover { background:rgba(255,80,80,0.12); color:#ff6060; }
 
 /* ── REST TIMER ── */
-.rest-timer-overlay {
-  display:none; position:fixed; bottom:88px; right:18px; z-index:600;
-  background:#111113; border-radius:20px; padding:16px 14px;
-  border:1px solid rgba(255,255,255,0.10); box-shadow:0 20px 60px rgba(0,0,0,0.72);
-  min-width:210px;
+.rest-timer-pill {
+  position:fixed; top:14px; right:14px; z-index:700;
+  display:flex; align-items:center; gap:5px;
+  background:rgba(17,17,19,0.9); backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,0.12); border-radius:20px;
+  padding:5px 10px 5px 8px; cursor:pointer; color:var(--text-primary);
+  transition:border-color 0.15s, transform 0.1s;
 }
-.rest-timer-overlay.visible { display:block; }
-@media (max-width:600px) {
-  .rest-timer-overlay { bottom:80px; left:50%; right:auto; transform:translateX(-50%); min-width:240px; }
+.rest-timer-pill:hover { border-color:rgba(232,160,32,0.4); transform:scale(1.02); }
+.rest-pill-time { font-family:var(--font-mono); font-size:13px; font-weight:600; }
+.rest-timer-compact {
+  position:fixed; top:14px; right:14px; z-index:700;
+  background:rgba(14,14,16,0.97); backdrop-filter:blur(16px);
+  border:1px solid rgba(255,255,255,0.1); border-radius:16px;
+  padding:12px 14px; min-width:210px;
+  box-shadow:0 8px 32px rgba(0,0,0,0.6);
 }
-.rest-timer-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
-.rest-timer-label { font-size:11px; font-weight:700; letter-spacing:0.10em; text-transform:uppercase; color:var(--text-tertiary); }
+.rest-compact-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+.rest-compact-time {
+  font-family:var(--font-mono); font-size:28px; font-weight:700; color:var(--accent); line-height:1; user-select:none;
+}
+.rest-compact-time.done { color:var(--success); }
+.rest-compact-paused { font-size:10px; color:var(--text-tertiary); font-family:var(--font-body); font-weight:400; }
 .rest-timer-dismiss {
-  background:none; border:none; color:var(--text-tertiary); cursor:pointer; font-size:20px; padding:0; line-height:1;
-  transition:color 0.15s;
+  background:none; border:none; color:var(--text-tertiary); cursor:pointer; font-size:18px;
+  padding:2px; line-height:1; transition:color 0.15s;
 }
 .rest-timer-dismiss:hover { color:var(--text-primary); }
-.rest-timer-ring-wrap { position:relative; width:96px; height:96px; margin:0 auto 12px; user-select:none; }
-.rest-timer-ring-bg { fill:none; stroke:rgba(255,255,255,0.06); stroke-width:6; }
-.rest-timer-ring-fg { fill:none; stroke:var(--accent); stroke-width:6; stroke-linecap:round; }
-.rest-timer-ring-label {
-  position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
-  pointer-events:none;
-}
-.rest-timer-time { font-family:var(--font-mono); font-size:22px; font-weight:700; color:var(--text-primary); }
-.rest-timer-sub { font-size:9px; font-weight:700; letter-spacing:0.09em; text-transform:uppercase; color:var(--text-tertiary); margin-top:1px; }
-.rest-timer-presets { display:flex; gap:5px; justify-content:center; flex-wrap:wrap; }
+.rest-timer-presets { display:flex; gap:5px; flex-wrap:wrap; }
 .rest-preset-btn {
   padding:5px 9px; border-radius:8px; border:1px solid rgba(255,255,255,0.09);
   background:rgba(255,255,255,0.04); color:var(--text-secondary);
