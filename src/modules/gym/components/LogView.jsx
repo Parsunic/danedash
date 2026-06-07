@@ -48,27 +48,12 @@ function getMostNeglectedMuscle() {
   return { muscle: neglected, daysAgo: oldest === 0 ? null : Math.floor((now - oldest) / 86400000) }
 }
 
-// ── RPE COMPONENTS ────────────────────────────────────────────────────────
+// ── RPE SELECT ────────────────────────────────────────────────────────────
 
-function RPEStrip({ selected, onSelect, highlight }) {
-  return (
-    <div className="rpe-strip">
-      {Array.from({ length: 10 }, (_, i) => i + 1).map(r => (
-        <button
-          key={r}
-          className={`rpe-btn${selected === r ? ' selected' : ''}`}
-          style={highlight && r === 1 ? { outline: '2px solid var(--danger)' } : {}}
-          onClick={() => onSelect(r)}
-        >{r}</button>
-      ))}
-    </div>
-  )
-}
-
-function RPESelect({ value, onChange, highlight }) {
+function RPESelect({ value, onChange }) {
   return (
     <select
-      className={`rpe-compact-select${highlight ? ' highlight' : ''}`}
+      className="rpe-compact-select"
       value={value ?? ''}
       onChange={e => onChange(e.target.value ? +e.target.value : null)}
     >
@@ -80,70 +65,25 @@ function RPESelect({ value, onChange, highlight }) {
   )
 }
 
-// ── SET ROW ───────────────────────────────────────────────────────────────
+// ── SET INPUT ROW ─────────────────────────────────────────────────────────
 
-function SetRow({ setNum, row, isTemplate, onChange, onLog, onRemove, canRemove }) {
-  const [rpeHigh, setRpeHigh] = useState(false)
-
-  const attempt = () => {
-    const w = parseFloat(row.weight), r = parseInt(row.reps)
-    if (!w || w <= 0 || !r || r <= 0) return
-    if (!row.rpe) {
-      setRpeHigh(true)
-      setTimeout(() => setRpeHigh(false), 1400)
-      return
-    }
-    onLog(w, r, row.rpe)
-  }
-
-  if (isTemplate) {
-    return (
-      <div className="gym-set-row-compact">
-        <span className="gym-set-row-label">Set {setNum}</span>
-        <input
-          type="text" inputMode="decimal" placeholder={row.phWeight || 'lbs'}
-          className="gym-set-compact-input"
-          value={row.weight}
-          onChange={e => onChange('weight', e.target.value)}
-        />
-        <input
-          type="text" inputMode="numeric" placeholder={row.phReps || 'reps'}
-          className="gym-set-compact-input"
-          value={row.reps}
-          onChange={e => onChange('reps', e.target.value)}
-        />
-        <RPESelect value={row.rpe} onChange={v => onChange('rpe', v)} highlight={rpeHigh} />
-        <button className="btn-ghost" style={{ padding: '7px 12px', fontSize: '0.8125rem', color: 'var(--accent)', borderColor: 'rgba(232,160,32,0.3)' }} onClick={attempt}>✓</button>
-        {canRemove && <button className="gym-set-remove-btn" onClick={onRemove}>×</button>}
-      </div>
-    )
-  }
-
+function SetInputRow({ setNum, row, onChange, onRemove, canRemove }) {
   return (
-    <div className="gym-new-set-row">
-      <div className="gym-new-set-field">
-        <div className="gym-new-set-label">Set {setNum} · lbs</div>
-        <input
-          type="number" inputMode="decimal" placeholder="135"
-          className="gym-new-set-input"
-          value={row.weight}
-          onChange={e => onChange('weight', e.target.value)}
-        />
-      </div>
-      <div className="gym-new-set-field">
-        <div className="gym-new-set-label">Reps</div>
-        <input
-          type="number" inputMode="numeric" placeholder="8"
-          className="gym-new-set-input"
-          value={row.reps}
-          onChange={e => onChange('reps', e.target.value)}
-        />
-      </div>
-      <div className="gym-new-set-field">
-        <div className="gym-new-set-label">RPE</div>
-        <RPEStrip selected={row.rpe} onSelect={v => onChange('rpe', v)} highlight={rpeHigh} />
-      </div>
-      <button className="btn-ghost" style={{ alignSelf: 'flex-end', color: 'var(--accent)', borderColor: 'rgba(232,160,32,0.3)' }} onClick={attempt}>✓ Log</button>
+    <div className="gym-set-row-compact">
+      <span className="gym-set-row-label">Set {setNum}</span>
+      <input
+        type="text" inputMode="decimal" placeholder="lbs"
+        className="gym-set-compact-input"
+        value={row.weight}
+        onChange={e => onChange('weight', e.target.value)}
+      />
+      <input
+        type="text" inputMode="numeric" placeholder="reps"
+        className="gym-set-compact-input"
+        value={row.reps}
+        onChange={e => onChange('reps', e.target.value)}
+      />
+      <RPESelect value={row.rpe} onChange={v => onChange('rpe', v)} />
       {canRemove && <button className="gym-set-remove-btn" onClick={onRemove}>×</button>}
     </div>
   )
@@ -151,21 +91,56 @@ function SetRow({ setNum, row, isTemplate, onChange, onLog, onRemove, canRemove 
 
 // ── EXERCISE CARD ─────────────────────────────────────────────────────────
 
-function ExerciseCard({ ex, exIdx, isTemplate, inputRows, exHistory, onInputChange, onLogSet, onAddRow, onRemoveRow, isActiveCard }) {
+function ExerciseCard({
+  ex, exIdx, inputRows, exHistory, onInputChange, onLogAll, onAddRow, onRemoveRow, isActiveCard,
+  editRows, onEditStart, onEditChange, onEditRemove, onEditSave, onEditCancel,
+  substituteState, onSubstituteOpen, onSubstituteQuery, onSubstitutePick, onSubstituteCancel,
+  onSkip,
+}) {
   const rec = getExRec(ex.name, ex.repRange, exHistory)
   const loggedCount = ex.sets.length
-  const totalTarget = ex.targetSets || 0
+  const totalTarget = loggedCount + inputRows.length
+  const validRows = inputRows.filter(r => parseFloat(r.weight) > 0 && parseInt(r.reps) > 0 && r.rpe)
+  const isEditing = !!editRows
+  const isSubstituting = !!substituteState
+
+  if (isEditing) {
+    return (
+      <div className="gym-log-exercise-card">
+        <div className="gym-log-ex-header">
+          <div className="gym-log-ex-name">{ex.name}</div>
+          <span className="gym-edit-badge">Editing</span>
+        </div>
+        {editRows.map((row, ri) => (
+          <div key={ri} className="gym-set-row-compact">
+            <span className="gym-set-row-label">Set {ri + 1}</span>
+            <input type="text" inputMode="decimal" placeholder="lbs" className="gym-set-compact-input"
+              value={row.weight} onChange={e => onEditChange(ri, 'weight', e.target.value)} />
+            <input type="text" inputMode="numeric" placeholder="reps" className="gym-set-compact-input"
+              value={row.reps} onChange={e => onEditChange(ri, 'reps', e.target.value)} />
+            <RPESelect value={row.rpe} onChange={v => onEditChange(ri, 'rpe', v)} />
+            <button className="gym-set-remove-btn" onClick={() => onEditRemove(ri)}>×</button>
+          </div>
+        ))}
+        <div className="gym-card-footer" style={{ marginTop: 12 }}>
+          <button className="btn-primary" style={{ flex: 1, fontSize: '0.8125rem', padding: '8px 0' }} onClick={onEditSave}>Save</button>
+          <button className="btn-secondary" style={{ fontSize: '0.8125rem', padding: '8px 14px' }} onClick={onEditCancel}>Cancel</button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className={`gym-log-exercise-card${isActiveCard ? ' card-breathing' : ''}`}>
       <div className="gym-log-ex-header">
         <div className="gym-log-ex-name">{ex.name}</div>
         {totalTarget > 0 && (
-          <div className={`gym-log-ex-progress${loggedCount >= totalTarget ? ' done' : ''}`}>
+          <div className={`gym-log-ex-progress${loggedCount >= totalTarget && totalTarget > 0 ? ' done' : ''}`}>
             {loggedCount}/{totalTarget}
           </div>
         )}
       </div>
+
       <div className="gym-log-po-rec">
         {rec.seed
           ? <span className="po-seed">No history — enter a working weight to seed the engine</span>
@@ -182,44 +157,76 @@ function ExerciseCard({ ex, exIdx, isTemplate, inputRows, exHistory, onInputChan
       </div>
 
       {loggedCount > 0 && (
-        <table className="gym-sets-table">
-          <thead>
-            <tr><th>Set</th><th>Weight</th><th>Reps</th><th>RPE</th><th></th></tr>
-          </thead>
-          <tbody>
-            {ex.sets.map((s, si) => (
-              <tr key={si} className={`gym-set-row${s.isPR ? ' is-pr' : ''}`}>
-                <td className="gym-set-num">{si + 1}</td>
-                <td className="gym-set-val">{s.weight}</td>
-                <td className="gym-set-val">{s.reps}</td>
-                <td className="gym-set-val"><span className="gym-set-rpe-badge">{s.rpe}</span></td>
-                <td className="gym-set-val">{s.isPR && <span className="gym-set-pr-badge">★ PR</span>}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-
-      {inputRows.map((row, ri) => (
-        <SetRow
-          key={ri}
-          setNum={loggedCount + ri + 1}
-          row={row}
-          isTemplate={isTemplate}
-          onChange={(field, val) => onInputChange(exIdx, ri, field, val)}
-          onLog={(w, r, rpe) => onLogSet(exIdx, ri, w, r, rpe)}
-          onRemove={() => onRemoveRow(exIdx, ri)}
-          canRemove={isTemplate || inputRows.length > 1}
-        />
-      ))}
-
-      {inputRows.length === 0 && (
-        <div className="gym-sets-done-hint">
-          {loggedCount} {loggedCount === 1 ? 'set' : 'sets'} logged
+        <div className="gym-logged-sets-wrap">
+          <table className="gym-sets-table">
+            <thead>
+              <tr><th>Set</th><th>Weight</th><th>Reps</th><th>RPE</th><th></th></tr>
+            </thead>
+            <tbody>
+              {ex.sets.map((s, si) => (
+                <tr key={si} className={`gym-set-row${s.isPR ? ' is-pr' : ''}`}>
+                  <td className="gym-set-num">{si + 1}</td>
+                  <td className="gym-set-val">{s.weight}</td>
+                  <td className="gym-set-val">{s.reps}</td>
+                  <td className="gym-set-val"><span className="gym-set-rpe-badge">{s.rpe}</span></td>
+                  <td className="gym-set-val">{s.isPR && <span className="gym-set-pr-badge">★ PR</span>}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <button className="gym-edit-sets-btn" onClick={onEditStart}>✏ Edit</button>
         </div>
       )}
 
-      <button className="gym-add-set-btn" onClick={() => onAddRow(exIdx)}>+ Add Set</button>
+      {inputRows.map((row, ri) => (
+        <SetInputRow
+          key={ri}
+          setNum={loggedCount + ri + 1}
+          row={row}
+          onChange={(field, val) => onInputChange(exIdx, ri, field, val)}
+          onRemove={() => onRemoveRow(exIdx, ri)}
+          canRemove={inputRows.length > 1 || loggedCount > 0}
+        />
+      ))}
+
+      <div className="gym-card-footer">
+        <button className="gym-add-set-btn" style={{ margin: 0 }} onClick={() => onAddRow(exIdx)}>+ Set</button>
+        {validRows.length > 0 && (
+          <button
+            className="btn-primary"
+            style={{ fontSize: '0.8125rem', padding: '7px 14px' }}
+            onClick={() => onLogAll(exIdx, inputRows)}
+          >
+            ✓ Log {validRows.length > 1 ? `${validRows.length} Sets` : 'Set'}
+          </button>
+        )}
+      </div>
+
+      {isSubstituting ? (
+        <div className="gym-sub-search">
+          <input
+            className="gym-ex-search"
+            placeholder="Search replacement exercise..."
+            autoFocus
+            value={substituteState.query}
+            onChange={e => onSubstituteQuery(exIdx, e.target.value)}
+          />
+          {substituteState.results?.map(r => (
+            <button key={r.name} className="gym-ex-result-row" onClick={() => onSubstitutePick(exIdx, r)}>
+              <span className="gym-ex-result-name">{r.name}</span>
+              {r.primary_muscle && <span className={`gym-muscle-badge muscle-${r.primary_muscle}`}>{r.primary_muscle}</span>}
+            </button>
+          ))}
+          <button className="btn-ghost" style={{ fontSize: '0.75rem', marginTop: 6, color: 'var(--text-tertiary)' }} onClick={onSubstituteCancel}>Cancel</button>
+        </div>
+      ) : (
+        <div className="gym-card-extra-actions">
+          <button className="btn-ghost" style={{ fontSize: '0.75rem', padding: '3px 8px', color: 'var(--text-tertiary)' }}
+            onClick={() => onSubstituteOpen(exIdx)}>⇄ Substitute</button>
+          <button className="btn-ghost" style={{ fontSize: '0.75rem', padding: '3px 8px', color: 'var(--text-tertiary)' }}
+            onClick={() => onSkip(exIdx)}>↷ Skip</button>
+        </div>
+      )}
     </div>
   )
 }
@@ -233,7 +240,6 @@ function LogIdle({ onStartWorkout }) {
   const [selTpl, setSelTpl] = useState('')
   const [mode, setMode] = useState('idle')
 
-  // Freestyle state
   const [query, setQuery] = useState('')
   const [results, setResults] = useState([])
   const [searching, setSearching] = useState(false)
@@ -415,10 +421,13 @@ function LogIdle({ onStartWorkout }) {
 
 // ── MAIN LogView ──────────────────────────────────────────────────────────
 
-export default function LogView({ activeSession, onLogSet, onFinish, onStartWorkout }) {
+export default function LogView({ activeSession, onLogAllSets, onEditSets, onSkip, onSubstitute, onFinish, onStartWorkout }) {
   const [exHistory, setExHistory] = useState(() => storeGet('gym_exercise_history') || {})
   const [elapsed, setElapsed] = useState(0)
-  const [inputs, setInputs] = useState({}) // { [exIdx]: [{ weight, reps, rpe }] }
+  const [inputs, setInputs] = useState({})
+  const [editStates, setEditStates] = useState({})
+  const [substituteState, setSubstituteState] = useState(null)
+  const subTimerRef = useRef(null)
   const timerRef = useRef(null)
 
   useEffect(() => {
@@ -436,29 +445,22 @@ export default function LogView({ activeSession, onLogSet, onFinish, onStartWork
     return () => clearInterval(timerRef.current)
   }, [activeSession])
 
-  // Initialize input rows when session starts or exercises are added
+  // Initialize input rows when session starts or exercises change
   useEffect(() => {
-    if (!activeSession) { setInputs({}); return }
+    if (!activeSession) { setInputs({}); setEditStates({}); setSubstituteState(null); return }
     const hist = storeGet('gym_exercise_history') || {}
     setInputs(prev => {
-      const next = { ...prev }
+      const next = {}
       activeSession.exercises.forEach((ex, i) => {
-        if (next[i]) return
+        if (prev[i] !== undefined) { next[i] = prev[i]; return }
         const rec = getExRec(ex.name, ex.repRange, hist)
         const sessions = hist[ex.name]?.sessions
-        const last = sessions && sessions.length > 0 ? sessions[sessions.length - 1] : null
-        const defRow = {
-          weight: last ? String(last.weight) : '',
-          reps: last ? String(last.reps) : '',
-          rpe: null,
-          phWeight: rec.suggest ? String(rec.suggest.weight) : '',
-          phReps: rec.suggest ? String(rec.suggest.reps) : '',
-        }
-        if (activeSession.isTemplate) {
-          next[i] = Array.from({ length: ex.targetSets }, () => ({ ...defRow }))
-        } else {
-          next[i] = [{ ...defRow }]
-        }
+        const last = sessions?.length ? sessions[sessions.length - 1] : null
+        const defW = rec.suggest ? String(rec.suggest.weight) : (last ? String(last.weight) : '')
+        const defR = rec.suggest ? String(rec.suggest.reps) : ''
+        const defRow = { weight: defW, reps: defR, rpe: null }
+        const remaining = Math.max((ex.targetSets || 3) - ex.sets.length, 0)
+        next[i] = remaining > 0 ? Array.from({ length: remaining }, () => ({ ...defRow })) : []
       })
       return next
     })
@@ -472,37 +474,108 @@ export default function LogView({ activeSession, onLogSet, onFinish, onStartWork
     })
   }, [])
 
-  const handleLogSet = useCallback((ei, ri, weight, reps, rpe) => {
-    onLogSet(ei, weight, reps, rpe)
-    setInputs(prev => {
-      if (activeSession?.isTemplate) {
-        return { ...prev, [ei]: (prev[ei] || []).filter((_, i) => i !== ri) }
-      }
-      const rows = [...(prev[ei] || [])]
-      rows[ri] = { weight: String(weight), reps: '', rpe: null }
-      return { ...prev, [ei]: rows }
-    })
-  }, [onLogSet, activeSession])
+  const handleLogAll = useCallback((ei, rows) => {
+    onLogAllSets(ei, rows)
+    setInputs(prev => ({ ...prev, [ei]: [] }))
+  }, [onLogAllSets])
 
   const handleAddRow = useCallback((ei) => {
     const ex = activeSession?.exercises[ei]
     if (!ex) return
-    const rec = getExRec(ex.name, ex.repRange, exHistory)
-    const sessions = exHistory[ex.name]?.sessions
-    const last = sessions && sessions.length > 0 ? sessions[sessions.length - 1] : null
-    const newRow = {
-      weight: last ? String(last.weight) : '',
-      reps: last ? String(last.reps) : '',
-      rpe: null,
-      phWeight: rec.suggest ? String(rec.suggest.weight) : '',
-      phReps: rec.suggest ? String(rec.suggest.reps) : '',
-    }
-    setInputs(prev => ({ ...prev, [ei]: [...(prev[ei] || []), newRow] }))
-  }, [activeSession, exHistory])
+    const hist = storeGet('gym_exercise_history') || {}
+    const rec = getExRec(ex.name, ex.repRange, hist)
+    const sessions = hist[ex.name]?.sessions
+    const last = sessions?.length ? sessions[sessions.length - 1] : null
+    const defW = rec.suggest ? String(rec.suggest.weight) : (last ? String(last.weight) : '')
+    const defR = rec.suggest ? String(rec.suggest.reps) : ''
+    setInputs(prev => ({ ...prev, [ei]: [...(prev[ei] || []), { weight: defW, reps: defR, rpe: null }] }))
+  }, [activeSession])
 
   const handleRemoveRow = useCallback((ei, ri) => {
     setInputs(prev => ({ ...prev, [ei]: (prev[ei] || []).filter((_, i) => i !== ri) }))
   }, [])
+
+  // Edit logged sets
+  const handleEditStart = useCallback((ei) => {
+    const ex = activeSession?.exercises[ei]
+    if (!ex) return
+    setEditStates(prev => ({
+      ...prev,
+      [ei]: ex.sets.map(s => ({ weight: String(s.weight), reps: String(s.reps), rpe: s.rpe }))
+    }))
+  }, [activeSession])
+
+  const handleEditChange = useCallback((ei, ri, field, val) => {
+    setEditStates(prev => {
+      const rows = [...(prev[ei] || [])]
+      rows[ri] = { ...(rows[ri] || {}), [field]: val }
+      return { ...prev, [ei]: rows }
+    })
+  }, [])
+
+  const handleEditRemove = useCallback((ei, ri) => {
+    setEditStates(prev => ({ ...prev, [ei]: (prev[ei] || []).filter((_, i) => i !== ri) }))
+  }, [])
+
+  const handleEditSave = useCallback((ei) => {
+    onEditSets(ei, editStates[ei] || [])
+    setEditStates(prev => { const next = { ...prev }; delete next[ei]; return next })
+  }, [editStates, onEditSets])
+
+  const handleEditCancel = useCallback((ei) => {
+    setEditStates(prev => { const next = { ...prev }; delete next[ei]; return next })
+  }, [])
+
+  // Substitute
+  const handleSubstituteOpen = useCallback((exIdx) => {
+    setSubstituteState({ exIdx, query: '', results: [] })
+  }, [])
+
+  const handleSubstituteQuery = useCallback((exIdx, query) => {
+    setSubstituteState(prev => prev ? { ...prev, query } : null)
+    clearTimeout(subTimerRef.current)
+    if (query.trim().length >= 2) {
+      subTimerRef.current = setTimeout(async () => {
+        const results = await searchExercises(query)
+        setSubstituteState(prev => prev?.exIdx === exIdx ? { ...prev, results } : prev)
+      }, 300)
+    } else {
+      setSubstituteState(prev => prev?.exIdx === exIdx ? { ...prev, results: [] } : prev)
+    }
+  }, [])
+
+  const handleSubstitutePick = useCallback((exIdx, exercise) => {
+    onSubstitute(exIdx, exercise)
+    setSubstituteState(null)
+    setEditStates(prev => { const next = { ...prev }; delete next[exIdx]; return next })
+    // Clear inputs so useEffect re-initializes with new exercise history
+    setInputs(prev => { const next = { ...prev }; delete next[exIdx]; return next })
+  }, [onSubstitute])
+
+  const handleSubstituteCancel = useCallback(() => setSubstituteState(null), [])
+
+  // Skip — shift index keys for exercises after the removed one
+  const handleSkip = useCallback((ei) => {
+    setInputs(prev => {
+      const next = {}
+      Object.entries(prev).forEach(([k, v]) => {
+        const ki = parseInt(k)
+        if (ki < ei) next[ki] = v
+        else if (ki > ei) next[ki - 1] = v
+      })
+      return next
+    })
+    setEditStates(prev => {
+      const next = {}
+      Object.entries(prev).forEach(([k, v]) => {
+        const ki = parseInt(k)
+        if (ki < ei) next[ki] = v
+        else if (ki > ei) next[ki - 1] = v
+      })
+      return next
+    })
+    onSkip(ei)
+  }, [onSkip])
 
   if (!activeSession) {
     return <LogIdle onStartWorkout={onStartWorkout} />
@@ -526,14 +599,25 @@ export default function LogView({ activeSession, onLogSet, onFinish, onStartWork
             key={ei}
             ex={ex}
             exIdx={ei}
-            isTemplate={activeSession.isTemplate}
             inputRows={inputs[ei] || []}
             exHistory={exHistory}
             onInputChange={handleInputChange}
-            onLogSet={handleLogSet}
+            onLogAll={handleLogAll}
             onAddRow={handleAddRow}
             onRemoveRow={handleRemoveRow}
             isActiveCard={isActiveCard}
+            editRows={editStates[ei] || null}
+            onEditStart={() => handleEditStart(ei)}
+            onEditChange={(ri, field, val) => handleEditChange(ei, ri, field, val)}
+            onEditRemove={(ri) => handleEditRemove(ei, ri)}
+            onEditSave={() => handleEditSave(ei)}
+            onEditCancel={() => handleEditCancel(ei)}
+            substituteState={substituteState?.exIdx === ei ? substituteState : null}
+            onSubstituteOpen={handleSubstituteOpen}
+            onSubstituteQuery={handleSubstituteQuery}
+            onSubstitutePick={handleSubstitutePick}
+            onSubstituteCancel={handleSubstituteCancel}
+            onSkip={handleSkip}
           />
         )
       })}
