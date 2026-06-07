@@ -1388,7 +1388,7 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
 .rest-timer-pill:hover { border-color:rgba(232,160,32,0.4); transform:scale(1.02); }
 .rest-pill-time { font-family:var(--font-mono); font-size:13px; font-weight:600; }
 .rest-timer-compact {
-  position:fixed; top:14px; right:14px; z-index:700;
+  position:fixed; bottom:80px; right:16px; z-index:700;
   background:rgba(14,14,16,0.97); backdrop-filter:blur(16px);
   border:1px solid rgba(255,255,255,0.1); border-radius:16px;
   padding:12px 14px; min-width:210px;
