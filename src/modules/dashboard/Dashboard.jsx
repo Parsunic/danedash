@@ -488,6 +488,7 @@ export default function Dashboard() {
         <div className="dash-side-col stagger-2">
           <TopTasksWidget />
           <CalendarNowWidget />
+          <DashChatWidget />
         </div>
       </div>
     </>
