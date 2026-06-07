@@ -4,6 +4,10 @@ import { storeGet } from '../../lib/storage.js'
 import { getActiveDateString } from '../../lib/dateHelpers.js'
 import { getDayEvents } from '../calendar/calendarUtils.js'
 import BackgroundBlob from '../../components/BackgroundBlob.jsx'
+import { STATIC_PROMPT_FALLBACK } from '../../lib/overseer.js'
+
+const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages'
+const DASH_MODEL = 'claude-haiku-4-5-20251001'
 
 const RING_C = 2 * Math.PI * 52
 const WAKE_HOUR = 6.5
