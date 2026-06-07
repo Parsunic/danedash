@@ -173,21 +173,76 @@ export default function Gym() {
     }
   }, [flipToBack])
 
-  const handleLogSet = useCallback((ei, weight, reps, rpe) => {
+  const handleLogAllSets = useCallback((ei, rows) => {
+    const validRows = rows.filter(r => parseFloat(r.weight) > 0 && parseInt(r.reps) > 0 && r.rpe)
+    if (!validRows.length) return
     setActiveSession(prev => {
       if (!prev) return prev
       const hist = storeGet('gym_exercise_history') || {}
       const ex = prev.exercises[ei]
-      const isPR = weight > (hist[ex.name]?.allTimePR || 0)
-      const e1rm = calcE1RM(weight, reps)
-      const updated = { ...prev }
-      updated.exercises = prev.exercises.map((e, i) =>
-        i === ei ? { ...e, sets: [...e.sets, { weight, reps, rpe, isPR, e1rm }] } : e
-      )
-      return updated
+      const histPR = hist[ex.name]?.allTimePR || 0
+      const sessionMax = ex.sets.reduce((m, s) => Math.max(m, s.weight || 0), 0)
+      let currentPR = Math.max(histPR, sessionMax)
+      const newSets = validRows.map(r => {
+        const weight = parseFloat(r.weight)
+        const reps = parseInt(r.reps)
+        const e1rm = calcE1RM(weight, reps)
+        const isPR = weight > currentPR
+        if (isPR) currentPR = weight
+        return { weight, reps, rpe: r.rpe, isPR, e1rm }
+      })
+      return {
+        ...prev,
+        exercises: prev.exercises.map((e, i) =>
+          i === ei ? { ...e, sets: [...e.sets, ...newSets] } : e
+        ),
+      }
     })
     startRestTimer(restState.lastSecs)
   }, [startRestTimer, restState.lastSecs])
+
+  const handleEditSets = useCallback((ei, rows) => {
+    setActiveSession(prev => {
+      if (!prev) return prev
+      const hist = storeGet('gym_exercise_history') || {}
+      const exName = prev.exercises[ei]?.name
+      const histPR = exName ? (hist[exName]?.allTimePR || 0) : 0
+      let currentPR = histPR
+      const recalculated = rows
+        .filter(r => parseFloat(r.weight) > 0 && parseInt(r.reps) > 0)
+        .map(r => {
+          const weight = parseFloat(r.weight)
+          const reps = parseInt(r.reps)
+          const e1rm = calcE1RM(weight, reps)
+          const isPR = weight > currentPR
+          if (isPR) currentPR = weight
+          return { weight, reps, rpe: r.rpe || null, isPR, e1rm }
+        })
+      return {
+        ...prev,
+        exercises: prev.exercises.map((e, i) => i === ei ? { ...e, sets: recalculated } : e),
+      }
+    })
+  }, [])
+
+  const handleSkipExercise = useCallback((ei) => {
+    setActiveSession(prev => {
+      if (!prev) return prev
+      return { ...prev, exercises: prev.exercises.filter((_, i) => i !== ei) }
+    })
+  }, [])
+
+  const handleSubstituteExercise = useCallback((ei, newEx) => {
+    setActiveSession(prev => {
+      if (!prev) return prev
+      return {
+        ...prev,
+        exercises: prev.exercises.map((e, i) =>
+          i === ei ? { ...e, name: newEx.name, sets: [] } : e
+        ),
+      }
+    })
+  }, [])
 
   const handleFinishWorkout = useCallback(async () => {
     if (!activeSession) return
