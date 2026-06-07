@@ -192,16 +192,22 @@ export default function Journal() {
   const [selectedTags, setSelectedTags] = useState([])
   const [aiPrompt, setAiPrompt] = useState(null)
   const [generatingPrompt, setGeneratingPrompt] = useState(false)
+  const [isFreestyle, setIsFreestyle] = useState(false)
   const [showPast, setShowPast] = useState(false)
   const [calMonth, setCalMonth] = useState(() => new Date())
   const [selectedDay, setSelectedDay] = useState(null)
   const [lockTick, setLockTick] = useState(0)
-  const [analyses, setAnalyses] = useState({})
+  const [analyses, setAnalyses] = useState(() => {
+    const saved = storeGet(JOURNAL_KEY) || []
+    const map = {}
+    saved.forEach(e => { if (e.analysis) map[e.id] = e.analysis })
+    return map
+  })
   const [analyzing, setAnalyzing] = useState({})
   const textareaRef = useRef(null)
 
   const todayStr = getJournalDateString()
-  const prompt   = aiPrompt || getDailyPrompt(todayStr)
+  const activePrompt = isFreestyle ? null : (aiPrompt || getDailyPrompt(todayStr))
   const isDirty  = text.trim().length > 0
   const streak   = useMemo(() => calcStreak(entries, todayStr), [entries, todayStr])
 
