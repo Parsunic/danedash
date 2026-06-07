@@ -367,18 +367,32 @@ Keep the total response under 220 words. Be direct. Skip affirmations and filler
           )}
         </div>
 
-        {/* Prompt */}
-        <div className="journal-prompt-row">
-          <p className="journal-prompt-text">{prompt}</p>
+        {/* Mode toggle */}
+        <div className="journal-mode-toggle">
           <button
-            className="journal-ai-prompt-btn"
-            onClick={generateAIPrompt}
-            disabled={generatingPrompt}
-            title="Generate a new prompt with AI"
-          >
-            {generatingPrompt ? '…' : '✦'}
-          </button>
+            className={`journal-mode-btn${!isFreestyle ? ' active' : ''}`}
+            onClick={() => setIsFreestyle(false)}
+          >Prompted</button>
+          <button
+            className={`journal-mode-btn${isFreestyle ? ' active' : ''}`}
+            onClick={() => { setIsFreestyle(true); setAiPrompt(null) }}
+          >Freestyle</button>
         </div>
+
+        {/* Prompt */}
+        {!isFreestyle && (
+          <div className="journal-prompt-row">
+            <p className="journal-prompt-text">{activePrompt}</p>
+            <button
+              className="journal-ai-prompt-btn"
+              onClick={generateAIPrompt}
+              disabled={generatingPrompt}
+              title="Generate a new prompt with AI"
+            >
+              {generatingPrompt ? '…' : '✦'}
+            </button>
+          </div>
+        )}
 
         {/* Write area */}
         <textarea
