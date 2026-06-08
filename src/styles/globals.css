@@ -1447,6 +1447,7 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
 .rest-timer-compact {
   position:fixed; bottom:80px; right:16px; z-index:700;
   background:rgba(14,14,16,0.97); backdrop-filter:blur(16px);
+  animation: modal-enter 0.25s cubic-bezier(0.22,1,0.36,1) both;
   border:1px solid rgba(255,255,255,0.1); border-radius:16px;
   padding:12px 14px; min-width:210px;
   box-shadow:0 8px 32px rgba(0,0,0,0.6);
