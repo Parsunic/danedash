@@ -1628,6 +1628,9 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
   display: flex;
   flex-direction: column;
 }
+.cal-main > * {
+  animation: panel-enter 0.3s cubic-bezier(0.22,1,0.36,1) both;
+}
 
 /* ── TIME GRID ── */
 .cal-timegrid-wrap {
