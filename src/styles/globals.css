@@ -1437,6 +1437,7 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
 .rest-timer-pill {
   position:fixed; bottom:80px; right:16px; z-index:700;
   display:flex; align-items:center; gap:5px;
+  animation: panel-enter 0.22s cubic-bezier(0.22,1,0.36,1) both;
   background:rgba(17,17,19,0.9); backdrop-filter:blur(8px);
   border:1px solid rgba(255,255,255,0.12); border-radius:20px;
   padding:5px 10px 5px 8px; cursor:pointer; color:var(--text-primary);
