@@ -502,7 +502,7 @@ export default function PlannerView({ weekOffset = 0, onWeekOffsetChange = () =>
         </>
       )}
 
-      {dayModal && (
+      {dayModal && createPortal(
         <DayModal
           ds={dayModal.ds}
           existing={dayModal.existing}
@@ -511,9 +511,13 @@ export default function PlannerView({ weekOffset = 0, onWeekOffsetChange = () =>
           onSave={handleDaySave}
           onRemove={handleDayRemove}
           onStartWorkout={pw => onStartWorkout(pw.exercises, pw.id, pw.name, !!pw.templateId)}
-        />
+        />,
+        document.body
       )}
-      {weekTplModal && <WeekTemplateModal onClose={() => setWeekTplModal(false)} onSave={saveWeekTpl} />}
+      {weekTplModal && createPortal(
+        <WeekTemplateModal onClose={() => setWeekTplModal(false)} onSave={saveWeekTpl} />,
+        document.body
+      )}
     </div>
   )
 }
