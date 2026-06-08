@@ -2763,6 +2763,7 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
   color: var(--text-tertiary);
   font-size: 14px;
   flex-shrink: 0;
+  transition: transform 0.28s cubic-bezier(0.22,1,0.36,1);
   display: inline-block;
   transition: transform 0.2s;
   transform: rotate(0deg);
