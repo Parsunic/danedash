@@ -53,7 +53,7 @@ function EntryCard({ entry, onAnalyze, analysis, isAnalyzing, isLatestToday }) {
             {entry.tags.map(t => <span key={t} className="journal-entry-tag">{t}</span>)}
           </div>
         )}
-        {!locked && !analysis && onAnalyze && (
+        {!analysis && onAnalyze && (
           <button
             className="btn-ghost"
             style={{ marginLeft: 'auto', fontSize: '0.75rem', padding: '5px 10px', flexShrink: 0 }}
