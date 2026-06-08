@@ -74,8 +74,8 @@
   50%       { box-shadow: 0 0 0 1px rgba(232,160,32,0.10), 0 8px 40px rgba(0,0,0,0.35); }
 }
 @keyframes ring-glow-breathe {
-  0%, 100% { filter: drop-shadow(0 0 6px rgba(232,160,32,0.8)) drop-shadow(0 0 18px rgba(232,160,32,0.4)); }
-  50%       { filter: drop-shadow(0 0 16px rgba(232,160,32,1.0)) drop-shadow(0 0 36px rgba(232,160,32,0.65)) drop-shadow(0 0 56px rgba(232,160,32,0.25)); }
+  0%, 100% { opacity: 0.88; }
+  50%       { opacity: 1.0; }
 }
 @keyframes modal-enter {
   from { opacity: 0; transform: scale(0.95) translateY(-8px); }
