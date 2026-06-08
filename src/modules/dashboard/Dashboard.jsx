@@ -500,6 +500,8 @@ export default function Dashboard() {
         <div className="dash-side-col stagger-2">
           <TopTasksWidget />
           <CalendarNowWidget />
+        </div>
+        <div className="dash-overseer-wrap stagger-3">
           <DashChatWidget />
         </div>
       </div>
