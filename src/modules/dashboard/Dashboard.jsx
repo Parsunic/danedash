@@ -201,6 +201,17 @@ function DayRing() {
     <div className="day-ring-section">
       <div className="day-ring-wrap">
         <svg viewBox="0 0 120 120" fill="none">
+          <defs>
+            <filter id="ring-glow" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="2.5" result="blur" />
+              <feFlood floodColor="#E8A020" floodOpacity="0.55" result="color" />
+              <feComposite in="color" in2="blur" operator="in" result="shadow" />
+              <feMerge>
+                <feMergeNode in="shadow" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
           <circle cx="60" cy="60" r="52" stroke="rgba(255,255,255,0.06)" strokeWidth="8" />
           <circle
             className="ring-fill-circle"
@@ -212,6 +223,7 @@ function DayRing() {
             transform="rotate(-90 60 60)"
             strokeDasharray={RING_C}
             strokeDashoffset={animOffset}
+            filter="url(#ring-glow)"
           />
         </svg>
         <div className="day-ring-overlay">
