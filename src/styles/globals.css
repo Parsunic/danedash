@@ -4395,11 +4395,32 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  margin-bottom: 16px;
-  padding: 12px 14px;
+  padding-left: 14px;
+  padding-right: 14px;
   background: rgba(255,255,255,0.025);
   border: 1px solid rgba(255,255,255,0.055);
   border-radius: 10px;
+  /* collapsed state */
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  padding-top: 0;
+  padding-bottom: 0;
+  margin-bottom: 0;
+  pointer-events: none;
+  transition: max-height 0.4s cubic-bezier(0.22,1,0.36,1),
+              opacity 0.3s ease,
+              padding-top 0.35s ease,
+              padding-bottom 0.35s ease,
+              margin-bottom 0.35s ease;
+}
+.journal-prompt-row.visible {
+  max-height: 180px;
+  opacity: 1;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  margin-bottom: 16px;
+  pointer-events: auto;
 }
 .journal-prompt-text {
   flex: 1;
