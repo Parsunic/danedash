@@ -456,6 +456,7 @@ body::after {
   align-items: center;
   justify-content: center;
   padding: 20px;
+  animation: fade-in 0.2s ease both;
 }
 .settings-modal {
   background: #18171C;
@@ -464,6 +465,7 @@ body::after {
   width: 100%;
   max-width: 380px;
   box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+  animation: modal-enter 0.3s cubic-bezier(0.22,1,0.36,1) both;
 }
 .settings-header {
   display: flex;
