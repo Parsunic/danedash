@@ -2797,6 +2797,17 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
   align-items: flex-start;
   overflow: hidden;
 }
+.planner-ex-editor-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.planner-ex-editor-row .gym-input {
+  margin-bottom: 0;
+  padding: 8px 10px;
+  font-size: 13px;
+}
 .planner-day-exercises {
   width: 100%;
   margin-top: 5px;
