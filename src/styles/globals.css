@@ -3208,6 +3208,9 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
   border-color: rgba(232,160,32,0.34);
   color: var(--accent);
 }
+.gym-overlay-content > * {
+  animation: panel-enter 0.28s cubic-bezier(0.22,1,0.36,1) both;
+}
 .gym-overlay-content {
   flex: 1;
   overflow-y: auto;
