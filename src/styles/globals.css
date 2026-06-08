@@ -2420,17 +2420,21 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
 
 /* ── DASHBOARD DESKTOP ── */
 .dash-desktop-layout { display: flex; flex-direction: column; gap: 0; }
-.dash-main-col { width: 100%; }
-.dash-side-col { display: flex; flex-direction: column; margin-top: 0; }
+.dash-main-col { width: 100%; order: 1; }
+.dash-side-col { display: flex; flex-direction: column; margin-top: 0; order: 3; }
+.dash-overseer-wrap { order: 2; }
 
 @media (min-width: 1024px) {
   .dash-desktop-layout {
     display: grid;
     grid-template-columns: 1fr 380px;
+    grid-template-rows: auto auto;
     gap: 28px;
     align-items: start;
   }
-  .dash-side-col { margin-top: 0; }
+  .dash-main-col { grid-column: 1; grid-row: 1 / 3; order: unset; }
+  .dash-side-col { grid-column: 2; grid-row: 1; order: unset; margin-top: 0; }
+  .dash-overseer-wrap { grid-column: 2; grid-row: 2; order: unset; }
 }
 
 /* ── DASHBOARD WIDGETS ── */
