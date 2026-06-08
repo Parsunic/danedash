@@ -989,7 +989,13 @@ body::after {
 .template-card-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
 .template-card-name { font-size:15px; font-weight:700; color:var(--text-primary); }
 .template-card-actions { display:flex; gap:6px; }
-.template-exercise-list { list-style:none; display:flex; flex-direction:column; gap:6px; }
+.template-exercise-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  animation: panel-enter 0.25s cubic-bezier(0.22,1,0.36,1) both;
+}
 .template-exercise-row {
   display:flex; align-items:center; gap:10px; padding:8px 10px; flex-wrap:wrap;
   background:rgba(255,255,255,0.03); border-radius:8px; border:1px solid rgba(255,255,255,0.05);
