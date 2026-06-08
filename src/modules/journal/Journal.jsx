@@ -416,11 +416,11 @@ Keep the total response under 220 words. Be direct. Skip affirmations and filler
         </div>
 
         {/* Save — only when there's content */}
-        {isDirty && (
+        <div className={`journal-save-wrap${isDirty ? ' visible' : ''}`}>
           <button className="btn-primary" style={{ width: '100%', justifyContent: 'center' }} onClick={saveEntry}>
             Save entry
           </button>
-        )}
+        </div>
 
         {/* Past reflections */}
         {allSortedEntries.length > 0 && (
