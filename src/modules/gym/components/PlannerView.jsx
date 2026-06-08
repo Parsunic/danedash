@@ -109,6 +109,47 @@ function WeekTemplateModal({ onClose, onSave }) {
   )
 }
 
+function ExerciseEditor({ exercises, onChange }) {
+  const addEx = () => onChange([...exercises, { name: '', sets: 3, repRange: '8-10', notes: '' }])
+  const removeEx = i => onChange(exercises.filter((_, idx) => idx !== i))
+  const updateEx = (i, field, val) => onChange(exercises.map((ex, idx) => idx === i ? { ...ex, [field]: val } : ex))
+
+  return (
+    <div className="gym-field">
+      <label>Exercises</label>
+      {exercises.map((ex, i) => (
+        <div key={i} className="planner-ex-editor-row">
+          <input
+            className="gym-input"
+            placeholder="Exercise name"
+            value={ex.name}
+            onChange={e => updateEx(i, 'name', e.target.value)}
+            style={{ flex: 2 }}
+          />
+          <input
+            className="gym-input"
+            placeholder="Sets"
+            value={ex.sets}
+            onChange={e => updateEx(i, 'sets', parseInt(e.target.value) || 3)}
+            type="number"
+            min="1"
+            style={{ flex: '0 0 52px', textAlign: 'center' }}
+          />
+          <input
+            className="gym-input"
+            placeholder="Reps"
+            value={ex.repRange}
+            onChange={e => updateEx(i, 'repRange', e.target.value)}
+            style={{ flex: '0 0 68px' }}
+          />
+          <button className="btn-ghost" onClick={() => removeEx(i)} style={{ padding: '8px 10px', flexShrink: 0, color: 'var(--danger)' }}>✕</button>
+        </div>
+      ))}
+      <button className="btn-secondary" onClick={addEx} style={{ width: '100%', marginTop: 6, fontSize: 13 }}>+ Add Exercise</button>
+    </div>
+  )
+}
+
 function DayModal({ ds, existing, templates, onClose, onSave, onRemove, onStartWorkout }) {
   const [y, m, d] = ds.split('-').map(Number)
   const date = new Date(y, m - 1, d)
@@ -117,31 +158,43 @@ function DayModal({ ds, existing, templates, onClose, onSave, onRemove, onStartW
   const [sel, setSel] = useState(initSel)
   const [customName, setCustomName] = useState(existing?.name || '')
   const [status, setStatus] = useState(existing ? (existing.status || 'upcoming') : 'upcoming')
+  const [exercises, setExercises] = useState(() => {
+    if (existing?.exercises?.length) return existing.exercises.map(ex => ({ ...ex }))
+    return []
+  })
 
-  const canStart = existing && existing.status !== 'completed' && existing.exercises?.length > 0
+  const handleSelChange = useCallback(newSel => {
+    setSel(newSel)
+    if (newSel !== '' && newSel !== '__custom__') {
+      const tpl = templates.find(t => t.id === newSel)
+      setExercises(tpl ? tpl.exercises.map(ex => ({ ...ex })) : [])
+    }
+  }, [templates])
+
+  const canStart = existing && existing.status !== 'completed' && exercises.length > 0
 
   const save = useCallback(() => {
     if (sel === '') { onRemove(); return }
-    let name, templateId, exercises
+    let name, templateId
     if (sel === '__custom__') {
-      name = customName.trim() || 'Freestyle Workout'; templateId = null; exercises = []
+      name = customName.trim() || 'Freestyle Workout'; templateId = null
     } else {
       const tpl = templates.find(t => t.id === sel)
-      name = tpl ? tpl.name : 'Workout'; templateId = sel; exercises = tpl ? tpl.exercises : []
+      name = tpl ? tpl.name : 'Workout'; templateId = sel
     }
-    onSave({ name, templateId, exercises, status: existing ? status : 'upcoming' })
-  }, [sel, customName, status, templates, existing, onRemove, onSave])
+    onSave({ name, templateId, exercises: exercises.filter(ex => ex.name.trim()), status: existing ? status : 'upcoming' })
+  }, [sel, customName, status, templates, existing, exercises, onRemove, onSave])
 
   return (
     <div className="gym-modal-overlay open" onClick={e => { if (e.target.classList.contains('gym-modal-overlay')) onClose() }}>
-      <div className="gym-modal" style={{ maxWidth: 500 }}>
+      <div className="gym-modal" style={{ maxWidth: 520 }}>
         <div className="gym-modal-title">
           <span>{title}</span>
           <button className="gym-modal-close" onClick={onClose}>✕</button>
         </div>
         <div className="gym-field">
           <label>Assign Template</label>
-          <select className="template-select" value={sel} onChange={e => setSel(e.target.value)}>
+          <select className="template-select" value={sel} onChange={e => handleSelChange(e.target.value)}>
             <option value="">— Rest Day —</option>
             <option value="__custom__">Freestyle Workout</option>
             {templates.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
@@ -153,6 +206,9 @@ function DayModal({ ds, existing, templates, onClose, onSave, onRemove, onStartW
             <input className="gym-input" placeholder="Freestyle Workout" value={customName} onChange={e => setCustomName(e.target.value)} />
           </div>
         )}
+        {sel !== '' && (
+          <ExerciseEditor exercises={exercises} onChange={setExercises} />
+        )}
         {existing && (
           <div className="gym-field">
             <label>Status</label>
@@ -163,7 +219,7 @@ function DayModal({ ds, existing, templates, onClose, onSave, onRemove, onStartW
           </div>
         )}
         {canStart && (
-          <button className="btn-primary" style={{ width: '100%', marginTop: 14, marginBottom: 4, padding: 12, fontSize: 14 }} onClick={() => { onStartWorkout(existing); onClose() }}>▶ Start Workout</button>
+          <button className="btn-primary" style={{ width: '100%', marginTop: 14, marginBottom: 4, padding: 12, fontSize: 14 }} onClick={() => { onStartWorkout({ ...existing, exercises }); onClose() }}>▶ Start Workout</button>
         )}
         <div className="gym-modal-footer" style={{ flexWrap: 'wrap' }}>
           {existing && <button className="btn-ghost" style={{ color: 'var(--danger)', borderColor: 'rgba(255,107,107,0.3)' }} onClick={onRemove}>Remove</button>}
