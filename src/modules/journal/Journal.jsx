@@ -380,19 +380,17 @@ Keep the total response under 220 words. Be direct. Skip affirmations and filler
         </div>
 
         {/* Prompt */}
-        {!isFreestyle && (
-          <div className="journal-prompt-row">
-            <p className="journal-prompt-text">{activePrompt}</p>
-            <button
-              className="journal-ai-prompt-btn"
-              onClick={generateAIPrompt}
-              disabled={generatingPrompt}
-              title="Generate a new prompt with AI"
-            >
-              {generatingPrompt ? '…' : '✦'}
-            </button>
-          </div>
-        )}
+        <div className={`journal-prompt-row${!isFreestyle ? ' visible' : ''}`}>
+          <p className="journal-prompt-text">{activePrompt}</p>
+          <button
+            className="journal-ai-prompt-btn"
+            onClick={generateAIPrompt}
+            disabled={generatingPrompt}
+            title="Generate a new prompt with AI"
+          >
+            {generatingPrompt ? '…' : '✦'}
+          </button>
+        </div>
 
         {/* Write area */}
         <textarea
