@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { storeGet, storeSet } from '../../../lib/storage.js'
+import ExerciseNameInput from './ExerciseNameInput.jsx'
 import { getActiveDateString } from '../../../lib/dateHelpers.js'
 import { gymUUID, DSHORT, DFULL, MONTHS, dateToStr } from '../gymUtils.js'
 import { lookupMusclesBatch } from '../../../lib/muscleUtils.js'
