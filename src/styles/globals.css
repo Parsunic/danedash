@@ -1403,6 +1403,23 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
 .gym-muscle-badge.muscle-core      { background:rgba(32,201,151,0.16);  color:#20C997; }
 .gym-muscle-badge.muscle-other     { background:rgba(134,142,150,0.14); color:#9ca3af; }
 .gym-added-exs { margin-top:16px; }
+
+/* ── EXERCISE NAME AUTOCOMPLETE ── */
+.ex-autocomplete-dropdown {
+  background:#18181f; border:1px solid rgba(255,255,255,0.12); border-radius:10px;
+  overflow:hidden; box-shadow:0 8px 28px rgba(0,0,0,0.55);
+}
+.ex-autocomplete-row {
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+  width:100%; padding:10px 12px; background:none; border:none;
+  border-bottom:1px solid rgba(255,255,255,0.05); cursor:pointer; text-align:left;
+  color:var(--text-primary); font-family:var(--font-body); font-size:13px; transition:background 0.1s;
+}
+.ex-autocomplete-row:last-child { border-bottom:none; }
+.ex-autocomplete-row:hover,.ex-autocomplete-row:focus { background:rgba(255,255,255,0.06); outline:none; }
+.ex-autocomplete-name { font-size:13px; color:var(--text-primary); }
+.ex-autocomplete-custom { color:var(--text-secondary); font-size:12px; justify-content:flex-start; gap:0; }
+.ex-autocomplete-custom strong { color:var(--accent); margin-left:4px; }
 .gym-section-micro {
   font-size:10px; font-weight:700; letter-spacing:0.14em; text-transform:uppercase;
   color:var(--text-tertiary); opacity:0.5; margin-bottom:8px;
