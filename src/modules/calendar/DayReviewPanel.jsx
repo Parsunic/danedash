@@ -107,7 +107,7 @@ Rules:
 - skipped = not done at all
 - Score 70-100 = good, 40-69 = partial, 0-39 = rough
 - Include only events from the list above
-- Return ONLY the JSON object, no other text`
+- Return ONLY valid JSON, no markdown fences, no extra text`
 
       const resp = await fetch(ANTHROPIC_URL, {
         method: 'POST',
@@ -118,18 +118,22 @@ Rules:
           'anthropic-dangerous-direct-browser-access': 'true',
         },
         body: JSON.stringify({
-          model: 'claude-haiku-4-5-20251001',
-          max_tokens: 1024,
+          model: 'claude-sonnet-4-6',
+          max_tokens: 2048,
           messages: [{ role: 'user', content: prompt }],
         }),
       })
       const json = await resp.json()
-      const text = json.content?.[0]?.text || '{}'
-      const cleaned = text.replace(/^```json?\s*/i, '').replace(/```\s*$/, '').trim()
+      if (!resp.ok) {
+        throw new Error(json.error?.message || `API error ${resp.status}`)
+      }
+      const text = json.content?.[0]?.text || ''
+      if (!text) throw new Error('Empty response from API')
+      const cleaned = text.replace(/^```json?\s*/i, '').replace(/```\s*$/m, '').trim()
       setPendingResults(JSON.parse(cleaned))
     } catch (err) {
       console.error('Day review AI error:', err)
-      alert('Analysis failed. Check your API key or try again.')
+      alert(`Analysis failed: ${err.message}`)
     } finally {
       setIsLoading(false)
     }
