@@ -1328,10 +1328,8 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
 .gym-exercises-view { display:flex; flex-direction:column; gap:12px; }
 .gym-muscle-filter-row { display:flex; gap:5px; flex-wrap:wrap; }
 .gym-exercises-list {
-  max-height:320px; overflow-y:auto; display:flex; flex-direction:column; gap:2px;
+  display:flex; flex-direction:column; gap:2px;
 }
-.gym-exercises-list::-webkit-scrollbar { width:4px; }
-.gym-exercises-list::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.08); border-radius:2px; }
 .gym-exercise-row {
   display:flex; align-items:center; gap:8px; padding:7px 10px;
   border-radius:8px; background:rgba(255,255,255,0.02);
