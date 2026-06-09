@@ -120,12 +120,10 @@ function ExerciseEditor({ exercises, onChange }) {
       <label>Exercises</label>
       {exercises.map((ex, i) => (
         <div key={i} className="planner-ex-editor-row">
-          <input
-            className="gym-input"
-            placeholder="Exercise name"
+          <ExerciseNameInput
             value={ex.name}
-            onChange={e => updateEx(i, 'name', e.target.value)}
-            style={{ flex: 2 }}
+            onChange={val => updateEx(i, 'name', val)}
+            placeholder="Exercise name"
           />
           <input
             className="gym-input"
