@@ -2,15 +2,16 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { storeGet, storeSet } from '../../../lib/storage.js'
 import { gymUUID } from '../gymUtils.js'
 import { lookupMusclesBatch } from '../../../lib/muscleUtils.js'
+import ExerciseNameInput from './ExerciseNameInput.jsx'
 
 function ExerciseEditorRow({ ex, idx, onChange, onDelete }) {
   return (
     <div className="gym-ex-edit-row">
-      <input
-        className="gym-input gym-ex-name"
-        placeholder="Exercise name"
+      <ExerciseNameInput
         value={ex.name}
-        onChange={e => onChange(idx, 'name', e.target.value)}
+        onChange={val => onChange(idx, 'name', val)}
+        placeholder="Exercise name"
+        style={{ flex: 1 }}
       />
       <input
         className="gym-input gym-ex-sets"
