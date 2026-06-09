@@ -89,7 +89,7 @@ export async function searchExercises(query, limit = 12) {
 }
 
 // Browse exercises with optional muscle group filter — merges Supabase + custom exercises
-export async function browseExercisesByMuscle(muscle, limit = 40) {
+export async function browseExercisesByMuscle(muscle, limit = 200) {
   let query = supabase.from('exercises').select('name, primary_muscle').order('name').limit(limit)
   if (muscle && muscle !== 'all') query = query.eq('primary_muscle', muscle)
   const { data } = await query
