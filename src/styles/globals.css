@@ -552,6 +552,13 @@ body::after {
   transition: opacity 0.15s;
 }
 .settings-save:hover { opacity: 0.85; }
+.settings-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 0 8px;
+}
 
 /* ── TYPOGRAPHY HELPERS ── */
 .dash-title {
