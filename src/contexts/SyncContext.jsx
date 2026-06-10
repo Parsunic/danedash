@@ -29,8 +29,16 @@ function getLocalPayload() {
   return payload
 }
 
-function applyRemotePayload(payload) {
+// Only apply remote payload if it's newer than any local changes made since the last push.
+// This prevents the initial Supabase pull and realtime echoes from overwriting user actions
+// that occurred during the async fetch window or the 1500ms push debounce.
+function applyRemotePayload(payload, remoteUpdatedAt) {
   if (!payload) return
+  if (remoteUpdatedAt) {
+    const lastLocalChange = parseInt(localStorage.getItem('_lastLocalChange') || '0')
+    const remoteMs = new Date(remoteUpdatedAt).getTime()
+    if (lastLocalChange > remoteMs) return
+  }
   Object.entries(payload).forEach(([k, v]) => localStorage.setItem(k, JSON.stringify(v)))
   window.dispatchEvent(new CustomEvent('goals-changed'))
   window.dispatchEvent(new CustomEvent('gym-changed'))
@@ -76,8 +84,6 @@ export function SyncProvider({ children }) {
         setStatus('syncing')
         setIsOffline(false)
 
-        // Supabase is always the source of truth on load.
-        // We READ from Supabase and hydrate localStorage — never the reverse.
         const { data: row, error } = await client
           .from('app_state').select('data, updated_at').eq('key', SYNC_ROW_ID).single()
 
@@ -104,10 +110,10 @@ export function SyncProvider({ children }) {
             return
           }
         } else if (row?.data) {
-          // Remote data fetched — overwrite localStorage entirely.
+          // Remote data fetched — apply only if newer than any local changes.
           // Do NOT let any local write trigger a push during this phase (isSyncingRef guard).
           isSyncingRef.current = true
-          applyRemotePayload(row.data)
+          applyRemotePayload(row.data, row.updated_at)
           isSyncingRef.current = false
           setStatus('synced')
         } else {
@@ -118,14 +124,20 @@ export function SyncProvider({ children }) {
         // schedulePush checks this flag — no local push can reach Supabase before this point.
         initializedRef.current = true
 
+        // If local changes were made before the fetch completed (and therefore blocked from
+        // pushing), kick off a push now that initialization is complete.
+        const lastLocalChange = parseInt(localStorage.getItem('_lastLocalChange') || '0')
+        const remoteMs = row?.updated_at ? new Date(row.updated_at).getTime() : 0
+        if (lastLocalChange > remoteMs) schedulePush()
+
         channel = client.channel('dashboard-sync')
           .on('postgres_changes', {
             event: '*', schema: 'public', table: 'app_state', filter: `key=eq.${SYNC_ROW_ID}`,
           }, change => {
             if (change.new?.data) {
-              // Remote change from another device — Supabase wins, overwrite local.
+              // Remote change — apply only if newer than any local changes.
               isSyncingRef.current = true
-              applyRemotePayload(change.new.data)
+              applyRemotePayload(change.new.data, change.new.updated_at)
               isSyncingRef.current = false
               setStatus('synced')
             }
@@ -144,7 +156,7 @@ export function SyncProvider({ children }) {
     return () => {
       if (channel) channel.unsubscribe()
     }
-  }, [pushToSupabase])
+  }, [pushToSupabase, schedulePush])
 
   return (
     <SyncContext.Provider value={{ status, isOffline }}>
