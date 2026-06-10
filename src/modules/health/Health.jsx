@@ -56,7 +56,7 @@ function HeroCard({ label, value, unit, gradient, micro, formatter }) {
     amber:  'radial-gradient(ellipse at 10% 10%, rgba(232,160,32,0.38) 0%, transparent 60%)',
   }
   const hasValue = value != null
-  const displayed = numValue != null
+  const displayed = numValue != null && animated != null
     ? (formatter ? formatter(animated) : animated)
     : value
   return (
