@@ -4,6 +4,7 @@ export function storeGet(key) {
 
 export function storeSet(key, value) {
   localStorage.setItem(key, JSON.stringify(value))
+  localStorage.setItem('_lastLocalChange', String(Date.now()))
   if (key.startsWith('goals:')) {
     window.dispatchEvent(new CustomEvent('goals-changed'))
   }
