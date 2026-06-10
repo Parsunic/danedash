@@ -5,6 +5,7 @@ import BottomNav from './BottomNav.jsx'
 import { useSyncStatus } from '../contexts/SyncContext.jsx'
 import { modules } from '../App.jsx'
 import { getAnthropicKey, setAnthropicKey } from '../lib/api/anthropic.js'
+import { isAudioEnabled, setAudioEnabled } from '../lib/audio.js'
 import { getNotionKey, setNotionKey } from '../lib/api/notion.js'
 import {
   getClientId, setClientId, getClientSecret, setClientSecret,
