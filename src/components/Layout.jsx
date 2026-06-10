@@ -24,6 +24,7 @@ function SettingsModal({ onClose }) {
   const [gcalConnected, setGcalConnected]        = useState(() => isConnected())
   const [gfitConnected, setGfitConnected] = useState(() => isGfitConnected())
   const [gfitLastSync,  setGfitLastSync_] = useState(() => getGfitLastSync())
+  const [audioEnabled, setAudioEnabledState]      = useState(() => isAudioEnabled())
   const [showAnthropic, setShowAnthropic]        = useState(false)
   const [showNotion, setShowNotion]              = useState(false)
   const [showGcalSecret, setShowGcalSecret]      = useState(false)
