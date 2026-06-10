@@ -1,10 +1,8 @@
 import { createContext, useContext, useRef, useState, useEffect, useCallback } from 'react'
-import { createClient } from '@supabase/supabase-js'
+import { supabase } from '../lib/supabase.js'
 import { storeGet } from '../lib/storage.js'
 import { getActiveDateString, getTomorrowDateString } from '../lib/dateHelpers.js'
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL ?? 'https://wlrdwrlxkjgubdmntfxl.supabase.co'
-const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY ?? 'sb_publishable_yUHmrdeFSaKfY-AMGp3r9Q_Q2Mbqh7Y'
 const SYNC_ROW_ID = 'dane'
 
 const SyncContext = createContext({ status: 'offline', isOffline: false })
