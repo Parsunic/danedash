@@ -83,6 +83,20 @@ function SettingsModal({ onClose }) {
           <button className="settings-close" onClick={onClose} aria-label="Close">✕</button>
         </div>
         <div className="settings-body">
+          <div className="settings-toggle-row">
+            <div>
+              <span className="settings-label" style={{ margin: 0 }}>Sound Effects</span>
+              <p className="settings-hint" style={{ marginTop: 4 }}>Ding when all tasks are completed.</p>
+            </div>
+            <button
+              className={audioEnabled ? 'btn-primary' : 'btn-secondary'}
+              style={{ fontSize: '0.75rem', padding: '5px 16px', flexShrink: 0 }}
+              onClick={() => setAudioEnabledState(v => !v)}
+            >
+              {audioEnabled ? 'On' : 'Off'}
+            </button>
+          </div>
+          <div className="settings-section-divider" />
           <label className="settings-label">Anthropic API Key</label>
           <div className="settings-input-row">
             <input
