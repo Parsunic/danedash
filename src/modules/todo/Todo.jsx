@@ -452,7 +452,10 @@ function TodayCard({ goals, goalKey, streak, onGoalsChange }) {
   const prevAllDoneRef = useRef(false)
 
   useEffect(() => {
-    if (allDone && !prevAllDoneRef.current && total > 0) setShowBurst(true)
+    if (allDone && !prevAllDoneRef.current && total > 0) {
+      setShowBurst(true)
+      if (isAudioEnabled()) playDing()
+    }
     prevAllDoneRef.current = allDone
   }, [allDone, total])
 
