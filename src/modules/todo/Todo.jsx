@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { storeGet, storeSet, storeListKeys } from '../../lib/storage.js'
+import { isAudioEnabled, playDing } from '../../lib/audio.js'
 import { getActiveDateString, getTomorrowDateString, formatDate, ordinal } from '../../lib/dateHelpers.js'
 import BackgroundBlob from '../../components/BackgroundBlob.jsx'
 
