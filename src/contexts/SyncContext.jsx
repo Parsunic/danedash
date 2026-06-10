@@ -71,7 +71,7 @@ export function SyncProvider({ children }) {
     let channel = null
     async function initSync() {
       try {
-        const client = createClient(SUPABASE_URL, SUPABASE_KEY)
+        const client = supabase
         clientRef.current = client
         setStatus('syncing')
         setIsOffline(false)
