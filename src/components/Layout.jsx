@@ -48,8 +48,9 @@ function SettingsModal({ onClose }) {
     setNotionKey(notionKey)
     setClientId(gcalClientId)
     setClientSecret(gcalClientSecret)
+    setAudioEnabled(audioEnabled)
     onClose()
-  }, [anthropicKey, notionKey, gcalClientId, gcalClientSecret, onClose])
+  }, [anthropicKey, notionKey, gcalClientId, gcalClientSecret, audioEnabled, onClose])
 
   const handleDisconnect = useCallback(() => {
     clearTokens()
