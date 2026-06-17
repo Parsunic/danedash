@@ -266,7 +266,7 @@ function TopTasksWidget() {
     <div className="dash-widget card-interactive">
       <div className="dash-widget-header">
         <span className="dash-widget-label">Queue</span>
-        <Link to="/goals" className="dash-widget-link">To-Do →</Link>
+        <Link to="/goals?view=tasks" className="dash-widget-link">To-Do →</Link>
       </div>
       {tasks.length === 0 ? (
         <div className="dash-widget-empty">All clear — nothing queued</div>
