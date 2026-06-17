@@ -6530,3 +6530,305 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
   align-items: center;
 }
 
+/* ── GOALS PAGE FLIP ── */
+.goals-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.goals-page-header .section-title {
+  margin-bottom: 0;
+}
+
+.goals-flip-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 14px 7px 10px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px;
+  color: rgba(255,255,255,0.5);
+  font-size: 12px;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+  white-space: nowrap;
+}
+.goals-flip-btn:hover {
+  background: rgba(255,255,255,0.07);
+  border-color: rgba(255,255,255,0.14);
+  color: rgba(255,255,255,0.85);
+}
+.goals-flip-btn.is-flipping {
+  pointer-events: none;
+}
+
+.goals-flip-icon {
+  display: block;
+  transition: transform 0.64s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+}
+.goals-flip-btn.is-flipping .goals-flip-icon {
+  transform: rotate(180deg);
+}
+
+@keyframes goals-flip-exit {
+  0%   { opacity: 1; transform: perspective(900px) rotateY(0deg); }
+  100% { opacity: 0; transform: perspective(900px) rotateY(-90deg); }
+}
+@keyframes goals-flip-enter {
+  0%   { opacity: 0; transform: perspective(900px) rotateY(90deg); }
+  100% { opacity: 1; transform: perspective(900px) rotateY(0deg); }
+}
+
+.goals-flip-content {
+  transform-origin: center top;
+}
+.goals-flip-exit {
+  animation: goals-flip-exit 0.32s cubic-bezier(0.4, 0, 1, 1) forwards;
+}
+.goals-flip-enter {
+  animation: goals-flip-enter 0.32s cubic-bezier(0, 0, 0.2, 1) forwards;
+}
+
+/* ── GENERAL TASKS CARD ── */
+.gm-card-general {
+  border-color: rgba(107,227,164,0.08);
+}
+.gm-card-general .gm-eyebrow {
+  color: rgba(107,227,164,0.7);
+}
+
+/* ── TODO 3-COLUMN DESKTOP LAYOUT ── */
+@media (min-width: 1024px) {
+  .todo-desktop-grid {
+    grid-template-columns: 1fr 1fr 1fr !important;
+  }
+}
+
+/* ── MILESTONE ITEM WRAPPER ── */
+.gp-milestone-item {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── MILESTONE ROW UPDATES ── */
+.gp-milestone-body--clickable {
+  cursor: pointer;
+  flex: 1;
+  min-width: 0;
+}
+.gp-milestone-body--clickable:hover .gp-milestone-chevron {
+  color: rgba(255,255,255,0.7);
+}
+
+.gp-milestone-text-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.gp-milestone-chevron {
+  font-size: 13px;
+  color: rgba(255,255,255,0.25);
+  transition: transform 0.2s, color 0.2s;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.gp-milestone-chevron.open {
+  transform: rotate(90deg);
+  color: rgba(255,255,255,0.5);
+}
+
+/* Checkpoint count badge inline with milestone text */
+.gp-cp-badge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: rgba(255,255,255,0.35);
+  background: rgba(255,255,255,0.06);
+  border-radius: 8px;
+  padding: 1px 6px;
+  flex-shrink: 0;
+}
+
+/* Milestone delete button */
+.gp-milestone-delete-btn {
+  opacity: 0;
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.35);
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 15px;
+  line-height: 1;
+  transition: opacity 0.15s, color 0.15s, background 0.15s;
+  flex-shrink: 0;
+}
+.gp-milestone-row:hover .gp-milestone-delete-btn {
+  opacity: 1;
+}
+.gp-milestone-delete-btn:hover {
+  color: #ff6b6b;
+  background: rgba(255,80,80,0.1);
+}
+@media (hover: none) {
+  .gp-milestone-delete-btn { opacity: 0.6; }
+}
+
+/* ── CHECKPOINTS (nested within milestones) ── */
+.gp-checkpoints {
+  margin-top: 6px;
+  margin-left: 26px;
+  padding-left: 14px;
+  border-left: 1px solid rgba(255,255,255,0.07);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 6px;
+}
+
+.gp-checkpoint-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+}
+
+.gp-checkpoint-cb {
+  width: 13px;
+  height: 13px;
+  border: 1.5px solid rgba(255,255,255,0.2);
+  border-radius: 3px;
+  background: transparent;
+  cursor: pointer;
+  flex-shrink: 0;
+  position: relative;
+  transition: border-color 0.15s, background 0.15s;
+  padding: 0;
+}
+.gp-checkpoint-cb:hover {
+  border-color: rgba(107,227,164,0.5);
+  background: rgba(107,227,164,0.06);
+}
+.gp-checkpoint-cb--checked {
+  background: rgba(107,227,164,0.25);
+  border-color: #6BE3A4;
+}
+.gp-checkpoint-cb--checked::after {
+  content: '';
+  display: block;
+  width: 7px;
+  height: 4px;
+  border-left: 1.5px solid #6BE3A4;
+  border-bottom: 1.5px solid #6BE3A4;
+  transform: rotate(-45deg);
+  position: absolute;
+  top: 2px;
+  left: 2px;
+}
+
+.gp-checkpoint-text {
+  flex: 1;
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.4;
+  min-width: 0;
+}
+.gp-checkpoint-text--done {
+  text-decoration: line-through;
+  color: rgba(255,255,255,0.22);
+}
+
+.gp-checkpoint-delete-btn {
+  opacity: 0;
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.3);
+  cursor: pointer;
+  padding: 1px 5px;
+  font-size: 14px;
+  border-radius: 3px;
+  line-height: 1;
+  transition: opacity 0.15s, color 0.15s, background 0.15s;
+  flex-shrink: 0;
+}
+.gp-checkpoint-row:hover .gp-checkpoint-delete-btn {
+  opacity: 1;
+}
+.gp-checkpoint-delete-btn:hover {
+  color: #ff6b6b;
+  background: rgba(255,80,80,0.1);
+}
+@media (hover: none) {
+  .gp-checkpoint-delete-btn { opacity: 0.6; }
+}
+
+/* Add checkpoint inline form */
+.gp-add-checkpoint-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 0;
+}
+
+.gp-add-checkpoint-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.7);
+  font-size: 12px;
+  font-family: var(--font-body);
+  padding: 3px 2px;
+  outline: none;
+  min-width: 0;
+}
+.gp-add-checkpoint-input:focus {
+  border-bottom-color: rgba(232,160,32,0.45);
+}
+.gp-add-checkpoint-input::placeholder {
+  color: rgba(255,255,255,0.2);
+}
+
+.gp-add-checkpoint-confirm-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 11px;
+  font-family: var(--font-body);
+  color: rgba(255,255,255,0.45);
+  padding: 2px 7px;
+  border-radius: 4px;
+  transition: color 0.15s, background 0.15s;
+  flex-shrink: 0;
+}
+.gp-add-checkpoint-confirm-btn:hover:not(:disabled) {
+  color: rgba(255,255,255,0.85);
+  background: rgba(255,255,255,0.07);
+}
+.gp-add-checkpoint-confirm-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.gp-add-cp-inline-btn {
+  font-size: 11px;
+  padding: 3px 8px;
+  margin-top: 2px;
+  opacity: 0.6;
+  align-self: flex-start;
+}
+.gp-add-cp-inline-btn:hover {
+  opacity: 1;
+}
+
+/* ── GOAL LIST DROP TARGET MIN HEIGHT ── */
+.goal-list:empty,
+.goal-list:has(.empty-state) {
+  min-height: 44px;
+}
