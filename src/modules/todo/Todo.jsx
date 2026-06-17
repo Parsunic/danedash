@@ -543,7 +543,7 @@ function TomorrowCard({ goals, goalKey, onGoalsChange, onCrossListDrop }) {
           <div className="gm-eyebrow">Plan tomorrow — {formatDate(tomorrowDate)}</div>
           <div className="gm-tomorrow-sub">Set your intentions for the day ahead.</div>
         </div>
-        <div className="gm-tomorrow-count">{goals.length} planned</div>
+        <div className="gm-tomorrow-count">{goals.filter(g => !g.done).length} planned</div>
       </div>
       {goals.length === 0 && (
         <div className="empty-state">Nothing planned for tomorrow yet.</div>
