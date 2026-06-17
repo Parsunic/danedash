@@ -6593,6 +6593,33 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
   animation: goals-flip-enter 0.32s cubic-bezier(0, 0, 0.2, 1) forwards;
 }
 
+/* ── GOALS TOP BENTO GRID (AI Insights + Habits side-by-side on desktop) ── */
+.goals-top-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+@media (min-width: 1024px) {
+  .goals-top-grid {
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    gap: 16px;
+    align-items: start;
+  }
+
+  /* Narrower right column: keep habit cells at mobile size so they don't crowd */
+  .goals-top-grid .habits-grid {
+    grid-template-columns: 1fr repeat(7, 26px) auto;
+    column-gap: 3px;
+    row-gap: 10px;
+  }
+  .goals-top-grid .habit-cell {
+    width: 26px;
+    height: 26px;
+  }
+}
+
 /* ── GENERAL TASKS CARD ── */
 .gm-card-general {
   border-color: rgba(107,227,164,0.08);
