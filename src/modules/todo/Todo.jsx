@@ -1,10 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { storeGet, storeSet, storeListKeys } from '../../lib/storage.js'
 import { isAudioEnabled, playDing } from '../../lib/audio.js'
-import { getActiveDateString, getTomorrowDateString, formatDate, ordinal } from '../../lib/dateHelpers.js'
+import { getActiveDateString, getTomorrowDateString, formatDate } from '../../lib/dateHelpers.js'
 import BackgroundBlob from '../../components/BackgroundBlob.jsx'
 
-const DAY_NAMES = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
 const BURST_COLORS = ['#E8A020', '#6BE3A4', '#F2C063']
 const BURST_COUNT = 14
 
@@ -57,7 +56,6 @@ function computeStreak() {
     count = goals.every(g => g.done) ? count + 1 : 0
     lastProcessedDate = dateStr
   }
-  // write back without dispatching goals-changed (goal_streak_v1 doesn't start with 'goals:')
   localStorage.setItem('goal_streak_v1', JSON.stringify({ count, lastProcessedDate }))
   window.dispatchEvent(new CustomEvent('schedule-sync'))
   return count
@@ -71,7 +69,6 @@ function GoalRow({ goal, index, goals, goalKey, readOnly, hasFinePointer, onGoal
   const isEditingRef = useRef(false)
   const [cbPopping, setCbPopping] = useState(false)
 
-  // Keep text content in sync when goal.text changes from external source
   useEffect(() => {
     const el = textRef.current
     if (el && !isEditingRef.current) el.textContent = goal.text
@@ -159,7 +156,7 @@ function GoalRow({ goal, index, goals, goalKey, readOnly, hasFinePointer, onGoal
           type="checkbox"
           checked={goal.done}
           disabled={readOnly}
-          title={readOnly ? 'Activates at 6 AM tomorrow' : undefined}
+          title={readOnly ? 'Read-only' : undefined}
           onChange={e => handleCheck(e.target.checked)}
         />
         <div className={`goal-cb-box${cbPopping ? ' is-popping' : ''}`} />
@@ -182,13 +179,13 @@ function GoalRow({ goal, index, goals, goalKey, readOnly, hasFinePointer, onGoal
           onClick={handleQueueToggle}
         >⚡</button>
       )}
-      <button className="goal-delete" title="Delete goal" onClick={handleDelete}>×</button>
+      <button className="goal-delete" title="Delete task" onClick={handleDelete}>×</button>
     </li>
   )
 }
 
-// ── GOAL LIST (with HTML5 drag + touch drag) ──
-function GoalList({ goals, goalKey, readOnly, onGoalsChange }) {
+// ── GOAL LIST (with HTML5 drag + touch drag + cross-list DnD) ──
+function GoalList({ goals, goalKey, readOnly, onGoalsChange, onCrossListDrop }) {
   const ulRef = useRef(null)
   const goalsRef = useRef(goals)
   const dragIdxRef = useRef(null)
@@ -197,25 +194,49 @@ function GoalList({ goals, goalKey, readOnly, onGoalsChange }) {
 
   useEffect(() => { goalsRef.current = goals }, [goals])
 
-  // HTML5 drag (desktop, pointer: fine)
   function handleDragStart(e) {
     const li = e.target.closest('[data-idx]')
     if (!li) return
-    dragIdxRef.current = parseInt(li.dataset.idx)
+    const idx = parseInt(li.dataset.idx)
+    dragIdxRef.current = idx
     e.dataTransfer.effectAllowed = 'move'
+    const task = goalsRef.current[idx]
+    if (task) {
+      e.dataTransfer.setData('application/x-task', JSON.stringify({ task, sourceKey: goalKey }))
+    }
   }
+
   function handleDragOver(e) {
     e.preventDefault()
     const li = e.target.closest('[data-idx]')
     ulRef.current?.querySelectorAll('[data-idx]').forEach(r => r.classList.remove('drag-over'))
     if (li) li.classList.add('drag-over')
   }
-  function handleDragLeave() {
-    ulRef.current?.querySelectorAll('[data-idx]').forEach(r => r.classList.remove('drag-over'))
+
+  function handleDragLeave(e) {
+    if (!ulRef.current?.contains(e.relatedTarget)) {
+      ulRef.current?.querySelectorAll('[data-idx]').forEach(r => r.classList.remove('drag-over'))
+    }
   }
+
   function handleDrop(e) {
     e.preventDefault()
     ulRef.current?.querySelectorAll('[data-idx]').forEach(r => r.classList.remove('drag-over'))
+
+    // Cross-list drop check
+    const rawData = e.dataTransfer.getData('application/x-task')
+    if (rawData) {
+      try {
+        const { task, sourceKey } = JSON.parse(rawData)
+        if (sourceKey !== goalKey) {
+          onCrossListDrop?.(task, sourceKey)
+          dragIdxRef.current = null
+          return
+        }
+      } catch {}
+    }
+
+    // Same-list reorder
     const li = e.target.closest('[data-idx]')
     if (!li || dragIdxRef.current === null) return
     const toIdx = parseInt(li.dataset.idx)
@@ -336,9 +357,9 @@ function GoalList({ goals, goalKey, readOnly, onGoalsChange }) {
       ref={ulRef}
       className="goal-list"
       onDragStart={!readOnly && hasFinePointer ? handleDragStart : undefined}
-      onDragOver={!readOnly && hasFinePointer ? handleDragOver : undefined}
-      onDragLeave={!readOnly && hasFinePointer ? handleDragLeave : undefined}
-      onDrop={!readOnly && hasFinePointer ? handleDrop : undefined}
+      onDragOver={hasFinePointer ? handleDragOver : undefined}
+      onDragLeave={hasFinePointer ? handleDragLeave : undefined}
+      onDrop={hasFinePointer ? handleDrop : undefined}
     >
       {visibleGoals.map((g, i) => (
         <GoalRow
@@ -382,7 +403,7 @@ function AddGoalForm({ goalKey, placeholder, onGoalsChange }) {
     const trimmed = text.trim()
     if (!trimmed) return
     const goals = storeGet(goalKey) || []
-    goals.push({ text: trimmed, done: false })
+    goals.push({ id: crypto.randomUUID(), text: trimmed, done: false })
     storeSet(goalKey, goals)
     setInputVal('')
     onGoalsChange()
@@ -441,7 +462,7 @@ function AddGoalForm({ goalKey, placeholder, onGoalsChange }) {
 }
 
 // ── TODAY CARD ──
-function TodayCard({ goals, goalKey, streak, onGoalsChange }) {
+function TodayCard({ goals, goalKey, streak, onGoalsChange, onCrossListDrop }) {
   const activeDate = getActiveDateString()
   const tomorrowKey = 'goals:' + getTomorrowDateString()
   const done = goals.filter(g => g.done).length
@@ -459,16 +480,16 @@ function TodayCard({ goals, goalKey, streak, onGoalsChange }) {
     prevAllDoneRef.current = allDone
   }, [allDone, total])
 
-  let progressLabel = 'no goals yet'
+  let progressLabel = 'no tasks yet'
   if (total > 0 && allDone) progressLabel = 'all done — solid day'
   else if (total > 0) progressLabel = 'complete'
 
   function handlePushRemaining() {
-    if (!confirm('Push all unchecked goals to tomorrow?')) return
+    if (!confirm('Push all unchecked tasks to tomorrow?')) return
     const tomorrowGoals = storeGet(tomorrowKey) || []
     const existingTexts = new Set(tomorrowGoals.map(g => g.text))
     goals.filter(g => !g.done).forEach(g => {
-      if (!existingTexts.has(g.text)) { tomorrowGoals.push({ text: g.text, done: false }); existingTexts.add(g.text) }
+      if (!existingTexts.has(g.text)) { tomorrowGoals.push({ id: crypto.randomUUID(), text: g.text, done: false }); existingTexts.add(g.text) }
     })
     storeSet(goalKey, goals.filter(g => g.done))
     storeSet(tomorrowKey, tomorrowGoals)
@@ -499,240 +520,58 @@ function TodayCard({ goals, goalKey, streak, onGoalsChange }) {
         {showBurst && <ParticleBurst onDone={() => setShowBurst(false)} />}
       </div>
       {goals.length === 0 && (
-        <div className="empty-state">No goals for today yet — add one below.</div>
+        <div className="empty-state">No tasks for today yet — add one below.</div>
       )}
-      <GoalList goals={goals} goalKey={goalKey} readOnly={false} onGoalsChange={onGoalsChange} />
+      <GoalList goals={goals} goalKey={goalKey} readOnly={false} onGoalsChange={onGoalsChange} onCrossListDrop={onCrossListDrop} />
       {hasPending && (
         <button className="btn-ghost" style={{ width: '100%' }} onClick={handlePushRemaining}>
           → Push remaining to tomorrow
         </button>
       )}
-      <AddGoalForm goalKey={goalKey} placeholder="Add a goal for today…" onGoalsChange={onGoalsChange} />
+      <AddGoalForm goalKey={goalKey} placeholder="Add a task for today…" onGoalsChange={onGoalsChange} />
     </div>
   )
 }
 
 // ── TOMORROW CARD ──
-function TomorrowCard({ goals, goalKey, onGoalsChange }) {
+function TomorrowCard({ goals, goalKey, onGoalsChange, onCrossListDrop }) {
   const tomorrowDate = getTomorrowDateString()
   return (
     <div className="gm-card gm-card-tomorrow">
       <div className="gm-card-header">
         <div className="gm-header-left">
           <div className="gm-eyebrow">Plan tomorrow — {formatDate(tomorrowDate)}</div>
-          <div className="gm-tomorrow-sub">Write tonight, locked until 6 AM.</div>
+          <div className="gm-tomorrow-sub">Set your intentions for the day ahead.</div>
         </div>
         <div className="gm-tomorrow-count">{goals.length} planned</div>
       </div>
       {goals.length === 0 && (
         <div className="empty-state">Nothing planned for tomorrow yet.</div>
       )}
-      <GoalList goals={goals} goalKey={goalKey} readOnly={true} onGoalsChange={onGoalsChange} />
-      <AddGoalForm goalKey={goalKey} placeholder="Add a goal for tomorrow…" onGoalsChange={onGoalsChange} />
+      <GoalList goals={goals} goalKey={goalKey} readOnly={false} onGoalsChange={onGoalsChange} onCrossListDrop={onCrossListDrop} />
+      <AddGoalForm goalKey={goalKey} placeholder="Add a task for tomorrow…" onGoalsChange={onGoalsChange} />
     </div>
   )
 }
 
-// ── RECURRING SECTION ──
-function RecurringSection({ className }) {
-  const [recurring, setRecurring] = useState(() => storeGet('recurring_tasks') || [])
-  const [isOpen, setIsOpen] = useState(() => localStorage.getItem('ui_recurring_open') === 'true')
-  const [selectedFreq, setSelectedFreq] = useState('daily')
-  const [selectedDays, setSelectedDays] = useState([])
-  const [inputVal, setInputVal] = useState('')
-
-  useEffect(() => {
-    const handler = () => setRecurring(storeGet('recurring_tasks') || [])
-    window.addEventListener('goals-changed', handler)
-    return () => window.removeEventListener('goals-changed', handler)
-  }, [])
-
-  function toggleOpen() {
-    const next = !isOpen
-    setIsOpen(next)
-    localStorage.setItem('ui_recurring_open', String(next))
-  }
-
-  function toggleDay(day) {
-    setSelectedDays(prev =>
-      prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]
-    )
-  }
-
-  function handleFreqChange(freq) {
-    setSelectedFreq(freq)
-    setSelectedDays([])
-  }
-
-  function freqLabel(task) {
-    if (task.freq === 'daily') return 'Daily'
-    if (task.freq === 'weekly') {
-      if (!task.days?.length) return 'Weekly'
-      return task.days.slice().sort((a, b) => a - b).map(d => DAY_NAMES[d]).join(' · ')
-    }
-    if (task.freq === 'monthly') {
-      if (!task.days?.length) return 'Monthly'
-      return task.days.slice().sort((a, b) => a - b).map(d => ordinal(d)).join(', ')
-    }
-    return task.freq
-  }
-
-  function freqClass(freq) {
-    if (freq === 'weekly') return 'recurring-badge freq-weekly'
-    if (freq === 'monthly') return 'recurring-badge freq-monthly'
-    return 'recurring-badge'
-  }
-
-  function handleAdd() {
-    const text = inputVal.trim()
-    if (!text) return
-    const tasks = [...recurring, { id: Date.now(), text, freq: selectedFreq, days: [...selectedDays] }]
-    storeSet('recurring_tasks', tasks)
-    setRecurring(tasks)
-    setInputVal('')
-    setSelectedDays([])
-  }
-
-  function handleDelete(idx) {
-    const tasks = recurring.filter((_, i) => i !== idx)
-    storeSet('recurring_tasks', tasks)
-    setRecurring(tasks)
-  }
-
-  function handleEditText(idx, newText) {
-    if (!newText.trim()) return
-    const tasks = recurring.map((t, i) => i === idx ? { ...t, text: newText.trim() } : t)
-    storeSet('recurring_tasks', tasks)
-    setRecurring(tasks)
-  }
-
+// ── GENERAL CARD ──
+function GeneralCard({ goals, goalKey, onGoalsChange, onCrossListDrop }) {
+  const open = goals.filter(g => !g.done).length
   return (
-    <div className={`section${className ? ' ' + className : ''}`}>
-      <div className="section-title">
-        <button className="recurring-toggle" onClick={toggleOpen}>
-          Recurring
-          <span className="recurring-count-badge">{recurring.length > 0 ? String(recurring.length) : ''}</span>
-          <span className={`recurring-chevron${isOpen ? ' open' : ''}`}>▸</span>
-        </button>
-      </div>
-      <div className={`recurring-section-body${isOpen ? ' open' : ''}`}>
-        <div className="gm-card" style={{}}>
-          <ul className="goal-list">
-            {recurring.map((task, idx) => (
-              <RecurringRow
-                key={task.id}
-                task={task}
-                freqLabel={freqLabel(task)}
-                freqClass={freqClass(task.freq)}
-                onDelete={() => handleDelete(idx)}
-                onEditText={newText => handleEditText(idx, newText)}
-              />
-            ))}
-          </ul>
-          {recurring.length === 0 && (
-            <div className="empty-state">No recurring tasks yet — add one below.</div>
-          )}
-          <div className="recurring-form">
-            <input
-              type="text"
-              className="recurring-text-input"
-              placeholder="Add a recurring task…"
-              value={inputVal}
-              onChange={e => setInputVal(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && handleAdd()}
-            />
-            <div className="freq-tabs">
-              {['daily', 'weekly', 'monthly'].map(freq => (
-                <button
-                  key={freq}
-                  className={`freq-tab${selectedFreq === freq ? ' active' : ''}`}
-                  onClick={() => handleFreqChange(freq)}
-                >
-                  {freq.charAt(0).toUpperCase() + freq.slice(1)}
-                </button>
-              ))}
-            </div>
-            {selectedFreq === 'weekly' && (
-              <div className="day-picker-wrap">
-                {DAY_NAMES.map((name, i) => (
-                  <button
-                    key={i}
-                    className={`day-toggle${selectedDays.includes(i) ? ' active' : ''}`}
-                    onClick={() => toggleDay(i)}
-                  >{name}</button>
-                ))}
-              </div>
-            )}
-            {selectedFreq === 'monthly' && (
-              <div className="day-picker-wrap">
-                {Array.from({ length: 31 }, (_, i) => i + 1).map(d => (
-                  <button
-                    key={d}
-                    className={`day-toggle month-toggle${selectedDays.includes(d) ? ' active' : ''}`}
-                    onClick={() => toggleDay(d)}
-                  >{d}</button>
-                ))}
-              </div>
-            )}
-            <button className="btn-primary" style={{ width: '100%', justifyContent: 'center' }} onClick={handleAdd}>
-              + Add Recurring Task
-            </button>
-          </div>
+    <div className="gm-card gm-card-general">
+      <div className="gm-card-header">
+        <div className="gm-header-left">
+          <div className="gm-eyebrow">General</div>
+          <div className="gm-tomorrow-sub">Tasks without a specific date.</div>
         </div>
+        <div className="gm-tomorrow-count">{open} open</div>
       </div>
+      {goals.length === 0 && (
+        <div className="empty-state">Drag tasks here or add your own.</div>
+      )}
+      <GoalList goals={goals} goalKey={goalKey} readOnly={false} onGoalsChange={onGoalsChange} onCrossListDrop={onCrossListDrop} />
+      <AddGoalForm goalKey={goalKey} placeholder="Add a general task…" onGoalsChange={onGoalsChange} />
     </div>
-  )
-}
-
-function RecurringRow({ task, freqLabel, freqClass, onDelete, onEditText }) {
-  const textRef = useRef(null)
-  const originalRef = useRef('')
-  const isEditingRef = useRef(false)
-
-  useEffect(() => {
-    const el = textRef.current
-    if (el && !isEditingRef.current) el.textContent = task.text
-  }, [task.text])
-
-  function startEdit() {
-    const el = textRef.current
-    isEditingRef.current = true
-    originalRef.current = el.textContent
-    el.contentEditable = 'true'
-    el.focus()
-    const range = document.createRange()
-    range.selectNodeContents(el)
-    range.collapse(false)
-    window.getSelection().removeAllRanges()
-    window.getSelection().addRange(range)
-  }
-
-  function commitEdit() {
-    const el = textRef.current
-    if (!el || !isEditingRef.current) return
-    isEditingRef.current = false
-    const newText = el.textContent.trim()
-    el.contentEditable = 'false'
-    if (newText && newText !== originalRef.current) onEditText(newText)
-    else el.textContent = originalRef.current
-  }
-
-  return (
-    <li className="goal-row">
-      <div
-        ref={textRef}
-        className="goal-text"
-        suppressContentEditableWarning
-        onClick={startEdit}
-        onBlur={commitEdit}
-        onKeyDown={e => {
-          if (e.key === 'Enter') { e.preventDefault(); commitEdit(); textRef.current?.blur() }
-          if (e.key === 'Escape') { textRef.current.textContent = originalRef.current; textRef.current.contentEditable = 'false'; isEditingRef.current = false }
-        }}
-      />
-      <div className={freqClass}>{freqLabel}</div>
-      <button className="goal-delete" title="Delete recurring task" onClick={onDelete}>×</button>
-    </li>
   )
 }
 
@@ -740,14 +579,17 @@ function RecurringRow({ task, freqLabel, freqClass, onDelete, onEditText }) {
 export default function Todo({ embedded = false }) {
   const activeDateRef = useRef(getActiveDateString())
   const tomorrowDateRef = useRef(getTomorrowDateString())
+  const generalKey = 'general_tasks'
 
   const [todayGoals, setTodayGoals] = useState(() => storeGet('goals:' + activeDateRef.current) || [])
   const [tomorrowGoals, setTomorrowGoals] = useState(() => storeGet('goals:' + tomorrowDateRef.current) || [])
+  const [generalTasks, setGeneralTasks] = useState(() => storeGet(generalKey) || [])
   const [streak, setStreak] = useState(0)
 
   const reload = useCallback(() => {
     setTodayGoals(storeGet('goals:' + activeDateRef.current) || [])
     setTomorrowGoals(storeGet('goals:' + tomorrowDateRef.current) || [])
+    setGeneralTasks(storeGet(generalKey) || [])
     setStreak(computeStreak())
   }, [])
 
@@ -760,23 +602,39 @@ export default function Todo({ embedded = false }) {
   const todayKey = 'goals:' + activeDateRef.current
   const tomorrowKey = 'goals:' + tomorrowDateRef.current
 
+  function moveTask(task, fromKey, toKey) {
+    if (fromKey === toKey) return
+    const from = storeGet(fromKey) || []
+    storeSet(fromKey, from.filter(t => t.id !== task.id))
+    const to = storeGet(toKey) || []
+    if (!to.some(t => t.id === task.id)) {
+      storeSet(toKey, [...to, { ...task }])
+    }
+    reload()
+  }
+
   const content = (
-    <>
-      <div className="todo-desktop-grid stagger-1">
-        <TodayCard
-          goals={todayGoals}
-          goalKey={todayKey}
-          streak={streak}
-          onGoalsChange={reload}
-        />
-        <TomorrowCard
-          goals={tomorrowGoals}
-          goalKey={tomorrowKey}
-          onGoalsChange={reload}
-        />
-      </div>
-      <RecurringSection className="stagger-2" />
-    </>
+    <div className="todo-desktop-grid stagger-1">
+      <TodayCard
+        goals={todayGoals}
+        goalKey={todayKey}
+        streak={streak}
+        onGoalsChange={reload}
+        onCrossListDrop={(task, fromKey) => moveTask(task, fromKey, todayKey)}
+      />
+      <TomorrowCard
+        goals={tomorrowGoals}
+        goalKey={tomorrowKey}
+        onGoalsChange={reload}
+        onCrossListDrop={(task, fromKey) => moveTask(task, fromKey, tomorrowKey)}
+      />
+      <GeneralCard
+        goals={generalTasks}
+        goalKey={generalKey}
+        onGoalsChange={reload}
+        onCrossListDrop={(task, fromKey) => moveTask(task, fromKey, generalKey)}
+      />
+    </div>
   )
 
   if (embedded) return content
