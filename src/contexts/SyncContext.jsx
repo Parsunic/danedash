@@ -68,8 +68,11 @@ function applyRemotePayload(payload, remoteUpdatedAt) {
     if (lastLocalChange > remoteMs) return
   }
   Object.entries(payload).forEach(([k, v]) => localStorage.setItem(k, JSON.stringify(v)))
+  // Notify all feature modules that remote data has been applied.
+  // Each module listens for the event(s) it cares about and re-reads from localStorage.
   window.dispatchEvent(new CustomEvent('goals-changed'))
   window.dispatchEvent(new CustomEvent('gym-changed'))
+  window.dispatchEvent(new CustomEvent('sync-applied'))
 }
 
 export function SyncProvider({ children }) {
