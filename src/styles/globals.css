@@ -6601,13 +6601,6 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
   color: rgba(107,227,164,0.7);
 }
 
-/* ── TODO 3-COLUMN DESKTOP LAYOUT ── */
-@media (min-width: 1024px) {
-  .todo-desktop-grid {
-    grid-template-columns: 1fr 1fr 1fr !important;
-  }
-}
-
 /* ── MILESTONE ITEM WRAPPER ── */
 .gp-milestone-item {
   display: flex;
