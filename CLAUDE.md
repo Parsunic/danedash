@@ -38,7 +38,26 @@ All tables have RLS enabled. App uses the anon/publishable key only — no servi
 - **localStorage** is primary — `storeGet`/`storeSet` from `src/lib/storage.js`
 - **Supabase** blob sync via `src/contexts/SyncContext.jsx` (`app_state` table, keyed by `key`)
 - Active date: `getActiveDateString()` from `src/lib/dateHelpers.js`
-- Cross-module events: `window.dispatchEvent(new Event('gym-changed'))`, `'goals-changed'`, `'schedule-sync'`
+- Cross-module events: `window.dispatchEvent(new Event('gym-changed'))`, `'goals-changed'`, `'schedule-sync'`, `'sync-applied'`
+
+## Cross-Device Sync — REQUIRED FOR ALL FEATURES
+**Every new feature that persists data must be wired into Supabase sync.** localStorage alone does not sync across devices.
+
+### How to add a new key to sync:
+1. **Static key** (fixed name like `'my_feature_data'`): add it to `STATIC_SYNC_KEYS` in `src/contexts/SyncContext.jsx`.
+2. **Dynamic keys** (one per date/week, e.g. `'my_feature:2026-06-17'`): add the prefix to `DYNAMIC_SYNC_PREFIXES` in `src/contexts/SyncContext.jsx`.
+3. **Component refresh**: after remote sync, `sync-applied` is dispatched. Add a `useEffect` listener in the component that re-reads from localStorage via `storeGet` and calls the relevant `setState`. See `HabitsSection.jsx` or `GoalsProjectsSection.jsx` for the pattern.
+
+### Currently synced keys:
+- `goals:*` (all date-keyed task lists), `goal_streak_v1`, `goals_projects`, `general_tasks`, `recurring_tasks`
+- `habits`, `habits_log:*` (weekly completion logs)
+- `gym_templates`, `gym_planned`, `gym_week_tpls`, `gym_workout_logs`, `gym_exercise_history`
+- `calendar_events`, `journal_entries`
+
+### Events dispatched after remote sync applies:
+- `goals-changed` — Todo, Goals, Dashboard ticker
+- `gym-changed` — Gym module
+- `sync-applied` — HabitsSection, GoalsProjectsSection (and any new component added per the pattern above)
 
 ## Anthropic API
 AI calls are made directly from the browser (no proxy) across multiple modules. API key stored in `localStorage` as `anthropic_api_key`, entered via Settings modal in `src/components/Layout.jsx`.
