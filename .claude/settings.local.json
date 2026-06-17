@@ -30,7 +30,12 @@
       "Bash(Get-ChildItem -Path \"c:\\\\Projects\\\\UltraDash\\\\src\\\\modules\" -Recurse -File -Filter \"*.tsx\" -o \"*.ts\" -o \"*.jsx\" -o \"*.js\")",
       "Bash(Select-Object -ExpandProperty FullName)",
       "Bash(cat >> *)",
-      "Bash(python3 -c ' *)"
+      "Bash(python3 -c ' *)",
+      "Bash(npm -v)",
+      "PowerShell(node -v)",
+      "PowerShell(npm -v)",
+      "PowerShell(\"token=[$env:SUPABASE_ACCESS_TOKEN]\")",
+      "Bash(git reset *)"
     ]
   },
   "hooks": {
