@@ -1,8 +1,8 @@
 import { useEffect } from 'react'
-import { Routes, Route, useNavigate } from 'react-router-dom'
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom'
 import Layout from './components/Layout.jsx'
 import Dashboard from './modules/dashboard/index.jsx'
-import Todo from './modules/todo/index.jsx'
+import Goals from './modules/goals/index.jsx'
 import Journal from './modules/journal/index.jsx'
 import Gym from './modules/gym/index.jsx'
 import Calendar from './modules/calendar/index.jsx'
@@ -52,15 +52,15 @@ export const modules = [
     component: Dashboard,
   },
   {
-    path: '/todo',
-    label: 'To-Do',
+    path: '/goals',
+    label: 'Goals',
     icon: (
       <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
         <path d="M3 4.5h12M3 9h8M3 13.5h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
         <path d="M12.5 11.5l1.5 1.5 2-2.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     ),
-    component: Todo,
+    component: Goals,
   },
   {
     path: '/journal',
@@ -135,6 +135,7 @@ export default function App() {
           {modules.map(({ path, component: Component }) => (
             <Route key={path} path={path} element={<Component />} />
           ))}
+          <Route path="/todo" element={<Navigate to="/goals" replace />} />
         </Routes>
       </Layout>
     </SyncProvider>

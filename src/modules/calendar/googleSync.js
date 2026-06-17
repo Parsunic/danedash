@@ -86,10 +86,15 @@ function emitStatus(status) {
   window.dispatchEvent(new CustomEvent('gcal-sync-status', { detail: { status } }))
 }
 
+// Tracks event IDs currently being pushed to GCal to prevent concurrent duplicate POSTs
+const createInFlight = new Set()
+
 export async function syncEventCreate(event) {
   if (!isConnected()) return
+  if (createInFlight.has(event.id)) return
   const stored = (storeGet(CAL_EVENTS_KEY) || []).find(e => e.id === event.id)
   if (stored?.googleEventId) return
+  createInFlight.add(event.id)
   emitStatus('syncing')
   try {
     const resp = await gcalRequest(GCAL_BASE, {
@@ -104,6 +109,8 @@ export async function syncEventCreate(event) {
     emitStatus('synced')
   } catch {
     emitStatus('error')
+  } finally {
+    createInFlight.delete(event.id)
   }
 }
 

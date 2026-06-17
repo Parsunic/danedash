@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { storeGet, storeSet } from '../../lib/storage.js'
 import BackgroundBlob from '../../components/BackgroundBlob.jsx'
 import TimeGrid from './TimeGrid.jsx'
@@ -57,6 +57,7 @@ export default function Calendar() {
   const [editEvent, setEditEvent] = useState(null)
   const [defaultSlot, setDefaultSlot] = useState(null)
   const [gcalConnected, setGcalConnected] = useState(() => isConnected())
+  const eventsRef = useRef([])
 
   useEffect(() => {
     setEvents(storeGet(STORAGE_KEY) || [])
@@ -95,9 +96,13 @@ export default function Calendar() {
   }, [fetchDayReviews])
 
   const saveEvents = useCallback((next) => {
+    eventsRef.current = next
     storeSet(STORAGE_KEY, next)
     setEvents(next)
   }, [])
+
+  // Keep eventsRef in sync when state is updated externally (Supabase/GCal sync)
+  useEffect(() => { eventsRef.current = events }, [events])
 
   // Called from TimeGrid drag-to-create — receives { date, startMin, endMin }
   const handleCreateEvent = useCallback((slot) => {
@@ -114,37 +119,47 @@ export default function Calendar() {
   }, [])
 
   const handleEventSave = useCallback((data) => {
+    const current = eventsRef.current
     if (editEvent) {
-      const updatedEvent = { ...editEvent, ...data }
-      saveEvents(events.map(e => e.id === editEvent.id ? updatedEvent : e))
+      // Find the latest version of the event (may have gained googleEventId since sidebar opened)
+      const latest = current.find(e => e.id === editEvent.id) || editEvent
+      const updatedEvent = { ...latest, ...data }
+      saveEvents(current.map(e => e.id === editEvent.id ? updatedEvent : e))
       syncEventUpdate(updatedEvent)
     } else {
       const newEvt = { id: crypto.randomUUID(), user_id: 'dane', ...data, created_at: new Date().toISOString() }
-      saveEvents([...events, newEvt])
-      syncEventCreate(newEvt)
+      // Deduplicate by id as a failsafe
+      const existingIds = new Set(current.map(e => e.id))
+      if (!existingIds.has(newEvt.id)) {
+        saveEvents([...current, newEvt])
+        syncEventCreate(newEvt)
+      }
     }
     setShowSidebar(false)
-  }, [editEvent, events, saveEvents])
+  }, [editEvent, saveEvents])
 
   const handleEventDelete = useCallback((id) => {
     syncEventDelete(id)
-    saveEvents(events.filter(e => e.id !== id))
+    saveEvents(eventsRef.current.filter(e => e.id !== id))
     setShowSidebar(false)
-  }, [events, saveEvents])
+  }, [saveEvents])
 
   const handleAIEventsAdd = useCallback((newEvents) => {
-    const updated = [...events, ...newEvents]
-    saveEvents(updated)
-    newEvents.forEach(ev => syncEventCreate(ev))
-  }, [events, saveEvents])
+    const current = eventsRef.current
+    const existingIds = new Set(current.map(e => e.id))
+    const deduped = newEvents.filter(e => !existingIds.has(e.id))
+    saveEvents([...current, ...deduped])
+    deduped.forEach(ev => syncEventCreate(ev))
+  }, [saveEvents])
 
   // Called from TimeGrid move/resize drag — direct time update, no sidebar
   const handleEventUpdate = useCallback((eventId, startIso, endIso) => {
-    const updatedEvents = events.map(e => e.id === eventId ? { ...e, start_time: startIso, end_time: endIso } : e)
+    const current = eventsRef.current
+    const updatedEvents = current.map(e => e.id === eventId ? { ...e, start_time: startIso, end_time: endIso } : e)
     saveEvents(updatedEvents)
     const updated = updatedEvents.find(e => e.id === eventId)
     if (updated) syncEventUpdate(updated)
-  }, [events, saveEvents])
+  }, [saveEvents])
 
   const handleSkipGymWorkout = useCallback((gymPlannedId) => {
     const updated = gymPlanned.map(g => g.id === gymPlannedId ? { ...g, status: 'skipped' } : g)

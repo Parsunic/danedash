@@ -737,7 +737,7 @@ function RecurringRow({ task, freqLabel, freqClass, onDelete, onEditText }) {
 }
 
 // ── TODO ROOT ──
-export default function Todo() {
+export default function Todo({ embedded = false }) {
   const activeDateRef = useRef(getActiveDateString())
   const tomorrowDateRef = useRef(getTomorrowDateString())
 
@@ -760,10 +760,8 @@ export default function Todo() {
   const todayKey = 'goals:' + activeDateRef.current
   const tomorrowKey = 'goals:' + tomorrowDateRef.current
 
-  return (
-    <div className="section">
-      <BackgroundBlob page="todo" />
-      <div className="section-title">To Do List</div>
+  const content = (
+    <>
       <div className="todo-desktop-grid stagger-1">
         <TodayCard
           goals={todayGoals}
@@ -778,6 +776,16 @@ export default function Todo() {
         />
       </div>
       <RecurringSection className="stagger-2" />
+    </>
+  )
+
+  if (embedded) return content
+
+  return (
+    <div className="section">
+      <BackgroundBlob page="todo" />
+      <div className="section-title">To Do List</div>
+      {content}
     </div>
   )
 }

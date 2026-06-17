@@ -60,6 +60,7 @@ export default function EventSidebar({ event, defaultSlot, currentDate, events, 
 
   const [form, setForm] = useState(buildInitialForm)
   const [open, setOpen] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
 
   useEffect(() => {
     requestAnimationFrame(() => setOpen(true))
@@ -73,10 +74,11 @@ export default function EventSidebar({ event, defaultSlot, currentDate, events, 
   }
 
   const handleSave = () => {
-    if (!form.title.trim()) return
+    if (submitted || !form.title.trim()) return
     const startDt = new Date(`${form.date}T${form.startTime}`)
     const endDt   = new Date(`${form.date}T${form.endTime}`)
     if (endDt <= startDt) return
+    setSubmitted(true)
     onSave({
       title: form.title.trim(),
       description: form.notes.trim(),
@@ -177,7 +179,7 @@ export default function EventSidebar({ event, defaultSlot, currentDate, events, 
           <button
             className="cal-mobile-create-btn"
             onClick={handleSave}
-            disabled={!form.title.trim()}
+            disabled={submitted || !form.title.trim()}
           >
             {isNew ? 'Create' : 'Save'}
           </button>
@@ -197,7 +199,7 @@ export default function EventSidebar({ event, defaultSlot, currentDate, events, 
           <button
             className="btn-primary"
             onClick={handleSave}
-            disabled={!form.title.trim()}
+            disabled={submitted || !form.title.trim()}
           >
             {isNew ? 'Create' : 'Save'}
           </button>

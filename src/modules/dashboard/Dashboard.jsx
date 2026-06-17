@@ -5,6 +5,7 @@ import { getActiveDateString } from '../../lib/dateHelpers.js'
 import { getDayEvents } from '../calendar/calendarUtils.js'
 import BackgroundBlob from '../../components/BackgroundBlob.jsx'
 import { STATIC_PROMPT_FALLBACK } from '../../lib/overseer.js'
+import GoalsPulseCard from './GoalsPulseCard.jsx'
 
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages'
 const DASH_MODEL = 'claude-haiku-4-5-20251001'
@@ -265,7 +266,7 @@ function TopTasksWidget() {
     <div className="dash-widget card-interactive">
       <div className="dash-widget-header">
         <span className="dash-widget-label">Queue</span>
-        <Link to="/todo" className="dash-widget-link">To-Do →</Link>
+        <Link to="/goals" className="dash-widget-link">To-Do →</Link>
       </div>
       {tasks.length === 0 ? (
         <div className="dash-widget-empty">All clear — nothing queued</div>
@@ -500,6 +501,7 @@ export default function Dashboard() {
         <div className="dash-side-col stagger-2">
           <TopTasksWidget />
           <CalendarNowWidget />
+          <GoalsPulseCard />
         </div>
         <div className="dash-overseer-wrap stagger-3">
           <DashChatWidget />

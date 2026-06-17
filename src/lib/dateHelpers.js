@@ -28,3 +28,14 @@ export function ordinal(n) {
   const s = ['th', 'st', 'nd', 'rd'], v = n % 100
   return n + (s[(v - 20) % 10] || s[v] || s[0])
 }
+
+export function getActiveWeekKey() {
+  const dateStr = getActiveDateString()
+  const [y, m, d] = dateStr.split('-').map(Number)
+  const date = new Date(y, m - 1, d)
+  const day = date.getDay() || 7
+  const thursday = new Date(y, m - 1, d + (4 - day))
+  const jan1 = new Date(thursday.getFullYear(), 0, 1)
+  const week = Math.ceil(((thursday - jan1) / 86400000 + 1) / 7)
+  return `${thursday.getFullYear()}-W${String(week).padStart(2, '0')}`
+}

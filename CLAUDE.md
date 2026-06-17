@@ -6,6 +6,28 @@ Personal life management PWA: Dashboard, To-Do, Gym, Calendar, Journal, and Heal
 ## Auto-Deploy — CRITICAL
 A PostToolUse hook **automatically commits and pushes** after every `Write` or `Edit` tool call. **Never run git commands manually** in this project. The hook handles all version control.
 
+## Supabase — Direct SQL Access
+Project ref: `wlrdwrlxkjgubdmntfxl` (URL: `https://wlrdwrlxkjgubdmntfxl.supabase.co`, anon key in `src/lib/supabase.js`).
+A Supabase personal access token is stored as the user-level env var `SUPABASE_ACCESS_TOKEN`. Use it to run SQL directly via the Management API (e.g. to inspect/fix RLS policies, schema changes):
+
+```powershell
+$env:SUPABASE_ACCESS_TOKEN = [System.Environment]::GetEnvironmentVariable('SUPABASE_ACCESS_TOKEN','User')
+$headers = @{ Authorization = "Bearer $($env:SUPABASE_ACCESS_TOKEN)"; "Content-Type" = "application/json" }
+$body = @{ query = "SELECT 1;" } | ConvertTo-Json
+Invoke-RestMethod -Uri "https://api.supabase.com/v1/projects/wlrdwrlxkjgubdmntfxl/database/query" -Method Post -Headers $headers -Body $body
+```
+
+Note: only single SQL statements per request reliably work (multi-statement with `;` can error).
+
+### Current Schema (public schema)
+All tables have RLS enabled. App uses the anon/publishable key only — no service role in the browser.
+
+- **`app_state`**: `key (text, PK-ish)`, `data (jsonb)`, `updated_at`. Generic localStorage-mirror blob sync (`SyncContext.jsx`). RLS: anon SELECT/INSERT/UPDATE, `qual: true` (fully open).
+- **`exercises`**: `id (uuid)`, `name`, `primary_muscle`, `secondary_muscles (array)`, `created_at`. Exercise → muscle lookup (`muscleUtils.js`). RLS: public read (`true`), insert/update open (`true`).
+- **`health_metrics`**: `id`, `user_id`, `date`, `sleep_score`, `sleep_stages (jsonb)`, `hrv`, `resting_hr`, `steps`, `active_minutes`, `raw_fitbit_data (jsonb)`, `created_at`. Google Fit daily sync (`googleFitSync.js`), unique on `(user_id, date)`. RLS: anon ALL where `user_id = 'dane'`.
+- **`user_integrations`**: `id`, `user_id`, `provider`, `access_token`, `refresh_token`, `expires_at`, `scopes`. Cross-device OAuth token storage (currently used by Google Fit, `provider='googlefit'`), unique on `(user_id, provider)`. RLS: anon ALL, `qual: true` (fully open).
+- **`user_context`**: `id (uuid)`, `user_id`, `goals (text)`, `created_at`. RLS enabled but **no policies defined** — currently inaccessible to anon key (not actively used by the app yet).
+
 ## Stack
 - Vite + React 18, React Router v6
 - Single CSS file: `src/styles/globals.css` (~2000+ lines, no CSS modules)
