@@ -1,7 +1,6 @@
 import { createContext, useContext, useRef, useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase.js'
 import { storeGet } from '../lib/storage.js'
-import { getActiveDateString, getTomorrowDateString } from '../lib/dateHelpers.js'
 
 // Keys that must sync — updated whenever a new feature adds persistent localStorage data.
 // Rule: every storeSet key used by any module must appear here or in the dynamic-key section.
