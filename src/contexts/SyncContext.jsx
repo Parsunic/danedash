@@ -37,19 +37,23 @@ export function useSyncStatus() {
 
 function getLocalPayload() {
   const payload = {}
-  const today = getActiveDateString()
-  const tomorrow = getTomorrowDateString()
-  const keys = [
-    'goals:' + today, 'goals:' + tomorrow,
-    'recurring_tasks', 'goal_streak_v1',
-    'gym_templates', 'gym_planned', 'gym_week_tpls', 'gym_workout_logs', 'gym_exercise_history',
-    'calendar_events',
-    'journal_entries',
-  ]
-  keys.forEach(k => {
+
+  // Static keys
+  STATIC_SYNC_KEYS.forEach(k => {
     const v = localStorage.getItem(k)
     if (v !== null) { try { payload[k] = JSON.parse(v) } catch {} }
   })
+
+  // Dynamic-prefix keys: enumerate all matching localStorage entries
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i)
+    if (!k) continue
+    if (DYNAMIC_SYNC_PREFIXES.some(p => k.startsWith(p))) {
+      const v = localStorage.getItem(k)
+      if (v !== null) { try { payload[k] = JSON.parse(v) } catch {} }
+    }
+  }
+
   return payload
 }
 
