@@ -604,11 +604,15 @@ export default function Todo({ embedded = false }) {
 
   function moveTask(task, fromKey, toKey) {
     if (fromKey === toKey) return
+    const movedTask = task.id ? task : { ...task, id: crypto.randomUUID() }
     const from = storeGet(fromKey) || []
-    storeSet(fromKey, from.filter(t => t.id !== task.id))
+    const filtered = task.id
+      ? from.filter(t => t.id !== task.id)
+      : from.filter(t => t.text !== task.text)
+    storeSet(fromKey, filtered)
     const to = storeGet(toKey) || []
-    if (!to.some(t => t.id === task.id)) {
-      storeSet(toKey, [...to, { ...task }])
+    if (!to.some(t => t.id && t.id === movedTask.id)) {
+      storeSet(toKey, [...to, movedTask])
     }
     reload()
   }
