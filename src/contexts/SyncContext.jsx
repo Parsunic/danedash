@@ -3,6 +3,30 @@ import { supabase } from '../lib/supabase.js'
 import { storeGet } from '../lib/storage.js'
 import { getActiveDateString, getTomorrowDateString } from '../lib/dateHelpers.js'
 
+// Keys that must sync — updated whenever a new feature adds persistent localStorage data.
+// Rule: every storeSet key used by any module must appear here or in the dynamic-key section.
+const STATIC_SYNC_KEYS = [
+  // Goals / Tasks
+  'goal_streak_v1',
+  'goals_projects',
+  'general_tasks',
+  'recurring_tasks',
+  // Habits
+  'habits',
+  // Gym
+  'gym_templates', 'gym_planned', 'gym_week_tpls', 'gym_workout_logs', 'gym_exercise_history',
+  // Calendar
+  'calendar_events',
+  // Journal
+  'journal_entries',
+]
+
+// Key prefixes whose instances are enumerated at push time (one key per date/week).
+const DYNAMIC_SYNC_PREFIXES = [
+  'goals:',       // today's and all future/past task lists
+  'habits_log:',  // one key per calendar week
+]
+
 const SYNC_ROW_ID = 'dane'
 
 const SyncContext = createContext({ status: 'offline', isOffline: false })
