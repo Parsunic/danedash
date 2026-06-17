@@ -52,6 +52,7 @@ export default function GoalsProjectsSection() {
   const [goals, setGoals] = useState(() => storeGet('goals_projects') || [])
   const [filter, setFilter] = useState('active')
   const [expanded, setExpanded] = useState(() => new Set())
+  const [expandedMilestones, setExpandedMilestones] = useState(() => new Set())
   const [deleteConfirm, setDeleteConfirm] = useState(null)
 
   const [showAddGoal, setShowAddGoal] = useState(false)
@@ -63,6 +64,9 @@ export default function GoalsProjectsSection() {
   const [addMilestoneFor, setAddMilestoneFor] = useState(null)
   const [milestoneText, setMilestoneText] = useState('')
   const [milestoneDue, setMilestoneDue] = useState('')
+
+  const [addCheckpointFor, setAddCheckpointFor] = useState(null) // { goalId, milestoneId }
+  const [checkpointText, setCheckpointText] = useState('')
 
   function saveGoals(next) {
     setGoals(next)
@@ -106,6 +110,15 @@ export default function GoalsProjectsSection() {
     })
   }
 
+  function toggleMilestoneExpanded(milestoneId) {
+    setExpandedMilestones(prev => {
+      const n = new Set(prev)
+      if (n.has(milestoneId)) n.delete(milestoneId)
+      else n.add(milestoneId)
+      return n
+    })
+  }
+
   function addMilestone(goalId) {
     if (!milestoneText.trim()) return
     const next = goals.map(g => g.id !== goalId ? g : {
@@ -117,6 +130,7 @@ export default function GoalsProjectsSection() {
           text: milestoneText.trim(),
           ...(milestoneDue ? { due_date: milestoneDue } : {}),
           done: false,
+          checkpoints: [],
         },
       ],
     })
@@ -126,10 +140,56 @@ export default function GoalsProjectsSection() {
     setMilestoneDue('')
   }
 
+  function deleteMilestone(goalId, milestoneId) {
+    saveGoals(goals.map(g => g.id !== goalId ? g : {
+      ...g,
+      milestones: g.milestones.filter(m => m.id !== milestoneId),
+    }))
+    setExpandedMilestones(prev => { const n = new Set(prev); n.delete(milestoneId); return n })
+  }
+
   function toggleMilestone(goalId, milestoneId) {
     saveGoals(goals.map(g => g.id !== goalId ? g : {
       ...g,
       milestones: g.milestones.map(m => m.id !== milestoneId ? m : { ...m, done: !m.done }),
+    }))
+  }
+
+  function addCheckpoint(goalId, milestoneId) {
+    if (!checkpointText.trim()) return
+    saveGoals(goals.map(g => g.id !== goalId ? g : {
+      ...g,
+      milestones: g.milestones.map(m => m.id !== milestoneId ? m : {
+        ...m,
+        checkpoints: [
+          ...(m.checkpoints || []),
+          { id: crypto.randomUUID(), text: checkpointText.trim(), done: false },
+        ],
+      }),
+    }))
+    setAddCheckpointFor(null)
+    setCheckpointText('')
+  }
+
+  function toggleCheckpoint(goalId, milestoneId, checkpointId) {
+    saveGoals(goals.map(g => g.id !== goalId ? g : {
+      ...g,
+      milestones: g.milestones.map(m => m.id !== milestoneId ? m : {
+        ...m,
+        checkpoints: (m.checkpoints || []).map(c =>
+          c.id !== checkpointId ? c : { ...c, done: !c.done }
+        ),
+      }),
+    }))
+  }
+
+  function deleteCheckpoint(goalId, milestoneId, checkpointId) {
+    saveGoals(goals.map(g => g.id !== goalId ? g : {
+      ...g,
+      milestones: g.milestones.map(m => m.id !== milestoneId ? m : {
+        ...m,
+        checkpoints: (m.checkpoints || []).filter(c => c.id !== checkpointId),
+      }),
     }))
   }
 
@@ -146,7 +206,6 @@ export default function GoalsProjectsSection() {
       source_milestone_id: milestone.id,
     })
     storeSet(`goals:${activeDate}`, tasks)
-    // storeSet dispatches 'goals-changed' for keys starting with 'goals:'
     saveGoals(goals.map(g => g.id !== goalId ? g : {
       ...g,
       milestones: g.milestones.map(m => m.id !== milestoneId ? m : { ...m, pushed_to_date: activeDate }),
@@ -161,7 +220,7 @@ export default function GoalsProjectsSection() {
 
   return (
     <>
-      <div className="goals-section-label">Goals & Projects</div>
+      <div className="goals-section-label">Goals &amp; Projects</div>
       <div className="gp-micro-copy">Break big things into steps. Push one step to today.</div>
 
       <div className="gp-toolbar">
@@ -290,32 +349,109 @@ export default function GoalsProjectsSection() {
 
                   {isExpanded && (
                     <div className="gp-milestones">
-                      {goal.milestones.map(m => (
-                        <div key={m.id} className={`gp-milestone-row${m.done ? ' gp-milestone-row--done' : ''}`}>
-                          <button
-                            className={`gp-milestone-checkbox${m.done ? ' gp-milestone-checkbox--checked' : ''}`}
-                            onClick={() => toggleMilestone(goal.id, m.id)}
-                            aria-label={m.done ? 'Mark undone' : 'Mark done'}
-                          />
-                          <div className="gp-milestone-body">
-                            <span className={`gp-milestone-text${m.done ? ' gp-milestone-text--done' : ''}`}>
-                              {m.text}
-                            </span>
-                            {m.due_date && (
-                              <span className="gp-milestone-due">{m.due_date}</span>
+                      {goal.milestones.map(m => {
+                        const checkpoints = m.checkpoints || []
+                        const cpDone = checkpoints.filter(c => c.done).length
+                        const isMilestoneExpanded = expandedMilestones.has(m.id)
+                        const isAddingCheckpoint = addCheckpointFor?.milestoneId === m.id
+
+                        return (
+                          <div key={m.id} className="gp-milestone-item">
+                            <div className={`gp-milestone-row${m.done ? ' gp-milestone-row--done' : ''}`}>
+                              <button
+                                className={`gp-milestone-checkbox${m.done ? ' gp-milestone-checkbox--checked' : ''}`}
+                                onClick={() => toggleMilestone(goal.id, m.id)}
+                                aria-label={m.done ? 'Mark undone' : 'Mark done'}
+                              />
+                              <div
+                                className="gp-milestone-body gp-milestone-body--clickable"
+                                onClick={() => toggleMilestoneExpanded(m.id)}
+                              >
+                                <div className="gp-milestone-text-row">
+                                  <span className={`gp-milestone-text${m.done ? ' gp-milestone-text--done' : ''}`}>
+                                    {m.text}
+                                  </span>
+                                  {checkpoints.length > 0 && (
+                                    <span className="gp-cp-badge">{cpDone}/{checkpoints.length}</span>
+                                  )}
+                                  <span className={`gp-milestone-chevron${isMilestoneExpanded ? ' open' : ''}`}>›</span>
+                                </div>
+                                {m.due_date && (
+                                  <span className="gp-milestone-due">{m.due_date}</span>
+                                )}
+                              </div>
+                              {!m.done && (
+                                <button
+                                  className={`gp-push-btn${m.pushed_to_date ? ' gp-push-btn--added' : ''}`}
+                                  onClick={() => { if (!m.pushed_to_date) pushToToday(goal.id, m.id) }}
+                                  disabled={!!m.pushed_to_date}
+                                >
+                                  {m.pushed_to_date ? '→ Added' : '→ Today'}
+                                </button>
+                              )}
+                              <button
+                                className="gp-milestone-delete-btn"
+                                onClick={() => deleteMilestone(goal.id, m.id)}
+                                title="Delete milestone"
+                              >×</button>
+                            </div>
+
+                            {isMilestoneExpanded && (
+                              <div className="gp-checkpoints">
+                                {checkpoints.map(c => (
+                                  <div key={c.id} className="gp-checkpoint-row">
+                                    <button
+                                      className={`gp-checkpoint-cb${c.done ? ' gp-checkpoint-cb--checked' : ''}`}
+                                      onClick={() => toggleCheckpoint(goal.id, m.id, c.id)}
+                                      aria-label={c.done ? 'Mark undone' : 'Mark done'}
+                                    />
+                                    <span className={`gp-checkpoint-text${c.done ? ' gp-checkpoint-text--done' : ''}`}>
+                                      {c.text}
+                                    </span>
+                                    <button
+                                      className="gp-checkpoint-delete-btn"
+                                      onClick={() => deleteCheckpoint(goal.id, m.id, c.id)}
+                                      title="Delete checkpoint"
+                                    >×</button>
+                                  </div>
+                                ))}
+
+                                {isAddingCheckpoint ? (
+                                  <div className="gp-add-checkpoint-row">
+                                    <input
+                                      className="gp-add-checkpoint-input"
+                                      placeholder="Add a checkpoint…"
+                                      value={checkpointText}
+                                      onChange={e => setCheckpointText(e.target.value)}
+                                      onKeyDown={e => {
+                                        if (e.key === 'Enter') addCheckpoint(goal.id, m.id)
+                                        if (e.key === 'Escape') { setAddCheckpointFor(null); setCheckpointText('') }
+                                      }}
+                                      autoFocus
+                                    />
+                                    <button
+                                      className="gp-add-checkpoint-confirm-btn"
+                                      onClick={() => addCheckpoint(goal.id, m.id)}
+                                      disabled={!checkpointText.trim()}
+                                    >Add</button>
+                                    <button
+                                      className="gp-add-checkpoint-confirm-btn"
+                                      onClick={() => { setAddCheckpointFor(null); setCheckpointText('') }}
+                                    >×</button>
+                                  </div>
+                                ) : (
+                                  <button
+                                    className="btn-ghost gp-add-cp-inline-btn"
+                                    onClick={() => setAddCheckpointFor({ goalId: goal.id, milestoneId: m.id })}
+                                  >
+                                    + Checkpoint
+                                  </button>
+                                )}
+                              </div>
                             )}
                           </div>
-                          {!m.done && (
-                            <button
-                              className={`gp-push-btn${m.pushed_to_date ? ' gp-push-btn--added' : ''}`}
-                              onClick={() => { if (!m.pushed_to_date) pushToToday(goal.id, m.id) }}
-                              disabled={!!m.pushed_to_date}
-                            >
-                              {m.pushed_to_date ? '→ Added' : '→ Today'}
-                            </button>
-                          )}
-                        </div>
-                      ))}
+                        )
+                      })}
 
                       {addMilestoneFor === goal.id ? (
                         <div className="gp-add-milestone-form">
