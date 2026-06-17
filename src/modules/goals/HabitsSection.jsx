@@ -40,6 +40,16 @@ export default function HabitsSection() {
   const [habits, setHabits] = useState(() => storeGet('habits') || [])
   const [log, setLog] = useState(() => storeGet(weekKey) || {})
 
+  // Re-read from localStorage when a remote sync applies data
+  useEffect(() => {
+    function onSync() {
+      setHabits(storeGet('habits') || [])
+      setLog(storeGet(weekKey) || {})
+    }
+    window.addEventListener('sync-applied', onSync)
+    return () => window.removeEventListener('sync-applied', onSync)
+  }, [weekKey])
+
   const [showForm, setShowForm] = useState(false)
   const [formName, setFormName] = useState('')
   const [formDomain, setFormDomain] = useState('fitness')
