@@ -2825,11 +2825,11 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
   }
 }
 
-/* ── TODO DESKTOP 2-COLUMN ── */
+/* ── TODO DESKTOP 3-COLUMN ── */
 @media (min-width: 1024px) {
   .todo-desktop-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     gap: 20px;
     align-items: start;
   }
