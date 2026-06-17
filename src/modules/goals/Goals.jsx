@@ -58,10 +58,16 @@ export default function Goals() {
       <div className={`goals-flip-content${animState ? ' ' + animState : ''}`}>
         {view === 'goals' ? (
           <>
-            <div className="goals-section-label">AI Insights</div>
-            <div className="ai-insights-micro-copy">One honest read on how you're actually doing.</div>
-            <AIInsightsCard />
-            <HabitsSection />
+            <div className="goals-top-grid">
+              <div>
+                <div className="goals-section-label">AI Insights</div>
+                <div className="ai-insights-micro-copy">One honest read on how you're actually doing.</div>
+                <AIInsightsCard />
+              </div>
+              <div>
+                <HabitsSection />
+              </div>
+            </div>
             <GoalsProjectsSection />
           </>
         ) : (
