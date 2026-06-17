@@ -51,6 +51,13 @@ function TrashIcon() {
 export default function GoalsProjectsSection() {
   const [goals, setGoals] = useState(() => storeGet('goals_projects') || [])
   const [filter, setFilter] = useState('active')
+
+  // Re-read from localStorage when a remote sync applies data
+  useEffect(() => {
+    function onSync() { setGoals(storeGet('goals_projects') || []) }
+    window.addEventListener('sync-applied', onSync)
+    return () => window.removeEventListener('sync-applied', onSync)
+  }, [])
   const [expanded, setExpanded] = useState(() => new Set())
   const [expandedMilestones, setExpandedMilestones] = useState(() => new Set())
   const [deleteConfirm, setDeleteConfirm] = useState(null)
