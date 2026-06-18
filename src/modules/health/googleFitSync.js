@@ -449,6 +449,10 @@ export async function syncGfitData() {
     const hrvByDate      = parseHRV(hrvPoints)
     const caloriesByDate = parseCalories(calRollup)
 
+    if (stepsRollup.length > 0)   console.log('[Health][diagnostic] stepsRollup[0]:', JSON.stringify(stepsRollup[0]))
+    if (calRollup.length > 0)     console.log('[Health][diagnostic] calRollup[0]:', JSON.stringify(calRollup[0]))
+    if (restingHrPoints.length > 0) console.log('[Health][diagnostic] restingHR[0]:', JSON.stringify(restingHrPoints[0]))
+    if (hrvPoints.length > 0)     console.log('[Health][diagnostic] hrv[0]:', JSON.stringify(hrvPoints[0]))
     console.log(`[Health][diagnostic] data available — steps:${Object.keys(stepsByDate).length} restingHR:${Object.keys(hrByDate).length} sleep:${Object.keys(sleepByDate).length} hrv:${Object.keys(hrvByDate).length} calories:${Object.keys(caloriesByDate).length} days`)
 
     const dates = new Set([
