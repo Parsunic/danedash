@@ -181,6 +181,12 @@ async function healthRequest(method, url, body, isRetry = false) {
     return healthRequest(method, url, body, true)
   }
 
+  if (resp.status === 403) {
+    console.error('[Health] 403 Forbidden — OAuth scope missing or Health API not enabled in Cloud Console.')
+    localStorage.setItem('health_sync_error', 'Access denied (403): Google Health permissions are missing. Please disconnect and reconnect Google Health in Settings to grant the required scopes.')
+    return null
+  }
+
   if (!resp.ok) {
     console.error(`[Health] ${method} ${url} → ${resp.status}`)
     return null
