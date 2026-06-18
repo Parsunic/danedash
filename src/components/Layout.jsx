@@ -25,6 +25,9 @@ function SettingsModal({ onClose }) {
   const [gfitConnected, setGfitConnected] = useState(() => isGfitConnected())
   const [gfitLastSync,  setGfitLastSync_] = useState(() => getGfitLastSync())
   const [audioEnabled, setAudioEnabledState]      = useState(() => isAudioEnabled())
+  const [gymAutoFinish, setGymAutoFinish]        = useState(() => {
+    try { return (JSON.parse(localStorage.getItem('gym_settings')) || {}).autoFinish === true } catch { return false }
+  })
   const [showAnthropic, setShowAnthropic]        = useState(false)
   const [showNotion, setShowNotion]              = useState(false)
   const [showGcalSecret, setShowGcalSecret]      = useState(false)
