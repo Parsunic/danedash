@@ -30,7 +30,7 @@ function AnimatedNum({ value, duration = 600 }) {
 function getMostNeglectedMuscle() {
   const logs = storeGet('gym_workout_logs') || []
   const now = Date.now()
-  const MUSCLES = ['chest', 'back', 'legs', 'shoulders', 'core', 'arms']
+  const MUSCLES = ['chest', 'back', 'shoulders', 'biceps', 'triceps', 'legs', 'core']
   const lastTrained = {}
   logs.forEach(log => {
     const t = log.completedAt ? new Date(log.completedAt).getTime() : 0
