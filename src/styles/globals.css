@@ -257,16 +257,45 @@ body::after {
 
 .sidebar-brand {
   padding: 22px 20px 18px;
-  font-family: var(--font-display);
-  font-size: 15px;
-  font-weight: 300;
-  letter-spacing: -0.01em;
-  background: linear-gradient(180deg, #FFFFFF 0%, #C7C4BC 120%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
   border-bottom: 1px solid rgba(255,255,255,0.05);
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+/* Terminal logo inside sidebar-brand */
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 1;
+  user-select: none;
+}
+
+.logo-chevron {
+  color: #6BE3A4;
+  margin-right: 7px;
+}
+
+.logo-dane { color: #FFFFFF; }
+.logo-dash { color: #E8A020; }
+
+.logo-cursor {
+  display: inline-block;
+  width: 8px;
+  height: 15px;
+  background: #E8A020;
+  margin-left: 2px;
+  vertical-align: -3px;
+  animation: terminal-blink 1s step-end infinite;
+}
+
+@keyframes terminal-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
 }
 
 .sidebar-nav {
