@@ -63,8 +63,8 @@ const segSize = 360 / N;
 let paths = '';
 
 for (let i = 0; i < N; i++) {
-  const a0 = i * segSize - 0.6;       // slight overlap to avoid gaps
-  const a1 = (i + 1) * segSize + 0.6;
+  const a0 = i * segSize - 0.3;       // slight overlap to avoid gaps
+  const a1 = (i + 1) * segSize + 0.3;
   const aMid = (i + 0.5) * segSize;
   const col = toHex(getColorAtAngle(aMid));
   const p0 = polar(R, a0);
