@@ -210,9 +210,9 @@ function SettingsModal({ onClose }) {
 
           <p className="settings-hint" style={{ marginBottom: 10 }}>
             Uses the same OAuth client as Google Calendar above. Configure the Client ID &amp; Secret there first, then connect below.
-            In Google Cloud Console, enable the <strong>Fitness API</strong> and add these scopes:
+            In Google Cloud Console, enable the <strong>Google Health API</strong> and add these scopes:
             <code style={{ display: 'block', fontSize: 9.5, background: 'rgba(255,255,255,0.06)', borderRadius: 4, padding: '5px 8px', marginTop: 5, lineHeight: 1.8, wordBreak: 'break-all' }}>
-              fitness.activity.read · fitness.heart_rate.read · fitness.sleep.read
+              googlehealth.activity_and_fitness.readonly · googlehealth.health_metrics_and_measurements.readonly · googlehealth.sleep.readonly
             </code>
           </p>
 
