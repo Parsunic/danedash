@@ -6285,6 +6285,64 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
   .gp-trash-btn { opacity: 0.4; }
 }
 
+.gp-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.gp-edit-btn {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.3);
+  cursor: pointer;
+  padding: 4px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: color 0.15s, background 0.15s, opacity 0.15s;
+}
+.gp-edit-btn:hover {
+  color: #E8A020;
+  background: rgba(232,160,32,0.1);
+}
+@media (hover: hover) {
+  .gp-edit-btn { opacity: 0; }
+  .gp-card:hover .gp-edit-btn { opacity: 1; }
+  .gp-milestone-row:hover .gp-milestone-edit-btn { opacity: 1; }
+  .gp-checkpoint-row:hover .gp-checkpoint-edit-btn { opacity: 1; }
+}
+@media (hover: none) {
+  .gp-edit-btn { opacity: 0.4; }
+}
+
+.gp-inline-edit-input {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(232,160,32,0.4);
+  border-radius: 6px;
+  color: rgba(255,255,255,0.9);
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 300;
+  padding: 2px 8px;
+  outline: none;
+  min-width: 0;
+  flex: 1;
+}
+.gp-inline-edit-input--milestone {
+  font-family: var(--font-body);
+  font-size: 13px;
+  flex: 1;
+}
+.gp-inline-edit-input--checkpoint {
+  font-family: var(--font-body);
+  font-size: 12px;
+  flex: 1;
+}
+
 .gp-progress-bar-wrap {
   height: 3px;
   background: rgba(255,255,255,0.08);
