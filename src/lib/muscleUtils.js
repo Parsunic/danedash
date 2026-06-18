@@ -24,6 +24,13 @@ export function deleteCustomExercise(name) {
 let allExercisesMap = null
 let fetchPromise = null
 
+// Normalise legacy muscle values from old DB schema or old localStorage
+function normaliseMuscle(m) {
+  if (m === 'abs') return 'core'
+  if (m === 'arms') return 'biceps'
+  return m || 'other'
+}
+
 async function fetchAll() {
   if (allExercisesMap) return allExercisesMap
   if (fetchPromise) return fetchPromise
