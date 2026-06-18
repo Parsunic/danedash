@@ -44,14 +44,13 @@ export default function Goals() {
     <div className="section">
       <BackgroundBlob page="goals" />
       <div className="goals-page-header">
-        <div className="section-title">{view === 'goals' ? 'Goals' : 'Tasks'}</div>
         <button
-          className={`goals-flip-btn${isFlipping ? ' is-flipping' : ''}`}
+          className={`goals-title-btn${isFlipping ? ' is-flipping' : ''}`}
           onClick={flip}
           title={view === 'goals' ? 'Switch to Tasks' : 'Switch to Goals'}
         >
+          <span className="section-title">{view === 'goals' ? 'Goals' : 'Tasks'}</span>
           <FlipIcon />
-          <span>{view === 'goals' ? 'Tasks' : 'Goals'}</span>
         </button>
       </div>
 
