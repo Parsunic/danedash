@@ -162,11 +162,13 @@ export function SyncProvider({ children }) {
         // schedulePush checks this flag — no local push can reach Supabase before this point.
         initializedRef.current = true
 
-        // If local changes were made before the fetch completed (and therefore blocked from
-        // pushing), kick off a push now that initialization is complete.
+        // If local changes were made during the async fetch window (and therefore blocked
+        // from pushing by isSyncingRef), kick off a push now that init is complete.
+        // SESSION_START guard prevents stale _lastLocalChange from previous sessions
+        // from triggering a push that would overwrite the remote data we just applied.
         const lastLocalChange = parseInt(localStorage.getItem('_lastLocalChange') || '0')
         const remoteMs = row?.updated_at ? new Date(row.updated_at).getTime() : 0
-        if (lastLocalChange > remoteMs) schedulePush()
+        if (lastLocalChange > remoteMs && lastLocalChange > SESSION_START) schedulePush()
 
         channel = client.channel('dashboard-sync')
           .on('postgres_changes', {
