@@ -470,7 +470,7 @@ export default function Gym() {
               <div className="gym-overlay-content">
                 {overlayTab === 'templates' && <TemplatesView />}
                 {overlayTab === 'ai-coach' && <AICoachView onPlanLoaded={handleAIPlanLoaded} />}
-                {overlayTab === 'history' && <HistoryView />}
+                {overlayTab === 'history' && <HistoryView onResume={handleResumeWorkout} />}
                 {overlayTab === 'stats' && <StatsView />}
                 {overlayTab === 'exercises' && <ExercisesView />}
                 {overlayTab === 'log' && logContent}
