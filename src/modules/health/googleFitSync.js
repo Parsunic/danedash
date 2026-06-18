@@ -245,6 +245,23 @@ function dateToRangeObj(dateStr, isEnd = false) {
 
 // ── Paginated API fetch helpers ──
 
+// GET dataPoints without any filter — for daily metrics (resting-heart-rate, hrv-rmssd)
+async function fetchDataPoints(dataType) {
+  const baseUrl = `${HEALTH_BASE}/dataTypes/${dataType}/dataPoints`
+  const all     = []
+  let pageToken = null
+
+  do {
+    const url  = pageToken ? `${baseUrl}?pageToken=${encodeURIComponent(pageToken)}` : baseUrl
+    const data = await healthRequest('GET', url)
+    if (!data) return []
+    all.push(...(data.dataPoints ?? []))
+    pageToken = data.nextPageToken ?? null
+  } while (pageToken)
+
+  return all
+}
+
 // GET list endpoint — dataType in URL is kebab-case; filter param uses snake_case
 export async function fetchHealthData(dataType, startDate, endDate) {
   const camelType = dataType.replace(/-([a-z])/g, (_, c) => c.toUpperCase())
