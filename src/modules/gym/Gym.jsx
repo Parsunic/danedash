@@ -388,6 +388,19 @@ export default function Gym() {
     }, 1200)
   }, [activeSession, expandOverlay])
 
+  const handleResumeWorkout = useCallback((log) => {
+    const exercises = (log.exercises || []).map(ex => ({
+      name: ex.name,
+      repRange: '8-10',
+      notes: '',
+      targetSets: ex.sets?.length || 3,
+      sets: [],
+    }))
+    startWorkout(exercises, null, log.name + ' (resumed)', false)
+    setOverlayTab('log')
+    if (!flipped) flipToBack('log')
+  }, [startWorkout, flipped, flipToBack])
+
   const handleAIPlanLoaded = useCallback(weekOffset => {
     setPlannerWeekOffset(weekOffset)
     flipToFront()
