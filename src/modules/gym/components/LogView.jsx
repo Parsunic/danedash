@@ -588,7 +588,18 @@ export default function LogView({ activeSession, onLogAllSets, onEditSets, onSki
           <div className="gym-session-name">{activeSession.name}</div>
           <div className="gym-session-timer">{fmtElapsed(elapsed)}</div>
         </div>
-        <button className="btn-primary" style={{ background: 'linear-gradient(135deg,#6BE3A4 0%,#3dba7e 100%)', color: '#050506' }} onClick={onFinish}>✓ Finish</button>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <button
+            className="btn-ghost"
+            style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)', padding: '7px 12px' }}
+            onClick={() => {
+              const hasLogged = activeSession.exercises.some(ex => ex.sets.length > 0)
+              const msg = hasLogged ? 'Cancel workout? Your logged sets will be lost.' : 'Cancel workout?'
+              if (confirm(msg)) onCancel()
+            }}
+          >Cancel</button>
+          <button className="btn-primary" style={{ background: 'linear-gradient(135deg,#6BE3A4 0%,#3dba7e 100%)', color: '#050506' }} onClick={onFinish}>✓ Finish</button>
+        </div>
       </div>
       {activeSession.exercises.map((ex, ei) => {
         const isActiveCard = ei === activeSession.exercises.findIndex(
