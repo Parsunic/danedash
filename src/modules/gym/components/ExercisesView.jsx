@@ -1,7 +1,47 @@
 import { useState, useEffect, useCallback } from 'react'
-import { searchExercises, browseExercisesByMuscle, addCustomExercise, deleteCustomExercise } from '../../../lib/muscleUtils.js'
+import { searchExercises, browseExercisesByMuscle, addCustomExercise, deleteCustomExercise, getCustomExercises } from '../../../lib/muscleUtils.js'
 
-const MUSCLES = ['all', 'chest', 'back', 'shoulders', 'biceps', 'triceps', 'legs', 'core', 'other', 'custom']
+const MUSCLES = ['all', 'chest', 'back', 'shoulders', 'biceps', 'triceps', 'legs', 'core', 'other']
+const FILTER_BTNS = [...MUSCLES, 'custom']
+
+function EditCustomModal({ ex, onSave, onClose }) {
+  const [name, setName] = useState(ex.name)
+  const [muscle, setMuscle] = useState(ex.primary_muscle || 'other')
+
+  const save = () => {
+    const trimmed = name.trim()
+    if (!trimmed) return
+    onSave(ex.name, trimmed, muscle)
+  }
+
+  return (
+    <div className="gym-modal-overlay open" onClick={e => { if (e.target.classList.contains('gym-modal-overlay')) onClose() }}>
+      <div className="gym-modal" style={{ maxWidth: 380 }}>
+        <div className="gym-modal-title">
+          <span>Edit Custom Exercise</span>
+          <button className="gym-modal-close" onClick={onClose}>✕</button>
+        </div>
+        <div className="gym-field">
+          <label>Exercise Name</label>
+          <input className="gym-input" value={name} onChange={e => setName(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && save()} autoFocus />
+        </div>
+        <div className="gym-field">
+          <label>Muscle Group</label>
+          <select className="gym-input" value={muscle} onChange={e => setMuscle(e.target.value)}>
+            {MUSCLES.filter(m => m !== 'all').map(m => (
+              <option key={m} value={m} style={{ textTransform: 'capitalize' }}>{m.charAt(0).toUpperCase() + m.slice(1)}</option>
+            ))}
+          </select>
+        </div>
+        <div className="gym-modal-footer">
+          <button className="btn-secondary" style={{ flex: 1 }} onClick={onClose}>Cancel</button>
+          <button className="btn-primary" style={{ flex: 2 }} onClick={save}>Save</button>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 export default function ExercisesView() {
   const [query, setQuery] = useState('')
@@ -11,13 +51,20 @@ export default function ExercisesView() {
   const [customName, setCustomName] = useState('')
   const [customMuscle, setCustomMuscle] = useState('chest')
   const [addMsg, setAddMsg] = useState('')
+  const [editingEx, setEditingEx] = useState(null)
 
   const loadBrowse = useCallback((muscle) => {
     setLoading(true)
-    browseExercisesByMuscle(muscle).then(data => {
-      setResults(data)
+    if (muscle === 'custom') {
+      const customs = getCustomExercises()
+      setResults(customs)
       setLoading(false)
-    })
+    } else {
+      browseExercisesByMuscle(muscle).then(data => {
+        setResults(data)
+        setLoading(false)
+      })
+    }
   }, [])
 
   useEffect(() => {
@@ -58,6 +105,17 @@ export default function ExercisesView() {
     loadBrowse(muscleFilter)
   }
 
+  const handleEditSave = (oldName, newName, newMuscle) => {
+    const customs = getCustomExercises()
+    const updated = customs.map(e =>
+      e.name === oldName ? { ...e, name: newName, primary_muscle: newMuscle } : e
+    )
+    localStorage.setItem('custom_exercises', JSON.stringify(updated))
+    window.dispatchEvent(new Event('schedule-sync'))
+    setEditingEx(null)
+    loadBrowse(muscleFilter)
+  }
+
   return (
     <div className="gym-exercises-view">
       <input
@@ -69,7 +127,7 @@ export default function ExercisesView() {
 
       {query.trim().length < 2 && (
         <div className="gym-muscle-filter-row">
-          {MUSCLES.map(m => (
+          {FILTER_BTNS.map(m => (
             <button
               key={m}
               className={muscleFilter === m ? 'btn-primary' : 'btn-secondary'}
@@ -96,8 +154,12 @@ export default function ExercisesView() {
                 <span className={`gym-muscle-badge muscle-${ex.primary_muscle}`}>{ex.primary_muscle}</span>
               )}
               {ex.is_custom && (
-                <button className="gym-set-remove-btn" style={{ padding: '2px 7px', fontSize: 12 }}
-                  onClick={() => handleDelete(ex.name)} title="Remove custom exercise">×</button>
+                <>
+                  <button className="gym-set-remove-btn" style={{ padding: '2px 7px', fontSize: 12, color: 'var(--accent)' }}
+                    onClick={() => setEditingEx(ex)} title="Edit custom exercise">✎</button>
+                  <button className="gym-set-remove-btn" style={{ padding: '2px 7px', fontSize: 12 }}
+                    onClick={() => handleDelete(ex.name)} title="Remove custom exercise">×</button>
+                </>
               )}
             </div>
           </div>
@@ -122,7 +184,7 @@ export default function ExercisesView() {
             style={{ fontSize: '13px', padding: '8px 10px', flexShrink: 0, textTransform: 'capitalize' }}
           >
             {MUSCLES.filter(m => m !== 'all').map(m => (
-              <option key={m} value={m} style={{ textTransform: 'capitalize' }}>{m}</option>
+              <option key={m} value={m} style={{ textTransform: 'capitalize' }}>{m.charAt(0).toUpperCase() + m.slice(1)}</option>
             ))}
           </select>
           <button className="btn-primary" style={{ fontSize: '13px', padding: '8px 14px', flexShrink: 0 }} onClick={handleAdd}>
@@ -131,6 +193,14 @@ export default function ExercisesView() {
         </div>
         {addMsg && <div className="gym-add-ex-msg">{addMsg}</div>}
       </div>
+
+      {editingEx && (
+        <EditCustomModal
+          ex={editingEx}
+          onSave={handleEditSave}
+          onClose={() => setEditingEx(null)}
+        />
+      )}
     </div>
   )
 }
