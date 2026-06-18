@@ -1,4 +1,5 @@
 import { supabase } from './supabase.js'
+import { storeSet } from './storage.js'
 
 const CUSTOM_KEY = 'custom_exercises'
 
@@ -12,13 +13,13 @@ export function addCustomExercise(name, primary_muscle) {
   const existing = getCustomExercises()
   if (existing.some(e => e.name.toLowerCase() === normalized.toLowerCase())) return false
   existing.push({ name: normalized, primary_muscle, is_custom: true })
-  localStorage.setItem(CUSTOM_KEY, JSON.stringify(existing))
+  storeSet(CUSTOM_KEY, existing)
   return true
 }
 
 export function deleteCustomExercise(name) {
   const existing = getCustomExercises()
-  localStorage.setItem(CUSTOM_KEY, JSON.stringify(existing.filter(e => e.name !== name)))
+  storeSet(CUSTOM_KEY, existing.filter(e => e.name !== name))
 }
 
 let allExercisesMap = null
