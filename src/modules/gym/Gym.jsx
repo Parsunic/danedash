@@ -437,6 +437,7 @@ export default function Gym() {
       onSkip={handleSkipExercise}
       onSubstitute={handleSubstituteExercise}
       onFinish={handleFinishWorkout}
+      onCancel={handleCancelWorkout}
       onStartWorkout={startWorkout}
     />
   )
