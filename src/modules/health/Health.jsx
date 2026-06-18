@@ -161,6 +161,7 @@ export default function Health() {
   const [lastSync,   setLastSync]   = useState(() => getGfitLastSync())
   const [syncing,    setSyncing]    = useState(false)
   const [connected,  setConnected]  = useState(() => isGfitConnected())
+  const [syncError,  setSyncError]  = useState(() => localStorage.getItem('health_sync_error'))
 
   const today = history.find(d => d.date === todayStr()) ?? null
 
