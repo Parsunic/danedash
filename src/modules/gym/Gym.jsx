@@ -158,12 +158,19 @@ export default function Gym() {
 
   // ── EXPAND OVERLAY CLOSE ──
   const closeExpandOverlay = useCallback(() => {
+    const hasLoggedSets = activeSession && !activeSession.__done &&
+      activeSession.exercises?.some(ex => ex.sets.length > 0)
     setExpandOverlay(prev => prev ? { ...prev, phase: 'collapsing' } : prev)
     setTimeout(() => {
       setExpandOverlay(null)
-      setActiveSession(null)
+      if (hasLoggedSets) {
+        setOverlayTab('log')
+        setFlipped(true)
+      } else {
+        setActiveSession(null)
+      }
     }, 380)
-  }, [])
+  }, [activeSession])
 
   // ── WORKOUT CONTROL ──
   const startWorkout = useCallback((exList, plannedId, name, isTemplate = false, cellElement = null, domColor = null) => {
