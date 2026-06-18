@@ -57,7 +57,7 @@ function SettingsModal({ onClose }) {
     localStorage.setItem('gym_settings', JSON.stringify(gymSettings))
     window.dispatchEvent(new Event('schedule-sync'))
     onClose()
-  }, [anthropicKey, notionKey, gcalClientId, gcalClientSecret, audioEnabled, onClose])
+  }, [anthropicKey, notionKey, gcalClientId, gcalClientSecret, audioEnabled, gymAutoFinish, onClose])
 
   const handleDisconnect = useCallback(() => {
     clearTokens()
