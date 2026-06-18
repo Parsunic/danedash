@@ -35,7 +35,8 @@
       "PowerShell(node -v)",
       "PowerShell(npm -v)",
       "PowerShell(\"token=[$env:SUPABASE_ACCESS_TOKEN]\")",
-      "Bash(git reset *)"
+      "Bash(git reset *)",
+      "Bash(node scripts/gen-icons.mjs)"
     ]
   },
   "hooks": {
