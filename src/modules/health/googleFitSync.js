@@ -419,24 +419,35 @@ export async function syncGfitData() {
   localStorage.removeItem('health_sync_error')
 
   try {
+    // ── Identity diagnostic ──
+    const identity = await healthRequest('GET', `${HEALTH_BASE}/identity`)
+    if (identity?.healthUserId) {
+      console.log(`[Health][diagnostic] identity OK — healthUserId: ${identity.healthUserId}, legacyUserId: ${identity.legacyUserId ?? 'none'}`)
+    } else {
+      console.warn(`[Health][diagnostic] identity call returned no healthUserId:`, JSON.stringify(identity))
+    }
+
     const today     = new Date()
     const startDate = new Date(today)
     startDate.setDate(startDate.getDate() - 29)
     const startStr = startDate.toISOString().slice(0, 10)
     const endStr   = today.toISOString().slice(0, 10)
 
-    const [stepsRollup, hrPoints, sleepPoints, calRollup] = await Promise.all([
+    const [stepsRollup, restingHrPoints, sleepPoints, hrvPoints, calRollup] = await Promise.all([
       fetchDailyRollUp('steps', startStr, endStr),
-      fetchHeartRateReconcile(),
+      fetchDataPoints('daily-resting-heart-rate'),
       fetchSleepReconcile(),
+      fetchDataPoints('daily-heart-rate-variability'),
       fetchDailyRollUp('active-energy-burned', startStr, endStr),
     ])
 
     const stepsByDate    = parseStepsRollup(stepsRollup)
-    const hrByDate       = parseHeartRate(hrPoints)
+    const hrByDate       = parseRestingHR(restingHrPoints)
     const sleepByDate    = parseSleep(sleepPoints)
-    const hrvByDate      = {}
+    const hrvByDate      = parseHRV(hrvPoints)
     const caloriesByDate = parseCalories(calRollup)
+
+    console.log(`[Health][diagnostic] data available — steps:${Object.keys(stepsByDate).length} restingHR:${Object.keys(hrByDate).length} sleep:${Object.keys(sleepByDate).length} hrv:${Object.keys(hrvByDate).length} calories:${Object.keys(caloriesByDate).length} days`)
 
     const dates = new Set([
       ...Object.keys(stepsByDate),
