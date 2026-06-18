@@ -449,9 +449,9 @@ export async function syncGfitData() {
     ])
 
     const stepsByDate    = parseStepsRollup(stepsRollup)
-    const hrByDate       = parseRestingHRRollup(restingHrRollup)
+    const hrByDate       = parseRestingHRRollup(restingHrPoints)
     const sleepByDate    = parseSleep(sleepPoints)
-    const hrvByDate      = parseHRVRollup(hrvRollup)
+    const hrvByDate      = parseHRVRollup(hrvPoints)
     const caloriesByDate = parseCalories(calRollup)
 
     const dates = new Set([
