@@ -304,6 +304,25 @@ async function fetchDailyRollUp(dataType, startDate, endDate) {
   return all
 }
 
+// GET heart-rate reconcile from wearables — returns raw HR readings; capped at 5 pages to limit data volume
+async function fetchHeartRateReconcile() {
+  const all     = []
+  let pageToken = null
+  let pages     = 0
+
+  do {
+    const params = new URLSearchParams({ dataSourceFamily: 'users/me/dataSourceFamilies/google-wearables' })
+    if (pageToken) params.set('pageToken', pageToken)
+    const data = await healthRequest('GET', `${HEALTH_BASE}/dataTypes/heart-rate/dataPoints:reconcile?${params}`)
+    if (!data) return []
+    all.push(...(data.dataPoints ?? []))
+    pageToken = data.nextPageToken ?? null
+    pages++
+  } while (pageToken && pages < 5)
+
+  return all
+}
+
 // GET sleep reconcile — returns consolidated sleep sessions from wearables
 async function fetchSleepReconcile() {
   const all     = []
