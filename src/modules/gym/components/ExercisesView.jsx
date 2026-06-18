@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { searchExercises, browseExercisesByMuscle, addCustomExercise, deleteCustomExercise, getCustomExercises } from '../../../lib/muscleUtils.js'
+import { storeSet } from '../../../lib/storage.js'
 
 const MUSCLES = ['all', 'chest', 'back', 'shoulders', 'biceps', 'triceps', 'legs', 'core', 'other']
 const FILTER_BTNS = [...MUSCLES, 'custom']
