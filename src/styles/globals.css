@@ -3351,6 +3351,7 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
   border-radius: 14px;
   border: 1px solid rgba(255,255,255,0.06);
   overflow: clip;
+  height: calc(100dvh - var(--tabbar-h) - 100px);
 }
 
 /* Flip trigger pill */
