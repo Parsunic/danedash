@@ -6311,7 +6311,7 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
 }
 @media (hover: hover) {
   .gp-edit-btn { opacity: 0; }
-  .gp-card:hover .gp-edit-btn { opacity: 1; }
+  .gp-card-header:hover .gp-edit-btn { opacity: 1; }
   .gp-milestone-row:hover .gp-milestone-edit-btn { opacity: 1; }
   .gp-checkpoint-row:hover .gp-checkpoint-edit-btn { opacity: 1; }
 }
