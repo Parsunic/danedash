@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { searchExercises, browseExercisesByMuscle, addCustomExercise, deleteCustomExercise } from '../../../lib/muscleUtils.js'
 
-const MUSCLES = ['all', 'chest', 'back', 'legs', 'shoulders', 'arms', 'core', 'other']
+const MUSCLES = ['all', 'chest', 'back', 'shoulders', 'biceps', 'triceps', 'legs', 'core', 'other', 'custom']
 
 export default function ExercisesView() {
   const [query, setQuery] = useState('')
