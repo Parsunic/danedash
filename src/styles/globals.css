@@ -3487,6 +3487,13 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
   padding: 16px 20px 4px;
   flex-shrink: 0;
 }
+.gym-expand-log-scroll {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 0 20px 40px;
+  min-height: 0;
+}
 
 /* ── STATS VIEW ── */
 .gym-stats-view { display: flex; flex-direction: column; gap: 0; }
