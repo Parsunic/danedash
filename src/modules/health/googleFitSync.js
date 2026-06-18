@@ -188,7 +188,8 @@ async function healthRequest(method, url, body, isRetry = false) {
   }
 
   if (!resp.ok) {
-    console.error(`[Health] ${method} ${url} → ${resp.status}`)
+    const errBody = await resp.json().catch(() => null)
+    console.error(`[Health] ${method} ${url} → ${resp.status}`, errBody ?? '')
     return null
   }
   return resp.json()
