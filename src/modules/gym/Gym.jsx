@@ -395,6 +395,15 @@ export default function Gym() {
     }, 1200)
   }, [activeSession, expandOverlay])
 
+  const handleCancelWorkout = useCallback(() => {
+    storeDelete(ACTIVE_SESSION_KEY)
+    setActiveSession(null)
+    if (expandOverlay) {
+      setExpandOverlay(prev => prev ? { ...prev, phase: 'collapsing' } : prev)
+      setTimeout(() => setExpandOverlay(null), 380)
+    }
+  }, [expandOverlay])
+
   const handleResumeWorkout = useCallback((log) => {
     const exercises = (log.exercises || []).map(ex => ({
       name: ex.name,
