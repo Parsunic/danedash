@@ -61,15 +61,18 @@ function getLocalPayload() {
   return payload
 }
 
-// Only apply remote payload if it's newer than any local changes made since the last push.
-// This prevents the initial Supabase pull and realtime echoes from overwriting user actions
-// that occurred during the async fetch window or the 1500ms push debounce.
+// Only apply remote payload if it's newer than any local changes made THIS SESSION.
+// The SESSION_START guard is critical: _lastLocalChange persists across page loads, so
+// a device opened fresh after being idle will have a stale timestamp that looks "newer"
+// than Supabase, blocking the pull and then pushing stale data overtop of the remote.
+// By requiring lastLocalChange > SESSION_START, only in-flight writes from the current
+// browser session can block a remote pull.
 function applyRemotePayload(payload, remoteUpdatedAt) {
   if (!payload) return
   if (remoteUpdatedAt) {
     const lastLocalChange = parseInt(localStorage.getItem('_lastLocalChange') || '0')
     const remoteMs = new Date(remoteUpdatedAt).getTime()
-    if (lastLocalChange > remoteMs) return
+    if (lastLocalChange > remoteMs && lastLocalChange > SESSION_START) return
   }
   Object.entries(payload).forEach(([k, v]) => localStorage.setItem(k, JSON.stringify(v)))
   // Notify all feature modules that remote data has been applied.
