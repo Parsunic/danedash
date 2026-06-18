@@ -87,12 +87,13 @@ export async function searchExercises(query, limit = 12) {
   const q = query.trim().toLowerCase()
   const custom = getCustomExercises().filter(e => e.name.toLowerCase().includes(q))
   const seen = new Set()
-  return [...(data || []), ...custom].filter(e => {
-    const k = e.name.toLowerCase()
-    if (seen.has(k)) return false
-    seen.add(k)
-    return true
-  }).slice(0, limit)
+  return [...(data || []).map(e => ({ ...e, primary_muscle: normaliseMuscle(e.primary_muscle) })), ...custom]
+    .filter(e => {
+      const k = e.name.toLowerCase()
+      if (seen.has(k)) return false
+      seen.add(k)
+      return true
+    }).slice(0, limit)
 }
 
 // Browse exercises with optional muscle group filter — merges Supabase + custom exercises
@@ -102,13 +103,14 @@ export async function browseExercisesByMuscle(muscle, limit = 500) {
   const { data } = await query
   const custom = getCustomExercises()
   const filtered = muscle && muscle !== 'all'
-    ? custom.filter(e => e.primary_muscle === muscle)
+    ? custom.filter(e => normaliseMuscle(e.primary_muscle) === muscle)
     : custom
   const seen = new Set()
-  return [...filtered, ...(data || [])].filter(e => {
-    const k = e.name.toLowerCase()
-    if (seen.has(k)) return false
-    seen.add(k)
-    return true
-  })
+  return [...filtered, ...(data || []).map(e => ({ ...e, primary_muscle: normaliseMuscle(e.primary_muscle) }))]
+    .filter(e => {
+      const k = e.name.toLowerCase()
+      if (seen.has(k)) return false
+      seen.add(k)
+      return true
+    })
 }
