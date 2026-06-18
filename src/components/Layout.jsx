@@ -54,8 +54,7 @@ function SettingsModal({ onClose }) {
     setAudioEnabled(audioEnabled)
     const gymSettings = JSON.parse(localStorage.getItem('gym_settings') || '{}')
     gymSettings.autoFinish = gymAutoFinish
-    localStorage.setItem('gym_settings', JSON.stringify(gymSettings))
-    window.dispatchEvent(new Event('schedule-sync'))
+    storeSet('gym_settings', gymSettings)
     onClose()
   }, [anthropicKey, notionKey, gcalClientId, gcalClientSecret, audioEnabled, gymAutoFinish, onClose])
 
