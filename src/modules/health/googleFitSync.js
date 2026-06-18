@@ -314,18 +314,29 @@ function parseStepsRollup(rollupPoints) {
   return byDate
 }
 
-function parseHeartRateRollup(rollupPoints) {
+function parseRestingHRRollup(rollupPoints) {
   const byDate = {}
   for (const pt of rollupPoints) {
-    const date = parseCivilDate(pt.heartRate?.interval?.civilStartTime)
+    // resting-heart-rate type returns restingHeartRate field
+    const d    = pt.restingHeartRate
+    const date = parseCivilDate(d?.interval?.civilStartTime)
     if (!date) continue
-    const minBpm = pt.heartRate?.beatsPerMinuteMin ?? pt.heartRate?.beatsPerMinute
-    const avgBpm = pt.heartRate?.beatsPerMinuteAvg ?? pt.heartRate?.beatsPerMinuteAverage ?? minBpm
-    if (minBpm == null) continue
-    byDate[date] = {
-      resting_hr: minBpm,
-      avg_hr:     Math.round(avgBpm),
-    }
+    const bpm  = d?.beatsPerMinute ?? d?.beatsPerMinuteAvg
+    if (bpm == null) continue
+    byDate[date] = { resting_hr: Math.round(bpm) }
+  }
+  return byDate
+}
+
+function parseHRVRollup(rollupPoints) {
+  const byDate = {}
+  for (const pt of rollupPoints) {
+    // heart-rate-variability-rmssd type returns heartRateVariabilityRmssd field
+    const d    = pt.heartRateVariabilityRmssd ?? pt.dailyHeartRateVariability
+    const date = parseCivilDate(d?.interval?.civilStartTime)
+    const rmssd = d?.rmssd ?? d?.milliseconds ?? d?.dailyRmssd
+    if (!date || rmssd == null) continue
+    byDate[date] = rmssd
   }
   return byDate
 }
