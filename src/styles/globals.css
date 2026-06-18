@@ -1077,14 +1077,15 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
 
 .gym-exercise-editor-list { display:flex; flex-direction:column; gap:8px; margin-bottom:12px; }
 .gym-ex-edit-row {
-  display:flex; flex-wrap:wrap; gap:6px; align-items:center; padding:8px 10px;
+  display:flex; flex-direction:column; gap:6px; padding:10px 10px 8px;
   background:rgba(255,255,255,0.03); border-radius:10px; border:1px solid rgba(255,255,255,0.05);
 }
-.gym-ex-edit-row .gym-input { width:auto; padding:8px 10px; font-size:13px; }
-.gym-ex-name  { flex:1 1 180px; min-width:0; }
-.gym-ex-sets  { flex:0 0 58px; text-align:center; }
-.gym-ex-reps  { flex:0 0 78px; }
-.gym-ex-notes { flex:1 1 140px; min-width:0; }
+.gym-ex-edit-name-row { display:flex; gap:6px; align-items:center; }
+.gym-ex-edit-detail-row { display:flex; gap:6px; align-items:center; }
+.gym-ex-edit-row .gym-input { width:auto; padding:7px 10px; font-size:13px; }
+.gym-ex-sets  { flex:0 0 60px; text-align:center; }
+.gym-ex-reps  { flex:0 0 80px; }
+.gym-ex-notes { flex:1; min-width:0; }
 .gym-ex-delete {
   background:none; border:none; color:var(--text-tertiary); font-size:18px;
   cursor:pointer; padding:2px 6px; border-radius:6px; transition:color 0.15s; line-height:1;
