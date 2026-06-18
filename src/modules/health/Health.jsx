@@ -179,6 +179,8 @@ export default function Health() {
     const onStatus     = (e) => {
       setSyncStatus(e.detail.status)
       if (e.detail.lastSync) { setLastSync(e.detail.lastSync); loadHistory() }
+      if (e.detail.status === 'error') setSyncError(localStorage.getItem('health_sync_error'))
+      if (e.detail.status === 'synced') setSyncError(null)
     }
     const onConnect    = () => { setConnected(true); syncTodayIfStale() }
     const onDisconnect = () => setConnected(false)
