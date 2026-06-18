@@ -50,7 +50,7 @@ const CX = SIZE / 2;
 const CY = SIZE / 2;
 const R = 198;   // ring center radius
 const SW = 68;   // stroke width (ring thickness)
-const N = 72;    // segments (every 5°)
+const N = 180;   // segments (every 2°)
 
 function polar(r, angleDeg) {
   const rad = (angleDeg - 90) * Math.PI / 180;
