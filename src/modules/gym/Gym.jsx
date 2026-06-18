@@ -121,6 +121,32 @@ export default function Gym() {
   useEffect(() => () => clearInterval(restIntervalRef.current), [])
   useEffect(() => { runMuscleMigration().catch(() => {}) }, [])
 
+  // Auto-finish logic: if enabled, finish workout after 3h total with 30m idle
+  useEffect(() => {
+    if (!activeSession || activeSession.__done) return
+    const check = () => {
+      const settings = storeGet('gym_settings') || {}
+      if (!settings.autoFinish) return
+      const now = Date.now()
+      const elapsed = now - activeSession.startedAt
+      if (elapsed < 3 * 3600 * 1000) return
+      // Find last set log time across all exercises
+      let lastSetTime = activeSession.startedAt
+      activeSession.exercises.forEach(ex => {
+        ex.sets?.forEach(s => {
+          if (s.loggedAt && s.loggedAt > lastSetTime) lastSetTime = s.loggedAt
+        })
+      })
+      const idleMs = now - lastSetTime
+      if (idleMs >= 30 * 60 * 1000) {
+        // Auto-finish — set completedAt to last set time
+        handleFinishWorkoutAt(lastSetTime)
+      }
+    }
+    const interval = setInterval(check, 60 * 1000)
+    return () => clearInterval(interval)
+  }, [activeSession])
+
   // Persist active session so it survives app close/reopen
   useEffect(() => {
     if (activeSession && !activeSession.__done) {
