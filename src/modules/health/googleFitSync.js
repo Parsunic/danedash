@@ -411,18 +411,18 @@ export async function syncGfitData() {
     const startStr = startDate.toISOString().slice(0, 10)
     const endStr   = today.toISOString().slice(0, 10)
 
-    const [stepsRollup, hrPoints, sleepPoints, hrvPoints, calRollup] = await Promise.all([
+    const [stepsRollup, hrRollup, sleepPoints, hrvRollup, calRollup] = await Promise.all([
       fetchDailyRollUp('steps', startStr, endStr),
-      fetchHealthData('heart-rate', startStr, endStr),
+      fetchDailyRollUp('heart-rate', startStr, endStr),
       fetchSleepReconcile(),
-      fetchHealthData('daily-heart-rate-variability', startStr, endStr),
+      fetchDailyRollUp('daily-heart-rate-variability', startStr, endStr),
       fetchDailyRollUp('active-energy-burned', startStr, endStr),
     ])
 
     const stepsByDate    = parseStepsRollup(stepsRollup)
-    const hrByDate       = parseHeartRate(hrPoints)
+    const hrByDate       = parseHeartRateRollup(hrRollup)
     const sleepByDate    = parseSleep(sleepPoints)
-    const hrvByDate      = parseHRV(hrvPoints)
+    const hrvByDate      = parseHRV(hrvRollup)
     const caloriesByDate = parseCalories(calRollup)
 
     const dates = new Set([
