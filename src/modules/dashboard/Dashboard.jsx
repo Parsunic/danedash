@@ -492,7 +492,7 @@ export default function Dashboard() {
   return (
     <>
       <BackgroundBlob page="dashboard" />
-      <h1 className="dash-title">Dane's Dashboard</h1>
+
       <GoalTicker />
       <div className="dash-desktop-layout">
         <div className="dash-main-col stagger-1">
