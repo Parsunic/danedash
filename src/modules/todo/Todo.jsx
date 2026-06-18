@@ -56,8 +56,7 @@ function computeStreak() {
     count = goals.every(g => g.done) ? count + 1 : 0
     lastProcessedDate = dateStr
   }
-  localStorage.setItem('goal_streak_v1', JSON.stringify({ count, lastProcessedDate }))
-  window.dispatchEvent(new CustomEvent('schedule-sync'))
+  storeSet('goal_streak_v1', { count, lastProcessedDate })
   return count
 }
 
