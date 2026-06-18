@@ -6612,41 +6612,41 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
   justify-content: space-between;
   margin-bottom: 8px;
 }
-.goals-page-header .section-title {
-  margin-bottom: 0;
-}
 
-.goals-flip-btn {
+.goals-title-btn {
   display: flex;
   align-items: center;
-  gap: 7px;
-  padding: 7px 14px 7px 10px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 20px;
-  color: rgba(255,255,255,0.5);
-  font-size: 12px;
-  font-family: var(--font-body);
+  gap: 10px;
+  background: none;
+  border: none;
   cursor: pointer;
-  transition: background 0.2s, color 0.2s, border-color 0.2s;
-  white-space: nowrap;
+  padding: 0;
+  color: inherit;
 }
-.goals-flip-btn:hover {
-  background: rgba(255,255,255,0.07);
-  border-color: rgba(255,255,255,0.14);
-  color: rgba(255,255,255,0.85);
+.goals-title-btn .section-title {
+  margin-bottom: 0;
 }
-.goals-flip-btn.is-flipping {
+.goals-title-btn .goals-flip-icon {
+  color: rgba(255,255,255,0.3);
+  transition: color 0.2s;
+}
+.goals-title-btn:hover .goals-flip-icon {
+  color: rgba(255,255,255,0.6);
+}
+.goals-title-btn.is-flipping {
   pointer-events: none;
 }
 
+@keyframes goals-icon-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
 .goals-flip-icon {
   display: block;
-  transition: transform 0.64s cubic-bezier(0.4, 0, 0.2, 1);
   flex-shrink: 0;
 }
-.goals-flip-btn.is-flipping .goals-flip-icon {
-  transform: rotate(180deg);
+.goals-title-btn.is-flipping .goals-flip-icon {
+  animation: goals-icon-spin 0.64s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
 @keyframes goals-flip-exit {
