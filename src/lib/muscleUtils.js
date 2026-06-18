@@ -71,7 +71,7 @@ export async function lookupMusclesBatch(names) {
   for (const name of names) {
     if (!name) continue
     const key = name.toLowerCase().trim()
-    result[name] = map.get(key) ?? customMap.get(key) ?? 'other'
+    result[name] = normaliseMuscle(map.get(key) ?? customMap.get(key) ?? 'other')
   }
   return result
 }
