@@ -83,6 +83,8 @@ export default function GoalsProjectsSection() {
   const [addCheckpointFor, setAddCheckpointFor] = useState(null) // { goalId, milestoneId }
   const [checkpointText, setCheckpointText] = useState('')
 
+  const [editing, setEditing] = useState(null) // { type, goalId, milestoneId?, checkpointId?, text }
+
   function saveGoals(next) {
     setGoals(next)
     storeSet('goals_projects', next)
