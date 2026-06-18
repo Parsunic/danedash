@@ -271,6 +271,60 @@ export default function Gym() {
     })
   }, [])
 
+  const handleFinishWorkoutAt = useCallback(async (finishTime) => {
+    if (!activeSession) return
+    const sessionToFinish = activeSession
+    const hist = storeGet('gym_exercise_history') || {}
+    sessionToFinish.exercises.forEach(ex => {
+      if (!ex.sets.length) return
+      const { hi } = parseRepRange(ex.repRange)
+      const best = ex.sets.reduce((a, b) => (b.e1rm || 0) > (a.e1rm || 0) ? b : a)
+      const avgRpe = parseFloat((ex.sets.reduce((s, x) => s + x.rpe, 0) / ex.sets.length).toFixed(1))
+      const allHitTop = ex.sets.every(s => s.reps >= hi)
+      if (!hist[ex.name]) hist[ex.name] = { sessions: [], allTimePR: 0 }
+      const exH = hist[ex.name]
+      ex.sets.forEach(s => { if (s.weight > (exH.allTimePR || 0)) exH.allTimePR = s.weight })
+      exH.sessions = exH.sessions || []
+      exH.sessions.push({ date: sessionToFinish.date, weight: best.weight, reps: best.reps, rpe: avgRpe, e1rm: best.e1rm, allHitTop })
+      if (exH.sessions.length > 20) exH.sessions = exH.sessions.slice(-20)
+    })
+    storeSet('gym_exercise_history', hist)
+
+    const exNames = sessionToFinish.exercises.map(ex => ex.name).filter(Boolean)
+    const muscleMap = await lookupMusclesBatch(exNames).catch(() => ({}))
+    const logs = storeGet('gym_workout_logs') || []
+    logs.push({
+      id: sessionToFinish.id, date: sessionToFinish.date, name: sessionToFinish.name,
+      plannedId: sessionToFinish.plannedId, startedAt: sessionToFinish.startedAt,
+      completedAt: new Date(finishTime).toISOString(),
+      duration: finishTime - sessionToFinish.startedAt,
+      exercises: sessionToFinish.exercises.map(ex => {
+        const muscle = muscleMap[ex.name] ?? 'other'
+        return {
+          name: ex.name, primary_muscle: muscle,
+          e1rm: ex.sets.length ? Math.max(...ex.sets.map(s => s.e1rm || 0)) : null,
+          sets: ex.sets.map(s => ({ ...s, primary_muscle: muscle })),
+        }
+      }),
+    })
+    if (logs.length > 200) logs.splice(0, logs.length - 200)
+    storeSet('gym_workout_logs', logs)
+
+    if (sessionToFinish.plannedId) {
+      const planned = storeGet('gym_planned') || []
+      const pi = planned.findIndex(p => p.id === sessionToFinish.plannedId)
+      if (pi >= 0) { planned[pi].status = 'completed'; storeSet('gym_planned', planned) }
+    }
+
+    storeDelete(ACTIVE_SESSION_KEY)
+    setActiveSession(null)
+    setActiveSession({ __done: true, name: sessionToFinish.name })
+    setTimeout(() => {
+      setActiveSession(null)
+      setOverlayTab('history')
+    }, 1200)
+  }, [activeSession])
+
   const handleFinishWorkout = useCallback(async () => {
     if (!activeSession) return
     if (!activeSession.exercises.some(ex => ex.sets.length) && !confirm('No sets logged. Finish anyway?')) return
