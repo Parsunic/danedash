@@ -257,6 +257,15 @@ export default function Health() {
         </div>
       )}
 
+      {/* Sync error banner */}
+      {syncError && (
+        <div className="health-error-banner">
+          <span className="health-error-icon">⚠</span>
+          <span className="health-error-msg">Sync failed: {syncError}</span>
+          <button className="btn-ghost health-error-dismiss" onClick={() => { localStorage.removeItem('health_sync_error'); setSyncError(null) }}>Dismiss</button>
+        </div>
+      )}
+
       {/* Hero stats row */}
       <div className="health-hero-grid stagger-1">
         <HeroCard
