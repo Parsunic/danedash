@@ -416,17 +416,6 @@ function parseSleep(dataPoints) {
   return byDate
 }
 
-function parseHRV(dataPoints) {
-  const byDate = {}
-  for (const pt of dataPoints) {
-    const date  = parseCivilDate(pt.dailyHeartRateVariability?.interval?.civilStartTime)
-    const rmssd = pt.dailyHeartRateVariability?.dailyRmssd
-    if (!date || rmssd == null) continue
-    byDate[date] = rmssd
-  }
-  return byDate
-}
-
 function parseCalories(rollupPoints) {
   const byDate = {}
   for (const pt of rollupPoints) {
