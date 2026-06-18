@@ -246,8 +246,8 @@ function dateToRangeObj(dateStr, isEnd = false) {
 
 // GET list endpoint — dataType in URL is kebab-case; filter param uses snake_case
 export async function fetchHealthData(dataType, startDate, endDate) {
-  const snakeType = dataType.replace(/-/g, '_')
-  const filter    = `${snakeType}.interval.civil_start_time >= "${startDate}T00:00:00" AND ${snakeType}.interval.civil_start_time <= "${endDate}T23:59:59"`
+  const camelType = dataType.replace(/-([a-z])/g, (_, c) => c.toUpperCase())
+  const filter    = `${camelType}.interval.civilStartTime >= "${startDate}T00:00:00" AND ${camelType}.interval.civilStartTime <= "${endDate}T23:59:59"`
   const baseUrl   = `${HEALTH_BASE}/dataTypes/${dataType}/dataPoints`
   const all       = []
   let pageToken   = null
