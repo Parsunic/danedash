@@ -40,7 +40,7 @@ async function fetchAll() {
     .select('name, primary_muscle')
     .then(({ data }) => {
       allExercisesMap = new Map(
-        (data || []).map(e => [e.name.toLowerCase(), e.primary_muscle])
+        (data || []).map(e => [e.name.toLowerCase(), normaliseMuscle(e.primary_muscle)])
       )
       fetchPromise = null
       return allExercisesMap
