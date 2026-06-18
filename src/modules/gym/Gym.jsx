@@ -508,7 +508,9 @@ export default function Gym() {
                 <div className="gym-expand-back">
                   <button className="gym-back-btn" onClick={closeExpandOverlay}>‹ Back</button>
                 </div>
-                {logContent}
+                <div className="gym-expand-log-scroll">
+                  {logContent}
+                </div>
               </div>
             )}
           </div>
