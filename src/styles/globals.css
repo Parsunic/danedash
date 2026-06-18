@@ -3444,14 +3444,10 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
 }
 .gym-overlay-content {
   flex: 1;
-  overflow-y: visible;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   padding: 24px 20px 40px;
   min-height: 0;
-}
-@media (min-width: 1024px) {
-  .gym-overlay-content {
-    overflow-y: auto;
-  }
 }
 
 /* ── CELL EXPAND OVERLAY ── */
