@@ -210,23 +210,52 @@ export default function GoalsProjectsSection() {
     }))
   }
 
-  function pushToToday(goalId, milestoneId) {
+  function pushToToday(goalId, milestoneId, checkpointId) {
     const activeDate = getActiveDateString()
     const goal = goals.find(g => g.id === goalId)
     const milestone = goal.milestones.find(m => m.id === milestoneId)
+    const checkpoint = milestone.checkpoints.find(c => c.id === checkpointId)
     const tasks = storeGet(`goals:${activeDate}`) || []
     tasks.push({
       id: crypto.randomUUID(),
-      text: milestone.text,
+      text: checkpoint.text,
       done: false,
       date: activeDate,
-      source_milestone_id: milestone.id,
+      source_checkpoint_id: checkpoint.id,
     })
     storeSet(`goals:${activeDate}`, tasks)
     saveGoals(goals.map(g => g.id !== goalId ? g : {
       ...g,
-      milestones: g.milestones.map(m => m.id !== milestoneId ? m : { ...m, pushed_to_date: activeDate }),
+      milestones: g.milestones.map(m => m.id !== milestoneId ? m : {
+        ...m,
+        checkpoints: m.checkpoints.map(c =>
+          c.id !== checkpointId ? c : { ...c, pushed_to_date: activeDate }
+        ),
+      }),
     }))
+  }
+
+  function saveEdit() {
+    if (!editing || !editing.text.trim()) { setEditing(null); return }
+    if (editing.type === 'goal') {
+      saveGoals(goals.map(g => g.id !== editing.goalId ? g : { ...g, title: editing.text.trim() }))
+    } else if (editing.type === 'milestone') {
+      saveGoals(goals.map(g => g.id !== editing.goalId ? g : {
+        ...g,
+        milestones: g.milestones.map(m => m.id !== editing.milestoneId ? m : { ...m, text: editing.text.trim() }),
+      }))
+    } else if (editing.type === 'checkpoint') {
+      saveGoals(goals.map(g => g.id !== editing.goalId ? g : {
+        ...g,
+        milestones: g.milestones.map(m => m.id !== editing.milestoneId ? m : {
+          ...m,
+          checkpoints: (m.checkpoints || []).map(c =>
+            c.id !== editing.checkpointId ? c : { ...c, text: editing.text.trim() }
+          ),
+        }),
+      }))
+    }
+    setEditing(null)
   }
 
   const filtered = sortGoals(goals.filter(g => {
