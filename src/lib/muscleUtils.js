@@ -60,7 +60,7 @@ export async function lookupMuscle(name) {
   const key = name.toLowerCase().trim()
   if (map.has(key)) return map.get(key)
   const custom = getCustomExercises()
-  return custom.find(e => e.name.toLowerCase() === key)?.primary_muscle ?? 'other'
+  return normaliseMuscle(custom.find(e => e.name.toLowerCase() === key)?.primary_muscle) ?? 'other'
 }
 
 export async function lookupMusclesBatch(names) {
