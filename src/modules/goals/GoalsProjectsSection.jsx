@@ -431,32 +431,42 @@ export default function GoalsProjectsSection() {
                                 onClick={() => toggleMilestone(goal.id, m.id)}
                                 aria-label={m.done ? 'Mark undone' : 'Mark done'}
                               />
-                              <div
-                                className="gp-milestone-body gp-milestone-body--clickable"
-                                onClick={() => toggleMilestoneExpanded(m.id)}
-                              >
-                                <div className="gp-milestone-text-row">
-                                  <span className={`gp-milestone-text${m.done ? ' gp-milestone-text--done' : ''}`}>
-                                    {m.text}
-                                  </span>
-                                  {checkpoints.length > 0 && (
-                                    <span className="gp-cp-badge">{cpDone}/{checkpoints.length}</span>
-                                  )}
-                                  <span className={`gp-milestone-chevron${isMilestoneExpanded ? ' open' : ''}`}>›</span>
-                                </div>
-                                {m.due_date && (
-                                  <span className="gp-milestone-due">{m.due_date}</span>
-                                )}
-                              </div>
-                              {!m.done && (
-                                <button
-                                  className={`gp-push-btn${m.pushed_to_date ? ' gp-push-btn--added' : ''}`}
-                                  onClick={() => { if (!m.pushed_to_date) pushToToday(goal.id, m.id) }}
-                                  disabled={!!m.pushed_to_date}
+                              {editing?.type === 'milestone' && editing.milestoneId === m.id ? (
+                                <input
+                                  className="gp-inline-edit-input gp-inline-edit-input--milestone"
+                                  value={editing.text}
+                                  onChange={e => setEditing({ ...editing, text: e.target.value })}
+                                  onKeyDown={e => { if (e.key === 'Enter') saveEdit(); if (e.key === 'Escape') setEditing(null) }}
+                                  onBlur={saveEdit}
+                                  autoFocus
+                                />
+                              ) : (
+                                <div
+                                  className="gp-milestone-body gp-milestone-body--clickable"
+                                  onClick={() => toggleMilestoneExpanded(m.id)}
                                 >
-                                  {m.pushed_to_date ? '→ Added' : '→ Today'}
-                                </button>
+                                  <div className="gp-milestone-text-row">
+                                    <span className={`gp-milestone-text${m.done ? ' gp-milestone-text--done' : ''}`}>
+                                      {m.text}
+                                    </span>
+                                    {checkpoints.length > 0 && (
+                                      <span className="gp-cp-badge">{cpDone}/{checkpoints.length}</span>
+                                    )}
+                                    <span className={`gp-milestone-chevron${isMilestoneExpanded ? ' open' : ''}`}>›</span>
+                                  </div>
+                                  {m.due_date && (
+                                    <span className="gp-milestone-due">{m.due_date}</span>
+                                  )}
+                                </div>
                               )}
+                              <button
+                                className="gp-edit-btn gp-milestone-edit-btn"
+                                onClick={() => setEditing({ type: 'milestone', goalId: goal.id, milestoneId: m.id, text: m.text })}
+                                title="Rename milestone"
+                                aria-label="Edit milestone"
+                              >
+                                <PencilIcon />
+                              </button>
                               <button
                                 className="gp-milestone-delete-btn"
                                 onClick={() => deleteMilestone(goal.id, m.id)}
