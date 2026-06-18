@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { storeGet, storeSet } from '../../../lib/storage.js'
-import { MONTHS, fmtElapsed, gymUUID } from '../gymUtils.js'
+import { MONTHS, fmtElapsed } from '../gymUtils.js'
 
 function AnimatedNum({ value, duration = 600 }) {
   const [display, setDisplay] = useState(0)
