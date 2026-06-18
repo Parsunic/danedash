@@ -333,21 +333,24 @@ function parseStepsRollup(rollupPoints) {
   return byDate
 }
 
-function parseHeartRate(dataPoints) {
-  const bpmsByDate = {}
-  for (const pt of dataPoints) {
-    const date = parseCivilDate(pt.heartRate?.interval?.civilStartTime)
-    const bpm  = pt.heartRate?.beatsPerMinute
-    if (!date || bpm == null) continue
-    if (!bpmsByDate[date]) bpmsByDate[date] = []
-    bpmsByDate[date].push(bpm)
-  }
+function parseRestingHR(dataPoints) {
   const byDate = {}
-  for (const [date, bpms] of Object.entries(bpmsByDate)) {
-    byDate[date] = {
-      resting_hr: Math.min(...bpms),
-      avg_hr:     Math.round(bpms.reduce((a, b) => a + b, 0) / bpms.length),
-    }
+  for (const pt of dataPoints) {
+    const date = parseCivilDate(pt.dailyRestingHeartRate?.interval?.civilStartTime)
+    const bpm  = pt.dailyRestingHeartRate?.beatsPerMinute
+    if (!date || bpm == null) continue
+    byDate[date] = { resting_hr: Math.round(bpm) }
+  }
+  return byDate
+}
+
+function parseHRV(dataPoints) {
+  const byDate = {}
+  for (const pt of dataPoints) {
+    const date  = parseCivilDate(pt.dailyHeartRateVariability?.interval?.civilStartTime)
+    const rmssd = pt.dailyHeartRateVariability?.dailyRmssd
+    if (!date || rmssd == null) continue
+    byDate[date] = rmssd
   }
   return byDate
 }
