@@ -7,33 +7,38 @@ import ExerciseNameInput from './ExerciseNameInput.jsx'
 function ExerciseEditorRow({ ex, idx, onChange, onDelete }) {
   return (
     <div className="gym-ex-edit-row">
-      <ExerciseNameInput
-        value={ex.name}
-        onChange={val => onChange(idx, 'name', val)}
-        placeholder="Exercise name"
-        style={{ flex: 1 }}
-      />
-      <input
-        className="gym-input gym-ex-sets"
-        placeholder="Sets"
-        type="number"
-        min="1" max="30"
-        value={ex.sets}
-        onChange={e => onChange(idx, 'sets', parseInt(e.target.value) || 1)}
-      />
-      <input
-        className="gym-input gym-ex-reps"
-        placeholder="8–10"
-        value={ex.repRange}
-        onChange={e => onChange(idx, 'repRange', e.target.value)}
-      />
-      <input
-        className="gym-input gym-ex-notes"
-        placeholder="Notes / intensity"
-        value={ex.notes}
-        onChange={e => onChange(idx, 'notes', e.target.value)}
-      />
-      <button className="gym-ex-delete" onClick={() => onDelete(idx)} title="Remove">✕</button>
+      <div className="gym-ex-edit-name-row">
+        <ExerciseNameInput
+          value={ex.name}
+          onChange={val => onChange(idx, 'name', val)}
+          placeholder="Exercise name"
+          style={{ flex: 1 }}
+        />
+        <button className="gym-ex-delete" onClick={() => onDelete(idx)} title="Remove">✕</button>
+      </div>
+      <div className="gym-ex-edit-detail-row">
+        <input
+          className="gym-input gym-ex-sets"
+          placeholder="Sets"
+          type="number"
+          min="1" max="30"
+          value={ex.sets}
+          onChange={e => onChange(idx, 'sets', parseInt(e.target.value) || 1)}
+        />
+        <input
+          className="gym-input gym-ex-reps"
+          placeholder="8–10"
+          value={ex.repRange}
+          onChange={e => onChange(idx, 'repRange', e.target.value)}
+        />
+        <input
+          className="gym-input gym-ex-notes"
+          placeholder="Notes / intensity"
+          value={ex.notes}
+          onChange={e => onChange(idx, 'notes', e.target.value)}
+          style={{ flex: 1 }}
+        />
+      </div>
     </div>
   )
 }
