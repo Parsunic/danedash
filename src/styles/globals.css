@@ -3311,7 +3311,11 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
 /* ── GYM PAGE CONTENT ── */
 .gym-page-content {
   position: relative;
-  min-height: calc(100dvh - var(--tabbar-h) - 30px);
+}
+@media (max-width: 1023px) {
+  .gym-page-content {
+    min-height: calc(100dvh - var(--tabbar-h) - 30px);
+  }
 }
 
 /* ── GYM 3D FLIP ── */
