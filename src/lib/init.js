@@ -1,4 +1,4 @@
-import { storeGet, storeSet, storeDelete, storeListKeys } from './storage.js'
+import { storeGet, storeSet, storeDelete, storeListKeys, storeSetSilent } from './storage.js'
 import { getActiveDateString, getTomorrowDateString } from './dateHelpers.js'
 
 export function doRollover() {
