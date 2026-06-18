@@ -13,7 +13,7 @@ const STATIC_SYNC_KEYS = [
   // Habits
   'habits',
   // Gym
-  'gym_templates', 'gym_planned', 'gym_week_tpls', 'gym_workout_logs', 'gym_exercise_history',
+  'gym_templates', 'gym_planned', 'gym_week_tpls', 'gym_workout_logs', 'gym_exercise_history', 'custom_exercises', 'gym_settings',
   // Calendar
   'calendar_events',
   // Journal
