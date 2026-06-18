@@ -262,7 +262,14 @@ export default function Health() {
         <div className="health-error-banner">
           <span className="health-error-icon">⚠</span>
           <span className="health-error-msg">Sync failed: {syncError}</span>
-          <button className="btn-ghost health-error-dismiss" onClick={() => { localStorage.removeItem('health_sync_error'); setSyncError(null) }}>Dismiss</button>
+          <div style={{ display: 'flex', gap: 8 }}>
+            {syncError.includes('403') && (
+              <button className="btn-ghost health-error-dismiss" onClick={() => window.dispatchEvent(new Event('open-settings'))}>
+                Reconnect
+              </button>
+            )}
+            <button className="btn-ghost health-error-dismiss" onClick={() => { localStorage.removeItem('health_sync_error'); setSyncError(null) }}>Dismiss</button>
+          </div>
         </div>
       )}
 
