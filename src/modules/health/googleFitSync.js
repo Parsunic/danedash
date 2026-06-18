@@ -464,6 +464,12 @@ export async function syncGfitData() {
       }
     }
 
+    const scopeErr = localStorage.getItem('health_sync_error')
+    if (scopeErr) {
+      emitStatus('error')
+      return rows.length ? rows : null
+    }
+
     const now = new Date().toISOString()
     setGfitLastSync(now)
     emitStatus('synced', now)
