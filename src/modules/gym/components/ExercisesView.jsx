@@ -111,8 +111,7 @@ export default function ExercisesView() {
     const updated = customs.map(e =>
       e.name === oldName ? { ...e, name: newName, primary_muscle: newMuscle } : e
     )
-    localStorage.setItem('custom_exercises', JSON.stringify(updated))
-    window.dispatchEvent(new Event('schedule-sync'))
+    storeSet('custom_exercises', updated)
     setEditingEx(null)
     loadBrowse(muscleFilter)
   }
