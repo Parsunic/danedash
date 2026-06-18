@@ -4,7 +4,14 @@ import { modules } from '../App.jsx'
 export default function Sidebar() {
   return (
     <aside className="sidebar">
-      <div className="sidebar-brand">Dane's Dashboard</div>
+      <div className="sidebar-brand">
+        <span className="sidebar-logo">
+          <span className="logo-chevron">&gt;</span>
+          <span className="logo-dane">dane</span>
+          <span className="logo-dash">dash</span>
+          <span className="logo-cursor" />
+        </span>
+      </div>
       <nav className="sidebar-nav">
         {modules.map(({ path, label, icon }) => (
           <NavLink
