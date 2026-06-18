@@ -483,9 +483,37 @@ export default function GoalsProjectsSection() {
                                       onClick={() => toggleCheckpoint(goal.id, m.id, c.id)}
                                       aria-label={c.done ? 'Mark undone' : 'Mark done'}
                                     />
-                                    <span className={`gp-checkpoint-text${c.done ? ' gp-checkpoint-text--done' : ''}`}>
-                                      {c.text}
-                                    </span>
+                                    {editing?.type === 'checkpoint' && editing.checkpointId === c.id ? (
+                                      <input
+                                        className="gp-inline-edit-input gp-inline-edit-input--checkpoint"
+                                        value={editing.text}
+                                        onChange={e => setEditing({ ...editing, text: e.target.value })}
+                                        onKeyDown={e => { if (e.key === 'Enter') saveEdit(); if (e.key === 'Escape') setEditing(null) }}
+                                        onBlur={saveEdit}
+                                        autoFocus
+                                      />
+                                    ) : (
+                                      <span className={`gp-checkpoint-text${c.done ? ' gp-checkpoint-text--done' : ''}`}>
+                                        {c.text}
+                                      </span>
+                                    )}
+                                    <button
+                                      className="gp-edit-btn gp-checkpoint-edit-btn"
+                                      onClick={() => setEditing({ type: 'checkpoint', goalId: goal.id, milestoneId: m.id, checkpointId: c.id, text: c.text })}
+                                      title="Rename checkpoint"
+                                      aria-label="Edit checkpoint"
+                                    >
+                                      <PencilIcon />
+                                    </button>
+                                    {!c.done && (
+                                      <button
+                                        className={`gp-push-btn${c.pushed_to_date ? ' gp-push-btn--added' : ''}`}
+                                        onClick={() => { if (!c.pushed_to_date) pushToToday(goal.id, m.id, c.id) }}
+                                        disabled={!!c.pushed_to_date}
+                                      >
+                                        {c.pushed_to_date ? '→ Added' : '→ Today'}
+                                      </button>
+                                    )}
                                     <button
                                       className="gp-checkpoint-delete-btn"
                                       onClick={() => deleteCheckpoint(goal.id, m.id, c.id)}
