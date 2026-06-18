@@ -326,9 +326,11 @@ async function fetchSleepReconcile() {
 function parseStepsRollup(rollupPoints) {
   const byDate = {}
   for (const pt of rollupPoints) {
-    const date = parseCivilDate(pt.steps?.interval?.civilStartTime)
-    if (!date) continue
-    byDate[date] = parseInt(pt.steps?.countSum ?? '0', 10)
+    // interval is a top-level sibling of the type field, not nested inside it
+    const date  = parseCivilDate(pt.interval?.civilStartTime ?? pt.steps?.interval?.civilStartTime)
+    const count = parseInt(pt.steps?.countSum ?? pt.steps?.count ?? '0', 10)
+    if (!date || count === 0) continue
+    byDate[date] = (byDate[date] ?? 0) + count
   }
   return byDate
 }
@@ -336,7 +338,7 @@ function parseStepsRollup(rollupPoints) {
 function parseRestingHR(dataPoints) {
   const byDate = {}
   for (const pt of dataPoints) {
-    const date = parseCivilDate(pt.dailyRestingHeartRate?.interval?.civilStartTime)
+    const date = parseCivilDate(pt.interval?.civilStartTime)
     const bpm  = pt.dailyRestingHeartRate?.beatsPerMinute
     if (!date || bpm == null) continue
     byDate[date] = { resting_hr: Math.round(bpm) }
@@ -347,7 +349,7 @@ function parseRestingHR(dataPoints) {
 function parseHRV(dataPoints) {
   const byDate = {}
   for (const pt of dataPoints) {
-    const date  = parseCivilDate(pt.dailyHeartRateVariability?.interval?.civilStartTime)
+    const date  = parseCivilDate(pt.interval?.civilStartTime)
     const rmssd = pt.dailyHeartRateVariability?.dailyRmssd
     if (!date || rmssd == null) continue
     byDate[date] = rmssd
