@@ -1556,6 +1556,7 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
 }
 .gym-history-session-body { padding:0 16px 14px; display:none; border-top:1px solid rgba(255,255,255,0.05); }
 .gym-history-session.expanded .gym-history-session-body { display:block; }
+.gym-history-session-actions { display:flex; gap:8px; margin-top:14px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.05); }
 .gym-history-ex { margin-top:12px; }
 .gym-history-ex-name {
   font-size:13px; font-weight:700; color:var(--text-primary); margin-bottom:6px;
