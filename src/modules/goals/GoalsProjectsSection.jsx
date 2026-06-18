@@ -370,22 +370,44 @@ export default function GoalsProjectsSection() {
                 </div>
               ) : (
                 <>
-                  <div className="gp-card-header" onClick={() => toggleExpanded(goal.id)}>
+                  <div className="gp-card-header" onClick={() => !editing && toggleExpanded(goal.id)}>
                     <div className="gp-card-header-left">
                       <span className="habit-dot" style={{ background: domainColor(goal.domain) }} />
-                      <span className="gp-card-title">{goal.title}</span>
+                      {editing?.type === 'goal' && editing.goalId === goal.id ? (
+                        <input
+                          className="gp-inline-edit-input"
+                          value={editing.text}
+                          onChange={e => setEditing({ ...editing, text: e.target.value })}
+                          onKeyDown={e => { if (e.key === 'Enter') saveEdit(); if (e.key === 'Escape') setEditing(null) }}
+                          onBlur={saveEdit}
+                          onClick={e => e.stopPropagation()}
+                          autoFocus
+                        />
+                      ) : (
+                        <span className="gp-card-title">{goal.title}</span>
+                      )}
                       <span className={`gp-horizon-badge gp-horizon-badge--${goal.horizon}`}>
                         {HORIZONS.find(h => h.id === goal.horizon)?.label}
                       </span>
                     </div>
-                    <button
-                      className="gp-trash-btn"
-                      onClick={e => { e.stopPropagation(); setDeleteConfirm(goal.id) }}
-                      aria-label="Delete goal"
-                      title="Delete goal"
-                    >
-                      <TrashIcon />
-                    </button>
+                    <div className="gp-card-actions">
+                      <button
+                        className="gp-edit-btn"
+                        onClick={e => { e.stopPropagation(); setEditing({ type: 'goal', goalId: goal.id, text: goal.title }) }}
+                        aria-label="Edit goal"
+                        title="Rename goal"
+                      >
+                        <PencilIcon />
+                      </button>
+                      <button
+                        className="gp-trash-btn"
+                        onClick={e => { e.stopPropagation(); setDeleteConfirm(goal.id) }}
+                        aria-label="Delete goal"
+                        title="Delete goal"
+                      >
+                        <TrashIcon />
+                      </button>
+                    </div>
                   </div>
 
                   <div className="gp-progress-bar-wrap">
