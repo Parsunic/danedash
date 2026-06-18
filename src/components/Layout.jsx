@@ -103,6 +103,19 @@ function SettingsModal({ onClose }) {
               {audioEnabled ? 'On' : 'Off'}
             </button>
           </div>
+          <div className="settings-toggle-row" style={{ marginTop: 12 }}>
+            <div>
+              <span className="settings-label" style={{ margin: 0 }}>Auto-finish Workout</span>
+              <p className="settings-hint" style={{ marginTop: 4 }}>Automatically finish the workout if it's been running for 3+ hours and nothing was logged in the last 30 minutes. Duration is recorded as the last logged set time.</p>
+            </div>
+            <button
+              className={gymAutoFinish ? 'btn-primary' : 'btn-secondary'}
+              style={{ fontSize: '0.75rem', padding: '5px 16px', flexShrink: 0 }}
+              onClick={() => setGymAutoFinish(v => !v)}
+            >
+              {gymAutoFinish ? 'On' : 'Off'}
+            </button>
+          </div>
           <div className="settings-section-divider" />
           <label className="settings-label">Anthropic API Key</label>
           <div className="settings-input-row">
