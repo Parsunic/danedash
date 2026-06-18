@@ -6,19 +6,19 @@ import {
   getGfitLastSync, setGfitLastSync,
 } from '../../lib/api/googlefit.js'
 
-const GFIT_BASE      = 'https://www.googleapis.com/fitness/v1/users/me'
-const GOOGLE_TOKEN   = 'https://oauth2.googleapis.com/token'
-const GOOGLE_AUTH    = 'https://accounts.google.com/o/oauth2/v2/auth'
-const USER_ID        = 'dane'
-const SYNC_INTERVAL  = 60 * 60 * 1000  // sync at most once per hour on tab open
+const HEALTH_BASE   = 'https://health.googleapis.com/v4/users/me'
+const GOOGLE_TOKEN  = 'https://oauth2.googleapis.com/token'
+const GOOGLE_AUTH   = 'https://accounts.google.com/o/oauth2/v2/auth'
+const USER_ID       = 'dane'
+const SYNC_INTERVAL = 60 * 60 * 1000
 
 const SCOPES = [
-  'https://www.googleapis.com/auth/fitness.activity.read',
-  'https://www.googleapis.com/auth/fitness.heart_rate.read',
-  'https://www.googleapis.com/auth/fitness.sleep.read',
+  'https://www.googleapis.com/auth/googlehealth.activity_and_fitness.readonly',
+  'https://www.googleapis.com/auth/googlehealth.health_metrics_and_measurements.readonly',
+  'https://www.googleapis.com/auth/googlehealth.sleep.readonly',
 ].join(' ')
 
-// ── PKCE helpers (same pattern as googleSync.js / fitbitSync.js) ──
+// ── PKCE helpers ──
 
 function generateCodeVerifier() {
   const arr = new Uint8Array(32)
@@ -38,12 +38,15 @@ async function generateCodeChallenge(verifier) {
 
 export async function initiateGoogleFitOAuth() {
   const clientId = getClientId()
-  if (!clientId) { console.error('[GFit] No OAuth client ID — configure it in Settings'); return }
+  if (!clientId) { console.error('[Health] No OAuth client ID — configure it in Settings'); return }
+
+  // Clear stale tokens so the user is prompted for the new googlehealth.* scopes
+  // instead of silently reusing a cached session with the old fitness.* scopes.
+  localStorage.removeItem('gfit_access_token')
+  localStorage.removeItem('gfit_refresh_token')
 
   const verifier  = generateCodeVerifier()
   const challenge = await generateCodeChallenge(verifier)
-
-  // Key distinct from gcal_code_verifier so the callback handler can tell them apart
   localStorage.setItem('googlefit_code_verifier', verifier)
 
   const redirectUri = window.location.origin
@@ -66,7 +69,7 @@ export async function handleGoogleFitCallback() {
   const error  = params.get('error')
 
   if (!code) {
-    if (error) console.error('[GFit] OAuth error:', error)
+    if (error) console.error('[Health] OAuth error:', error)
     return false
   }
 
@@ -74,7 +77,7 @@ export async function handleGoogleFitCallback() {
   localStorage.removeItem('googlefit_code_verifier')
 
   if (!verifier) {
-    console.error('[GFit] Missing code verifier — Safari may have cleared storage')
+    console.error('[Health] Missing code verifier — Safari may have cleared storage')
     window.history.replaceState({}, '', '/')
     return false
   }
@@ -99,23 +102,19 @@ export async function handleGoogleFitCallback() {
 
     if (!resp.ok) {
       const err = await resp.json().catch(() => ({}))
-      console.error('[GFit] Token exchange failed:', resp.status, err)
+      console.error('[Health] Token exchange failed:', resp.status, err)
       window.history.replaceState({}, '', '/')
       return false
     }
 
     const data = await resp.json()
-    setGfitTokens({
-      access_token:  data.access_token,
-      refresh_token: data.refresh_token,
-      expires_in:    data.expires_in,
-    })
+    setGfitTokens({ access_token: data.access_token, refresh_token: data.refresh_token, expires_in: data.expires_in })
     persistTokensToSupabase(data.access_token, data.refresh_token, data.expires_in)
     window.dispatchEvent(new Event('gfit-connected'))
-    console.log('[GFit] Connected')
+    console.log('[Health] Connected to Google Health')
     return true
   } catch (e) {
-    console.error('[GFit] Token exchange threw:', e)
+    console.error('[Health] Token exchange threw:', e)
     window.history.replaceState({}, '', '/')
     return false
   }
@@ -161,29 +160,31 @@ async function getValidGfitToken() {
   return refreshGfitToken()
 }
 
-async function gfitRequest(method, path, body) {
+// ── HTTP helper with 401 retry ──
+
+async function healthRequest(method, url, body, isRetry = false) {
   let token = await getValidGfitToken()
   if (!token) return null
 
-  const makeOpts = (t) => ({
+  const resp = await fetch(url, {
     method,
     headers: {
-      Authorization: `Bearer ${t}`,
+      Authorization: `Bearer ${token}`,
       ...(body ? { 'Content-Type': 'application/json' } : {}),
     },
     ...(body ? { body: JSON.stringify(body) } : {}),
   })
 
-  let resp = await fetch(`${GFIT_BASE}${path}`, makeOpts(token))
-
-  if (resp.status === 401) {
-    token = await refreshGfitToken()
-    if (!token) return null
-    resp = await fetch(`${GFIT_BASE}${path}`, makeOpts(token))
+  if (resp.status === 401 && !isRetry) {
+    const fresh = await refreshGfitToken()
+    if (!fresh) return null
+    return healthRequest(method, url, body, true)
   }
 
-  if (resp.status === 404) return null  // data source not available for this user
-  if (!resp.ok) { console.error('[GFit] API error:', resp.status, path); return null }
+  if (!resp.ok) {
+    console.error(`[Health] ${method} ${url} → ${resp.status}`)
+    return null
+  }
   return resp.json()
 }
 
@@ -198,7 +199,7 @@ function persistTokensToSupabase(accessToken, refreshToken, expiresIn) {
     expires_at:    new Date(Date.now() + expiresIn * 1000).toISOString(),
     scopes:        SCOPES,
   }, { onConflict: 'user_id,provider' }).then(({ error }) => {
-    if (error) console.warn('[GFit] Could not persist tokens to Supabase:', error.message)
+    if (error) console.warn('[Health] Could not persist tokens to Supabase:', error.message)
   })
 }
 
@@ -220,192 +221,250 @@ export async function loadTokensFromSupabase() {
   } catch {}
 }
 
-// ── Data helpers ──
+// ── Date helpers ──
 
-function todayStr() {
-  return new Date().toISOString().slice(0, 10)
+function parseCivilDate(civilTime) {
+  const d = civilTime?.date
+  if (!d?.year || !d?.month || !d?.day) return null
+  return `${d.year}-${String(d.month).padStart(2, '0')}-${String(d.day).padStart(2, '0')}`
 }
 
-// Day bounds in ms (local time) for the aggregate API
-function dayBoundsMs(date) {
-  const startMs = new Date(date + 'T00:00:00').getTime()
-  const endMs   = new Date(date + 'T23:59:59.999').getTime()
-  return { startMs, endMs }
+function dateToRangeObj(dateStr, isEnd = false) {
+  const [year, month, day] = dateStr.split('-').map(Number)
+  return isEnd
+    ? { date: { year, month, day }, time: { hours: 23, minutes: 59, seconds: 59 } }
+    : { date: { year, month, day }, time: { hours: 0 } }
 }
 
-// Sleep window: previous evening → current day noon (catches overnight sleep)
-function sleepWindowMs(date) {
-  const prev = new Date(date + 'T00:00:00')
-  prev.setDate(prev.getDate() - 1)
-  const startMs = new Date(prev.toISOString().slice(0, 10) + 'T20:00:00').getTime()
-  const endMs   = new Date(date + 'T12:00:00').getTime()
-  return { startMs, endMs }
+// ── Paginated API fetch helpers ──
+
+// GET list endpoint — dataType in URL is kebab-case; filter param uses snake_case
+export async function fetchHealthData(dataType, startDate, endDate) {
+  const snakeType = dataType.replace(/-/g, '_')
+  const filter    = `${snakeType}.interval.civil_start_time >= "${startDate}T00:00:00" AND ${snakeType}.interval.civil_start_time <= "${endDate}T23:59:59"`
+  const baseUrl   = `${HEALTH_BASE}/dataTypes/${dataType}/dataPoints`
+  const all       = []
+  let pageToken   = null
+
+  do {
+    const params = new URLSearchParams({ filter })
+    if (pageToken) params.set('pageToken', pageToken)
+    const data = await healthRequest('GET', `${baseUrl}?${params}`)
+    if (!data) return []
+    all.push(...(data.dataPoints ?? []))
+    pageToken = data.nextPageToken ?? null
+  } while (pageToken)
+
+  return all
 }
 
-function nsToMs(ns) { return Math.round(Number(ns) / 1_000_000) }
+// POST dailyRollUp — returns one bucket per day over the date range
+async function fetchDailyRollUp(dataType, startDate, endDate) {
+  const baseUrl   = `${HEALTH_BASE}/dataTypes/${dataType}/dataPoints:dailyRollUp`
+  const all       = []
+  let pageToken   = null
 
-// ── Google Fit data parsers ──
-
-function parseAggregate(data) {
-  if (!data?.bucket?.[0]?.dataset) return {}
-  const result = {}
-
-  for (const ds of data.bucket[0].dataset) {
-    const id = ds.dataSourceId ?? ''
-
-    // Sum steps across all points in the bucket
-    if (id.includes('step_count')) {
-      result.steps = ds.point?.reduce((sum, p) => sum + (p.value?.[0]?.intVal ?? 0), 0) ?? null
+  do {
+    const body = {
+      range: { start: dateToRangeObj(startDate), end: dateToRangeObj(endDate, true) },
+      windowSizeDays: 1,
+      ...(pageToken ? { pageToken } : {}),
     }
+    const data = await healthRequest('POST', baseUrl, body)
+    if (!data) return []
+    all.push(...(data.rollupDataPoint ?? []))
+    pageToken = data.nextPageToken ?? null
+  } while (pageToken)
 
-    // Active minutes — sum all points
-    if (id.includes('active_minutes') || id.includes('moveMinutes')) {
-      result.activeMinutes = ds.point?.reduce((sum, p) => sum + (p.value?.[0]?.intVal ?? 0), 0) ?? null
-    }
+  return all
+}
 
-    // Resting HR — minimum fpVal across all readings (best proxy without explicit resting HR metric)
-    if (id.includes('heart_rate.bpm') && ds.point?.length) {
-      const readings = ds.point.flatMap(p => p.value?.map(v => v.fpVal) ?? []).filter(Boolean)
-      if (readings.length) result.restingHr = Math.round(Math.min(...readings))
+// GET sleep reconcile — returns consolidated sleep sessions from wearables
+async function fetchSleepReconcile() {
+  const all     = []
+  let pageToken = null
+
+  do {
+    const params = new URLSearchParams({ dataSourceFamily: 'users/me/dataSourceFamilies/google-wearables' })
+    if (pageToken) params.set('pageToken', pageToken)
+    const data = await healthRequest('GET', `${HEALTH_BASE}/dataTypes/sleep/dataPoints:reconcile?${params}`)
+    if (!data) return []
+    all.push(...(data.dataPoints ?? []))
+    pageToken = data.nextPageToken ?? null
+  } while (pageToken)
+
+  return all
+}
+
+// ── Data parsers ──
+
+function parseStepsRollup(rollupPoints) {
+  const byDate = {}
+  for (const pt of rollupPoints) {
+    const date = parseCivilDate(pt.steps?.interval?.civilStartTime)
+    if (!date) continue
+    byDate[date] = parseInt(pt.steps?.countSum ?? '0', 10)
+  }
+  return byDate
+}
+
+function parseHeartRate(dataPoints) {
+  const bpmsByDate = {}
+  for (const pt of dataPoints) {
+    const date = parseCivilDate(pt.heartRate?.interval?.civilStartTime)
+    const bpm  = pt.heartRate?.beatsPerMinute
+    if (!date || bpm == null) continue
+    if (!bpmsByDate[date]) bpmsByDate[date] = []
+    bpmsByDate[date].push(bpm)
+  }
+  const byDate = {}
+  for (const [date, bpms] of Object.entries(bpmsByDate)) {
+    byDate[date] = {
+      resting_hr: Math.min(...bpms),
+      avg_hr:     Math.round(bpms.reduce((a, b) => a + b, 0) / bpms.length),
     }
   }
-
-  return result
+  return byDate
 }
 
-function parseSleepSegments(data, sessionStartMs, sessionEndMs) {
-  if (!data?.point?.length) return null
+function parseSleep(dataPoints) {
+  const byDate = {}
+  for (const pt of dataPoints) {
+    const endTime = pt.sleep?.interval?.endTime
+    if (!endTime) continue
+    const date = endTime.slice(0, 10)
 
-  const stageDurations = { deep: 0, light: 0, rem: 0, wake: 0 }
+    const minutesAsleep = parseInt(pt.sleep?.summary?.minutesAsleep ?? '0', 10)
+    const minutesAwake  = parseInt(pt.sleep?.summary?.minutesAwake  ?? '0', 10)
 
-  for (const pt of data.point) {
-    const ptStart = nsToMs(pt.startTimeNanos)
-    const ptEnd   = nsToMs(pt.endTimeNanos)
-    if (ptEnd <= sessionStartMs || ptStart >= sessionEndMs) continue
+    const stageTotals = { DEEP: 0, REM: 0, LIGHT: 0, AWAKE: 0 }
+    for (const stage of (pt.sleep?.stages ?? [])) {
+      if (stage.type in stageTotals)
+        stageTotals[stage.type] += parseInt(stage.minutes ?? '0', 10)
+    }
 
-    const durationMin = Math.round((Math.min(ptEnd, sessionEndMs) - Math.max(ptStart, sessionStartMs)) / 60_000)
-    const type = pt.value?.[0]?.intVal ?? 0
+    const deepMin  = stageTotals.DEEP
+    const remMin   = stageTotals.REM
+    const lightMin = stageTotals.LIGHT
+    const awakeMin = stageTotals.AWAKE || minutesAwake
 
-    // Google Fit sleep segment types
-    // 1=Awake, 2=Asleep(generic), 3=OutOfBed, 4=Light, 5=Deep, 6=REM
-    if      (type === 5) stageDurations.deep  += durationMin
-    else if (type === 6) stageDurations.rem   += durationMin
-    else if (type === 4 || type === 2) stageDurations.light += durationMin
-    else if (type === 1 || type === 3) stageDurations.wake  += durationMin
+    // Keep longest sleep session per date
+    if (!byDate[date] || minutesAsleep > (byDate[date].totalMinutes ?? 0)) {
+      const total      = deepMin + remMin + lightMin + awakeMin
+      const sleepScore = total > 0
+        ? Math.round(((deepMin + remMin + lightMin) / total) * 100)
+        : null
+
+      byDate[date] = {
+        totalMinutes: minutesAsleep,
+        sleep_score:  sleepScore,
+        sleep_stages: {
+          deep:      deepMin,
+          rem:       remMin,
+          light:     lightMin,
+          wake:      awakeMin,
+          startTime: pt.sleep.interval.startTime,
+          endTime:   pt.sleep.interval.endTime,
+        },
+      }
+    }
   }
-
-  return stageDurations
+  return byDate
 }
 
-function parseHRV(data) {
-  if (!data?.point?.length) return null
-  // Google Fit HRV is RMSSD in ms — take daily average
-  const vals = data.point.flatMap(p => p.value?.map(v => v.fpVal) ?? []).filter(Boolean)
-  if (!vals.length) return null
-  return Math.round((vals.reduce((a, b) => a + b, 0) / vals.length) * 10) / 10
+function parseHRV(dataPoints) {
+  const byDate = {}
+  for (const pt of dataPoints) {
+    const date  = parseCivilDate(pt.dailyHeartRateVariability?.interval?.civilStartTime)
+    const rmssd = pt.dailyHeartRateVariability?.dailyRmssd
+    if (!date || rmssd == null) continue
+    byDate[date] = rmssd
+  }
+  return byDate
+}
+
+function parseCalories(rollupPoints) {
+  const byDate = {}
+  for (const pt of rollupPoints) {
+    const date = parseCivilDate(pt.activeEnergyBurned?.interval?.civilStartTime)
+    const kcal = pt.activeEnergyBurned?.kilocaloriesSum
+    if (!date || kcal == null) continue
+    byDate[date] = Math.round(kcal)
+  }
+  return byDate
 }
 
 // ── Main sync function ──
 
-export async function syncGfitData(date = todayStr()) {
+export async function syncGfitData() {
   if (!isGfitConnected()) return null
   emitStatus('syncing')
+  localStorage.removeItem('health_sync_error')
 
   try {
-    const { startMs, endMs } = dayBoundsMs(date)
-    const { startMs: sleepStart, endMs: sleepEnd } = sleepWindowMs(date)
+    const today     = new Date()
+    const startDate = new Date(today)
+    startDate.setDate(startDate.getDate() - 29)
+    const startStr = startDate.toISOString().slice(0, 10)
+    const endStr   = today.toISOString().slice(0, 10)
 
-    // Parallel fetch: aggregate metrics + sleep sessions + HRV
-    const sleepStartIso = new Date(sleepStart).toISOString()
-    const sleepEndIso   = new Date(sleepEnd).toISOString()
-    const sleepStartNs  = String(sleepStart * 1_000_000)
-    const sleepEndNs    = String(sleepEnd   * 1_000_000)
-    const dayStartNs    = String(startMs    * 1_000_000)
-    const dayEndNs      = String(endMs      * 1_000_000)
-
-    const [aggregateData, sleepSessions, sleepSegmentData, hrvData] = await Promise.all([
-      // Steps + heart rate + active minutes for the day
-      gfitRequest('POST', '/dataset:aggregate', {
-        aggregateBy: [
-          { dataTypeName: 'com.google.step_count.delta' },
-          { dataTypeName: 'com.google.heart_rate.bpm' },
-          { dataTypeName: 'com.google.active_minutes' },
-        ],
-        bucketByTime:    { durationMillis: endMs - startMs + 1 },
-        startTimeMillis: String(startMs),
-        endTimeMillis:   String(endMs),
-      }),
-
-      // Sleep sessions (activityType 72 = sleep)
-      gfitRequest('GET', `/sessions?startTime=${sleepStartIso}&endTime=${sleepEndIso}&activityType=72`),
-
-      // Sleep stage segments from the merged derived source
-      gfitRequest('GET', `/dataSources/derived:com.google.sleep.segment:com.google.android.gms:merged/datasets/${sleepStartNs}-${sleepEndNs}`),
-
-      // HRV — may be 404 / empty if device doesn't record it
-      gfitRequest('GET', `/dataSources/derived:com.google.heart_rate.variability:com.google.android.gms:merged/datasets/${dayStartNs}-${dayEndNs}`),
+    const [stepsRollup, hrPoints, sleepPoints, hrvPoints, calRollup] = await Promise.all([
+      fetchDailyRollUp('steps', startStr, endStr),
+      fetchHealthData('heart-rate', startStr, endStr),
+      fetchSleepReconcile(),
+      fetchHealthData('daily-heart-rate-variability', startStr, endStr),
+      fetchDailyRollUp('active-energy-burned', startStr, endStr),
     ])
 
-    // Parse aggregate (steps, resting HR, active minutes)
-    const { steps, restingHr, activeMinutes } = parseAggregate(aggregateData)
+    const stepsByDate    = parseStepsRollup(stepsRollup)
+    const hrByDate       = parseHeartRate(hrPoints)
+    const sleepByDate    = parseSleep(sleepPoints)
+    const hrvByDate      = parseHRV(hrvPoints)
+    const caloriesByDate = parseCalories(calRollup)
 
-    // Parse sleep
-    let sleepScore  = null
-    let sleepStages = null
+    const dates = new Set([
+      ...Object.keys(stepsByDate),
+      ...Object.keys(hrByDate),
+      ...Object.keys(sleepByDate),
+      ...Object.keys(hrvByDate),
+      ...Object.keys(caloriesByDate),
+    ])
 
-    const mainSession = sleepSessions?.session?.sort((a, b) =>
-      parseInt(b.endTimeMillis) - parseInt(b.startTimeMillis) -
-      (parseInt(a.endTimeMillis) - parseInt(a.startTimeMillis))
-    )[0] ?? null  // longest session = main sleep
-
-    if (mainSession) {
-      const sessStartMs = parseInt(mainSession.startTimeMillis)
-      const sessEndMs   = parseInt(mainSession.endTimeMillis)
-      const stages      = parseSleepSegments(sleepSegmentData, sessStartMs, sessEndMs)
-
-      if (stages) {
-        sleepStages = {
-          ...stages,
-          startTime: new Date(sessStartMs).toISOString(),
-          endTime:   new Date(sessEndMs).toISOString(),
-        }
-        const timeAsleep = stages.deep + stages.light + stages.rem
-        const totalTime  = timeAsleep + stages.wake
-        sleepScore = totalTime > 0 ? Math.round((timeAsleep / totalTime) * 100) : null
-      } else {
-        // Session exists but no granular segment data — compute from session duration
-        const sessionMin = Math.round((sessEndMs - sessStartMs) / 60_000)
-        sleepStages = { deep: 0, light: sessionMin, rem: 0, wake: 0,
-          startTime: new Date(sessStartMs).toISOString(),
-          endTime:   new Date(sessEndMs).toISOString() }
-        sleepScore = 75  // reasonable default when stages not available
-      }
+    const rows = []
+    for (const date of dates) {
+      const sleep = sleepByDate[date]
+      rows.push({
+        user_id:        USER_ID,
+        date,
+        sleep_score:    sleep?.sleep_score              ?? null,
+        sleep_stages:   sleep?.sleep_stages             ?? null,
+        hrv:            hrvByDate[date]                  ?? null,
+        resting_hr:     hrByDate[date]?.resting_hr       ?? null,
+        steps:          stepsByDate[date]                ?? null,
+        active_minutes: caloriesByDate[date]             ?? null,
+        raw_fitbit_data: null,
+      })
     }
 
-    const hrv = parseHRV(hrvData)
-
-    const { error } = await supabase
-      .from('health_metrics')
-      .upsert({
-        user_id:         USER_ID,
-        date,
-        sleep_score:     sleepScore,
-        sleep_stages:    sleepStages,
-        hrv,
-        resting_hr:      restingHr ?? null,
-        steps:           steps    ?? null,
-        active_minutes:  activeMinutes ?? null,
-        raw_fitbit_data: { aggregateData, sleepSessions, sleepSegmentData, hrvData },
-      }, { onConflict: 'user_id,date' })
-
-    if (error) { console.error('[GFit] Supabase write failed:', error); emitStatus('error'); return null }
+    if (rows.length) {
+      const { error } = await supabase
+        .from('health_metrics')
+        .upsert(rows, { onConflict: 'user_id,date' })
+      if (error) {
+        console.error('[Health] Supabase write failed:', error)
+        localStorage.setItem('health_sync_error', error.message)
+        emitStatus('error')
+        return null
+      }
+    }
 
     const now = new Date().toISOString()
     setGfitLastSync(now)
     emitStatus('synced', now)
-    return { date, sleep_score: sleepScore, sleep_stages: sleepStages, hrv, resting_hr: restingHr, steps, active_minutes: activeMinutes }
+    return rows
   } catch (e) {
-    console.error('[GFit] Sync error:', e)
+    console.error('[Health] Sync error:', e)
+    localStorage.setItem('health_sync_error', e.message ?? String(e))
     emitStatus('error')
     return null
   }
@@ -430,7 +489,7 @@ export async function fetchHealthHistory(days = 7) {
     .gte('date', oldestStr)
     .order('date', { ascending: true })
 
-  if (error) { console.error('[GFit] History fetch error:', error); return [] }
+  if (error) { console.error('[Health] History fetch error:', error); return [] }
   return data ?? []
 }
 
