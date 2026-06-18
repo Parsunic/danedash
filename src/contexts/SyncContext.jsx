@@ -28,6 +28,11 @@ const DYNAMIC_SYNC_PREFIXES = [
 
 const SYNC_ROW_ID = 'dane'
 
+// Set once per page load — used to distinguish "old _lastLocalChange from a prior session"
+// vs "changes made in this browser session." Only current-session changes should block
+// a remote pull; stale _lastLocalChange values must not prevent initial sync from applying.
+const SESSION_START = Date.now()
+
 const SyncContext = createContext({ status: 'offline', isOffline: false })
 
 export function useSyncStatus() {
