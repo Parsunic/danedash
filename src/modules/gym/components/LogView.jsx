@@ -67,7 +67,7 @@ function RPESelect({ value, onChange }) {
 
 // ── SET INPUT ROW ─────────────────────────────────────────────────────────
 
-function SetInputRow({ setNum, row, onChange, onRemove, canRemove }) {
+function SetInputRow({ setNum, row, onChange, onRemove, canRemove, repPlaceholder = 'reps' }) {
   return (
     <div className="gym-set-row-compact">
       <span className="gym-set-row-label">Set {setNum}</span>
@@ -78,7 +78,7 @@ function SetInputRow({ setNum, row, onChange, onRemove, canRemove }) {
         onChange={e => onChange('weight', e.target.value)}
       />
       <input
-        type="text" inputMode="numeric" placeholder="reps"
+        type="text" inputMode="numeric" placeholder={repPlaceholder}
         className="gym-set-compact-input"
         value={row.reps}
         onChange={e => onChange('reps', e.target.value)}
