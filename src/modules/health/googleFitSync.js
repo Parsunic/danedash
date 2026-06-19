@@ -243,6 +243,14 @@ function parseDirectDate(d) {
   return `${d.year}-${String(d.month).padStart(2, '0')}-${String(d.day).padStart(2, '0')}`
 }
 
+// Civil (local) date for an ISO instant given its UTC offset string (e.g. "-14400s")
+function localDateFromIso(iso, offsetStr) {
+  if (!iso) return null
+  const offsetSec = parseInt(offsetStr ?? '0', 10) || 0   // "-14400s" → -14400
+  const local = new Date(new Date(iso).getTime() + offsetSec * 1000)
+  return `${local.getUTCFullYear()}-${String(local.getUTCMonth() + 1).padStart(2, '0')}-${String(local.getUTCDate()).padStart(2, '0')}`
+}
+
 function dateToRangeObj(dateStr, isEnd = false) {
   const [year, month, day] = dateStr.split('-').map(Number)
   return isEnd
