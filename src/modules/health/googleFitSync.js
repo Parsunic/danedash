@@ -237,6 +237,12 @@ function parseCivilDate(civilTime) {
   return `${d.year}-${String(d.month).padStart(2, '0')}-${String(d.day).padStart(2, '0')}`
 }
 
+// For daily aggregate types (resting HR, HRV) the API puts date directly on the type object
+function parseDirectDate(d) {
+  if (!d?.year || !d?.month || !d?.day) return null
+  return `${d.year}-${String(d.month).padStart(2, '0')}-${String(d.day).padStart(2, '0')}`
+}
+
 function dateToRangeObj(dateStr, isEnd = false) {
   const [year, month, day] = dateStr.split('-').map(Number)
   return isEnd
