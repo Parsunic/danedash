@@ -297,7 +297,7 @@ async function fetchDailyRollUp(dataType, startDate, endDate) {
     }
     const data = await healthRequest('POST', baseUrl, body)
     if (!data) return []
-    all.push(...(data.rollupDataPoint ?? []))
+    all.push(...(data.rollupDataPoint ?? data.dataPoints ?? []))
     pageToken = data.nextPageToken ?? null
   } while (pageToken)
 
