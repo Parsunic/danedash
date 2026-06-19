@@ -326,10 +326,14 @@ async function fetchSleepReconcile() {
 function parseStepsRollup(rollupPoints) {
   const byDate = {}
   for (const pt of rollupPoints) {
-    // interval is a top-level sibling of the type field, not nested inside it
-    const date  = parseCivilDate(pt.interval?.civilStartTime ?? pt.steps?.interval?.civilStartTime)
-    const count = parseInt(pt.steps?.countSum ?? pt.steps?.count ?? '0', 10)
-    if (!date || count === 0) continue
+    const typeData = pt.steps
+    // rollup may place interval at top level; list endpoint nests it inside the type key
+    const date  = parseCivilDate(pt.interval?.civilStartTime ?? typeData?.interval?.civilStartTime)
+    const count = parseInt(typeData?.countSum ?? typeData?.count ?? '0', 10)
+    if (!date || isNaN(count) || count === 0) {
+      if (typeData) console.log('[Health][diagnostic] steps point missing date, raw:', JSON.stringify(pt))
+      continue
+    }
     byDate[date] = (byDate[date] ?? 0) + count
   }
   return byDate
@@ -338,10 +342,15 @@ function parseStepsRollup(rollupPoints) {
 function parseRestingHR(dataPoints) {
   const byDate = {}
   for (const pt of dataPoints) {
-    const date = parseCivilDate(pt.interval?.civilStartTime)
-    const bpm  = pt.dailyRestingHeartRate?.beatsPerMinute
-    if (!date || bpm == null) continue
-    byDate[date] = { resting_hr: Math.round(bpm) }
+    const typeData = pt.dailyRestingHeartRate
+    // interval is nested inside the type key on the list endpoint
+    const date = parseCivilDate(typeData?.interval?.civilStartTime ?? pt.interval?.civilStartTime)
+    const bpm  = typeData?.beatsPerMinute
+    if (!date || bpm == null) {
+      console.log('[Health][diagnostic] restingHR unexpected shape:', JSON.stringify(pt))
+      continue
+    }
+    byDate[date] = { resting_hr: Math.round(Number(bpm)) }
   }
   return byDate
 }
@@ -349,10 +358,15 @@ function parseRestingHR(dataPoints) {
 function parseHRV(dataPoints) {
   const byDate = {}
   for (const pt of dataPoints) {
-    const date  = parseCivilDate(pt.interval?.civilStartTime)
-    const rmssd = pt.dailyHeartRateVariability?.dailyRmssd
-    if (!date || rmssd == null) continue
-    byDate[date] = rmssd
+    const typeData = pt.dailyHeartRateVariability
+    // interval is nested inside the type key on the list endpoint
+    const date  = parseCivilDate(typeData?.interval?.civilStartTime ?? pt.interval?.civilStartTime)
+    const rmssd = typeData?.dailyRmssd
+    if (!date || rmssd == null) {
+      console.log('[Health][diagnostic] hrv unexpected shape:', JSON.stringify(pt))
+      continue
+    }
+    byDate[date] = Number(rmssd)
   }
   return byDate
 }
