@@ -5108,6 +5108,7 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
 /* Split cal-main when review is open */
 .cal-main--reviewing {
   display: flex !important;
+  flex-direction: row;
   overflow: hidden;
 }
 .cal-main--reviewing > :not(.cal-review-panel) {
