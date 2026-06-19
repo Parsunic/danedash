@@ -219,7 +219,10 @@ export default function Calendar() {
           </div>
           <div className="cal-nav-group">
             <button className="cal-nav-btn" onClick={() => navigate(-1)}>‹</button>
-            <button className="btn-secondary" style={{ padding: '7px 14px', fontSize: '0.8125rem' }} onClick={() => setCurrentDate(new Date())}>Today</button>
+            <button className="btn-secondary" style={{ padding: '7px 14px', fontSize: '0.8125rem' }} onClick={() => {
+              const [y, m, d] = getActiveDateString().split('-').map(Number)
+              setCurrentDate(new Date(y, m - 1, d))
+            }}>Today</button>
             <button className="cal-nav-btn" onClick={() => navigate(1)}>›</button>
           </div>
           <button
