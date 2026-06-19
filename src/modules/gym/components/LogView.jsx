@@ -580,6 +580,26 @@ export default function LogView({ activeSession, onLogAllSets, onEditSets, onSki
     onSkip(ei)
   }, [onSkip])
 
+  const handleAddExOpen = useCallback(() => setAddExState({ query: '', results: [] }), [])
+
+  const handleAddExQuery = useCallback((query) => {
+    setAddExState(prev => prev ? { ...prev, query } : null)
+    clearTimeout(addExTimerRef.current)
+    if (query.trim().length >= 2) {
+      addExTimerRef.current = setTimeout(async () => {
+        const results = await searchExercises(query)
+        setAddExState(prev => prev ? { ...prev, results } : null)
+      }, 300)
+    } else {
+      setAddExState(prev => prev ? { ...prev, results: [] } : null)
+    }
+  }, [])
+
+  const handleAddExPick = useCallback((exercise) => {
+    onAddExercise(exercise)
+    setAddExState(null)
+  }, [onAddExercise])
+
   if (!activeSession) {
     return <LogIdle onStartWorkout={onStartWorkout} />
   }
