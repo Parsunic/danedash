@@ -452,11 +452,12 @@ export async function syncGfitData() {
       console.warn(`[Health][diagnostic] identity call returned no healthUserId:`, JSON.stringify(identity))
     }
 
-    const today     = new Date()
-    const startDate = new Date(today)
-    startDate.setDate(startDate.getDate() - 29)
-    const startStr = startDate.toISOString().slice(0, 10)
-    const endStr   = today.toISOString().slice(0, 10)
+    // Use local date to avoid UTC date-shift at day boundaries
+    const now = new Date()
+    const lp  = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+    const endStr   = lp(now)
+    const startObj = new Date(now); startObj.setDate(startObj.getDate() - 29)
+    const startStr = lp(startObj)
 
     const [stepsRollup, restingHrPoints, sleepPoints, hrvPoints, calRollup] = await Promise.all([
       fetchDailyRollUp('steps', startStr, endStr),
@@ -466,17 +467,25 @@ export async function syncGfitData() {
       fetchDailyRollUp('active-energy-burned', startStr, endStr),
     ])
 
+    // Diagnostic logging BEFORE parsing so raw shapes are visible in the console
+    if (stepsRollup.length > 0)        console.log('[Health][diagnostic] stepsRollup[0]:', JSON.stringify(stepsRollup[0]))
+    else                               console.log('[Health][diagnostic] stepsRollup: empty')
+    if (restingHrPoints.length > 0)    console.log('[Health][diagnostic] restingHR[0]:', JSON.stringify(restingHrPoints[0]))
+    else                               console.log('[Health][diagnostic] restingHR: empty')
+    if (hrvPoints.length > 0)          console.log('[Health][diagnostic] hrv[0]:', JSON.stringify(hrvPoints[0]))
+    else                               console.log('[Health][diagnostic] hrv: empty')
+    if (sleepPoints.length > 0)        console.log('[Health][diagnostic] sleep[0]:', JSON.stringify(sleepPoints[0]))
+    else                               console.log('[Health][diagnostic] sleep: empty')
+    if (calRollup.length > 0)          console.log('[Health][diagnostic] calRollup[0]:', JSON.stringify(calRollup[0]))
+    else                               console.log('[Health][diagnostic] calRollup: empty')
+
     const stepsByDate    = parseStepsRollup(stepsRollup)
     const hrByDate       = parseRestingHR(restingHrPoints)
     const sleepByDate    = parseSleep(sleepPoints)
     const hrvByDate      = parseHRV(hrvPoints)
     const caloriesByDate = parseCalories(calRollup)
 
-    if (stepsRollup.length > 0)   console.log('[Health][diagnostic] stepsRollup[0]:', JSON.stringify(stepsRollup[0]))
-    if (calRollup.length > 0)     console.log('[Health][diagnostic] calRollup[0]:', JSON.stringify(calRollup[0]))
-    if (restingHrPoints.length > 0) console.log('[Health][diagnostic] restingHR[0]:', JSON.stringify(restingHrPoints[0]))
-    if (hrvPoints.length > 0)     console.log('[Health][diagnostic] hrv[0]:', JSON.stringify(hrvPoints[0]))
-    console.log(`[Health][diagnostic] data available — steps:${Object.keys(stepsByDate).length} restingHR:${Object.keys(hrByDate).length} sleep:${Object.keys(sleepByDate).length} hrv:${Object.keys(hrvByDate).length} calories:${Object.keys(caloriesByDate).length} days`)
+    console.log(`[Health][diagnostic] parsed — steps:${Object.keys(stepsByDate).length} restingHR:${Object.keys(hrByDate).length} sleep:${Object.keys(sleepByDate).length} hrv:${Object.keys(hrvByDate).length} calories:${Object.keys(caloriesByDate).length} days`)
 
     const dates = new Set([
       ...Object.keys(stepsByDate),
