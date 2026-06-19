@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { storeGet, storeSet } from '../../lib/storage.js'
+import { getActiveDateString } from '../../lib/dateHelpers.js'
 import BackgroundBlob from '../../components/BackgroundBlob.jsx'
 import TimeGrid from './TimeGrid.jsx'
 import MonthView from './MonthView.jsx'
