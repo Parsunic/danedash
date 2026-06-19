@@ -374,8 +374,16 @@ function parseHRV(dataPoints) {
 function parseSleep(dataPoints) {
   const byDate = {}
   for (const pt of dataPoints) {
-    const endTime = pt.sleep?.interval?.endTime
-    if (!endTime) continue
+    const sleepData = pt.sleep
+    if (!sleepData) {
+      console.log('[Health][diagnostic] sleep point missing "sleep" key:', JSON.stringify(pt))
+      continue
+    }
+    const endTime = sleepData.interval?.endTime
+    if (!endTime) {
+      console.log('[Health][diagnostic] sleep point missing interval.endTime:', JSON.stringify(pt))
+      continue
+    }
     const date = endTime.slice(0, 10)
 
     const minutesAsleep = parseInt(pt.sleep?.summary?.minutesAsleep ?? '0', 10)
