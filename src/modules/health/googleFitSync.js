@@ -408,15 +408,27 @@ function parseSleep(dataPoints) {
       console.log('[Health][diagnostic] sleep point missing interval.endTime:', JSON.stringify(pt))
       continue
     }
-    const date = endTime.slice(0, 10)
+    // Bucket by the wake-up day in local time (not UTC)
+    const date = localDateFromIso(endTime, sleepData.interval?.endUtcOffset) ?? endTime.slice(0, 10)
 
-    const minutesAsleep = parseInt(sleepData.summary?.minutesAsleep ?? '0', 10)
-    const minutesAwake  = parseInt(sleepData.summary?.minutesAwake  ?? '0', 10)
+    const summary       = sleepData.summary ?? {}
+    const minutesAsleep = parseInt(summary.minutesAsleep ?? '0', 10)
+    const minutesAwake  = parseInt(summary.minutesAwake  ?? '0', 10)
 
+    // Per-stage minutes live in summary.stagesSummary, NOT the raw stages[] (which have no minutes).
+    // That array can list each type more than once (API quirk), so assign by type to avoid double-counting.
     const stageTotals = { DEEP: 0, REM: 0, LIGHT: 0, AWAKE: 0 }
-    for (const stage of (sleepData.stages ?? [])) {
-      if (stage.type in stageTotals)
-        stageTotals[stage.type] += parseInt(stage.minutes ?? '0', 10)
+    if (Array.isArray(summary.stagesSummary)) {
+      for (const s of summary.stagesSummary) {
+        if (s.type in stageTotals) stageTotals[s.type] = parseInt(s.minutes ?? '0', 10)
+      }
+    } else {
+      // Fallback: derive each stage's duration from its start/end ISO times
+      for (const stage of (sleepData.stages ?? [])) {
+        if (!(stage.type in stageTotals)) continue
+        const mins = (new Date(stage.endTime) - new Date(stage.startTime)) / 60000
+        if (mins > 0) stageTotals[stage.type] += Math.round(mins)
+      }
     }
 
     const deepMin  = stageTotals.DEEP
