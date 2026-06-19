@@ -481,7 +481,7 @@ export async function syncGfitData() {
     const startStr = lp(startObj)
 
     const [stepsPoints, restingHrPoints, sleepPoints, hrvPoints, calRollup] = await Promise.all([
-      fetchHealthData('steps', startStr, endStr),   // list endpoint confirmed working; rollup returns empty
+      fetchDataPoints('steps'),   // unfiltered endpoint (filter grammar 400s); aggregate by civil date
       fetchDataPoints('daily-resting-heart-rate'),
       fetchSleepReconcile(),
       fetchDataPoints('daily-heart-rate-variability'),
