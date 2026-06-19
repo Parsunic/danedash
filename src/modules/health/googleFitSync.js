@@ -349,8 +349,9 @@ function parseRestingHR(dataPoints) {
   const byDate = {}
   for (const pt of dataPoints) {
     const typeData = pt.dailyRestingHeartRate
-    // interval is nested inside the type key on the list endpoint
-    const date = parseCivilDate(typeData?.interval?.civilStartTime ?? pt.interval?.civilStartTime)
+    // daily aggregate types have date directly on the type object, not inside an interval
+    const date = parseDirectDate(typeData?.date)
+             ?? parseCivilDate(typeData?.interval?.civilStartTime ?? pt.interval?.civilStartTime)
     const bpm  = typeData?.beatsPerMinute
     if (!date || bpm == null) {
       console.log('[Health][diagnostic] restingHR unexpected shape:', JSON.stringify(pt))
@@ -365,9 +366,11 @@ function parseHRV(dataPoints) {
   const byDate = {}
   for (const pt of dataPoints) {
     const typeData = pt.dailyHeartRateVariability
-    // interval is nested inside the type key on the list endpoint
-    const date  = parseCivilDate(typeData?.interval?.civilStartTime ?? pt.interval?.civilStartTime)
-    const rmssd = typeData?.dailyRmssd
+    // daily aggregate types have date directly on the type object, not inside an interval
+    const date  = parseDirectDate(typeData?.date)
+              ?? parseCivilDate(typeData?.interval?.civilStartTime ?? pt.interval?.civilStartTime)
+    // actual field name is averageHeartRateVariabilityMilliseconds
+    const rmssd = typeData?.averageHeartRateVariabilityMilliseconds ?? typeData?.dailyRmssd
     if (!date || rmssd == null) {
       console.log('[Health][diagnostic] hrv unexpected shape:', JSON.stringify(pt))
       continue
