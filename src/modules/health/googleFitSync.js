@@ -462,10 +462,10 @@ export async function syncGfitData() {
     }
 
     // Use local date to avoid UTC date-shift at day boundaries
-    const now = new Date()
+    const nowDate = new Date()
     const lp  = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
-    const endStr   = lp(now)
-    const startObj = new Date(now); startObj.setDate(startObj.getDate() - 29)
+    const endStr   = lp(nowDate)
+    const startObj = new Date(nowDate); startObj.setDate(startObj.getDate() - 29)
     const startStr = lp(startObj)
 
     const [stepsPoints, restingHrPoints, sleepPoints, hrvPoints, calRollup] = await Promise.all([
