@@ -427,10 +427,11 @@ function parseSleep(dataPoints) {
 function parseCalories(rollupPoints) {
   const byDate = {}
   for (const pt of rollupPoints) {
-    const date = parseCivilDate(pt.interval?.civilStartTime ?? pt.activeEnergyBurned?.interval?.civilStartTime)
-    const kcal = pt.activeEnergyBurned?.kilocaloriesSum ?? pt.activeEnergyBurned?.kilocalories
+    const typeData = pt.activeEnergyBurned
+    const date = parseCivilDate(pt.interval?.civilStartTime ?? typeData?.interval?.civilStartTime)
+    const kcal = typeData?.kilocaloriesSum ?? typeData?.kilocalories
     if (!date || kcal == null) continue
-    byDate[date] = (byDate[date] ?? 0) + Math.round(kcal)
+    byDate[date] = (byDate[date] ?? 0) + Math.round(Number(kcal))
   }
   return byDate
 }
