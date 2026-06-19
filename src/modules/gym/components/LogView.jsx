@@ -422,13 +422,15 @@ function LogIdle({ onStartWorkout }) {
 
 // ── MAIN LogView ──────────────────────────────────────────────────────────
 
-export default function LogView({ activeSession, onLogAllSets, onEditSets, onSkip, onSubstitute, onFinish, onCancel, onStartWorkout }) {
+export default function LogView({ activeSession, onLogAllSets, onEditSets, onSkip, onSubstitute, onFinish, onCancel, onStartWorkout, onAddExercise }) {
   const [exHistory, setExHistory] = useState(() => storeGet('gym_exercise_history') || {})
   const [elapsed, setElapsed] = useState(0)
   const [inputs, setInputs] = useState({})
   const [editStates, setEditStates] = useState({})
   const [substituteState, setSubstituteState] = useState(null)
+  const [addExState, setAddExState] = useState(null)
   const subTimerRef = useRef(null)
+  const addExTimerRef = useRef(null)
   const timerRef = useRef(null)
 
   useEffect(() => {
