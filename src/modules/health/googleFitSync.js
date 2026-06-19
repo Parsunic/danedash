@@ -386,11 +386,11 @@ function parseSleep(dataPoints) {
     }
     const date = endTime.slice(0, 10)
 
-    const minutesAsleep = parseInt(pt.sleep?.summary?.minutesAsleep ?? '0', 10)
-    const minutesAwake  = parseInt(pt.sleep?.summary?.minutesAwake  ?? '0', 10)
+    const minutesAsleep = parseInt(sleepData.summary?.minutesAsleep ?? '0', 10)
+    const minutesAwake  = parseInt(sleepData.summary?.minutesAwake  ?? '0', 10)
 
     const stageTotals = { DEEP: 0, REM: 0, LIGHT: 0, AWAKE: 0 }
-    for (const stage of (pt.sleep?.stages ?? [])) {
+    for (const stage of (sleepData.stages ?? [])) {
       if (stage.type in stageTotals)
         stageTotals[stage.type] += parseInt(stage.minutes ?? '0', 10)
     }
