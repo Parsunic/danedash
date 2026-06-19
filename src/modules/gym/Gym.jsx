@@ -278,6 +278,23 @@ export default function Gym() {
     })
   }, [])
 
+  const handleAddExerciseToSession = useCallback((exercise) => {
+    setActiveSession(prev => {
+      if (!prev) return prev
+      return {
+        ...prev,
+        exercises: [...prev.exercises, {
+          name: exercise.name,
+          repRange: '8-10',
+          notes: '',
+          targetSets: 3,
+          sets: [],
+          primary_muscle: exercise.primary_muscle || null,
+        }],
+      }
+    })
+  }, [])
+
   const handleFinishWorkoutAt = useCallback(async (finishTime) => {
     if (!activeSession) return
     const sessionToFinish = activeSession
