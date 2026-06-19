@@ -341,17 +341,20 @@ async function fetchSleepReconcile() {
 
 // ── Data parsers ──
 
-function parseStepsRollup(rollupPoints) {
+function parseSteps(points) {
   const byDate = {}
-  for (const pt of rollupPoints) {
+  for (const pt of points) {
     const typeData = pt.steps
-    // rollup may place interval at top level; list endpoint nests it inside the type key
-    const date  = parseCivilDate(pt.interval?.civilStartTime ?? typeData?.interval?.civilStartTime)
-    const count = parseInt(typeData?.countSum ?? typeData?.count ?? '0', 10)
-    if (!date || isNaN(count) || count === 0) {
-      if (typeData) console.log('[Health][diagnostic] steps point missing date, raw:', JSON.stringify(pt))
+    if (!typeData) continue
+    // each point is an interval with a string count; bucket by its civil start date
+    const date  = parseCivilDate(typeData.interval?.civilStartTime)
+              ?? localDateFromIso(typeData.interval?.startTime, typeData.interval?.startUtcOffset)
+    const count = parseInt(typeData.countSum ?? typeData.count ?? '0', 10)
+    if (!date) {
+      console.log('[Health][diagnostic] steps point missing date:', JSON.stringify(pt))
       continue
     }
+    if (isNaN(count) || count === 0) continue   // zero-step intervals are normal, skip silently
     byDate[date] = (byDate[date] ?? 0) + count
   }
   return byDate
