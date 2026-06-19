@@ -468,8 +468,8 @@ export async function syncGfitData() {
     const startObj = new Date(now); startObj.setDate(startObj.getDate() - 29)
     const startStr = lp(startObj)
 
-    const [stepsRollup, restingHrPoints, sleepPoints, hrvPoints, calRollup] = await Promise.all([
-      fetchDailyRollUp('steps', startStr, endStr),
+    const [stepsPoints, restingHrPoints, sleepPoints, hrvPoints, calRollup] = await Promise.all([
+      fetchHealthData('steps', startStr, endStr),   // list endpoint confirmed working; rollup returns empty
       fetchDataPoints('daily-resting-heart-rate'),
       fetchSleepReconcile(),
       fetchDataPoints('daily-heart-rate-variability'),
@@ -477,8 +477,8 @@ export async function syncGfitData() {
     ])
 
     // Diagnostic logging BEFORE parsing so raw shapes are visible in the console
-    if (stepsRollup.length > 0)        console.log('[Health][diagnostic] stepsRollup[0]:', JSON.stringify(stepsRollup[0]))
-    else                               console.log('[Health][diagnostic] stepsRollup: empty')
+    if (stepsPoints.length > 0)        console.log('[Health][diagnostic] stepsPoints[0]:', JSON.stringify(stepsPoints[0]))
+    else                               console.log('[Health][diagnostic] stepsPoints: empty')
     if (restingHrPoints.length > 0)    console.log('[Health][diagnostic] restingHR[0]:', JSON.stringify(restingHrPoints[0]))
     else                               console.log('[Health][diagnostic] restingHR: empty')
     if (hrvPoints.length > 0)          console.log('[Health][diagnostic] hrv[0]:', JSON.stringify(hrvPoints[0]))
