@@ -47,7 +47,10 @@ function headerLabel(view, date) {
 
 export default function Calendar() {
   const [view, setView] = useState('day')
-  const [currentDate, setCurrentDate] = useState(new Date())
+  const [currentDate, setCurrentDate] = useState(() => {
+    const [y, m, d] = getActiveDateString().split('-').map(Number)
+    return new Date(y, m - 1, d)
+  })
   const [events, setEvents] = useState([])
   const [gymPlanned, setGymPlanned] = useState([])
   const [showMiniMonth, setShowMiniMonth] = useState(true)
