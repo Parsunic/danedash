@@ -260,19 +260,23 @@ function dateToRangeObj(dateStr, isEnd = false) {
 
 // ── Paginated API fetch helpers ──
 
-// GET dataPoints without any filter — for daily metrics (resting-heart-rate, hrv-rmssd)
+// GET dataPoints without any filter — for daily metrics + steps (the filtered list endpoint
+// rejects our filter grammar, but the unfiltered endpoint is confirmed working)
+const MAX_PAGES = 25
+
 async function fetchDataPoints(dataType) {
   const baseUrl = `${HEALTH_BASE}/dataTypes/${dataType}/dataPoints`
   const all     = []
   let pageToken = null
+  let pages     = 0
 
   do {
     const url  = pageToken ? `${baseUrl}?pageToken=${encodeURIComponent(pageToken)}` : baseUrl
     const data = await healthRequest('GET', url)
-    if (!data) return []
+    if (!data) return all
     all.push(...(data.dataPoints ?? []))
     pageToken = data.nextPageToken ?? null
-  } while (pageToken)
+  } while (pageToken && ++pages < MAX_PAGES)
 
   return all
 }
