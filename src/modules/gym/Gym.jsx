@@ -456,6 +456,7 @@ export default function Gym() {
       onFinish={handleFinishWorkout}
       onCancel={handleCancelWorkout}
       onStartWorkout={startWorkout}
+      onAddExercise={handleAddExerciseToSession}
     />
   )
 
