@@ -415,8 +415,8 @@ function parseSleep(dataPoints) {
           rem:       remMin,
           light:     lightMin,
           wake:      awakeMin,
-          startTime: pt.sleep.interval.startTime,
-          endTime:   pt.sleep.interval.endTime,
+          startTime: sleepData.interval.startTime,
+          endTime:   sleepData.interval.endTime,
         },
       }
     }
