@@ -5377,10 +5377,14 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
 /* Mobile */
 @media (max-width: 600px) {
   .cal-main--reviewing { flex-direction: column; }
+  .cal-main--reviewing > :not(.cal-review-panel) {
+    flex: none;
+    height: 160px;
+  }
   .cal-review-panel {
     width: 100%; border-left: none;
     border-top: 1px solid rgba(255,255,255,0.07);
-    height: 52dvh; flex-shrink: 0;
+    flex: 1; min-height: 0; height: auto;
   }
   .cal-review-bar-btn { font-size: 14px; padding: 14px; }
 }
