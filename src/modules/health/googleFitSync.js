@@ -551,7 +551,7 @@ export async function syncTodayIfStale() {
 export async function fetchHealthHistory(days = 7) {
   const oldest = new Date()
   oldest.setDate(oldest.getDate() - (days - 1))
-  const oldestStr = oldest.toISOString().slice(0, 10)
+  const oldestStr = `${oldest.getFullYear()}-${String(oldest.getMonth() + 1).padStart(2, '0')}-${String(oldest.getDate()).padStart(2, '0')}`
 
   const { data, error } = await supabase
     .from('health_metrics')
