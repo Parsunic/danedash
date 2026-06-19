@@ -655,6 +655,35 @@ export default function LogView({ activeSession, onLogAllSets, onEditSets, onSki
           />
         )
       })}
+
+      {addExState ? (
+        <div className="gym-log-exercise-card">
+          <div className="gym-log-ex-header">
+            <div className="gym-log-ex-name">Add Exercise</div>
+          </div>
+          <input
+            className="gym-ex-search"
+            placeholder="Search exercises..."
+            autoFocus
+            value={addExState.query}
+            onChange={e => handleAddExQuery(e.target.value)}
+            style={{ marginBottom: 8 }}
+          />
+          {addExState.results?.map(r => (
+            <button key={r.name} className="gym-ex-result-row" onClick={() => handleAddExPick(r)}>
+              <span className="gym-ex-result-name">{r.name}</span>
+              {r.primary_muscle && <span className={`gym-muscle-badge muscle-${r.primary_muscle}`}>{r.primary_muscle}</span>}
+            </button>
+          ))}
+          <button className="btn-ghost" style={{ fontSize: '0.75rem', marginTop: 8, color: 'var(--text-tertiary)' }} onClick={() => setAddExState(null)}>Cancel</button>
+        </div>
+      ) : (
+        <button
+          className="btn-ghost"
+          style={{ width: '100%', marginTop: 4, marginBottom: 12, fontSize: '0.8125rem', color: 'var(--text-tertiary)', padding: '10px 0' }}
+          onClick={handleAddExOpen}
+        >+ Add Exercise</button>
+      )}
     </div>
   )
 }
