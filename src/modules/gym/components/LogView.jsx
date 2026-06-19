@@ -186,6 +186,7 @@ function ExerciseCard({
           onChange={(field, val) => onInputChange(exIdx, ri, field, val)}
           onRemove={() => onRemoveRow(exIdx, ri)}
           canRemove={inputRows.length > 1 || loggedCount > 0}
+          repPlaceholder={rec.seed && ex.repRange ? ex.repRange : 'reps'}
         />
       ))}
 
