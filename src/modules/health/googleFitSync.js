@@ -503,7 +503,7 @@ export async function syncGfitData() {
     if (calRollup.length > 0)          console.log('[Health][diagnostic] calRollup[0]:', JSON.stringify(calRollup[0]))
     else                               console.log('[Health][diagnostic] calRollup: empty')
 
-    const stepsByDate    = parseStepsRollup(stepsPoints)
+    const stepsByDate    = parseSteps(stepsPoints)
     const hrByDate       = parseRestingHR(restingHrPoints)
     const sleepByDate    = parseSleep(sleepPoints)
     const hrvByDate      = parseHRV(hrvPoints)
