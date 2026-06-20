@@ -120,6 +120,24 @@ function SettingsModal({ onClose }) {
               {gymAutoFinish ? 'On' : 'Off'}
             </button>
           </div>
+          <div className="settings-toggle-row" style={{ marginTop: 12 }}>
+            <div>
+              <span className="settings-label" style={{ margin: 0 }}>Weight Unit</span>
+              <p className="settings-hint" style={{ marginTop: 4 }}>Unit shown for weights in logs, history, and suggestions. Values are stored as-entered — switching units only changes the label.</p>
+            </div>
+            <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+              <button
+                className={weightUnit === 'lbs' ? 'btn-primary' : 'btn-secondary'}
+                style={{ fontSize: '0.75rem', padding: '5px 14px' }}
+                onClick={() => setWeightUnit('lbs')}
+              >lbs</button>
+              <button
+                className={weightUnit === 'kg' ? 'btn-primary' : 'btn-secondary'}
+                style={{ fontSize: '0.75rem', padding: '5px 14px' }}
+                onClick={() => setWeightUnit('kg')}
+              >kg</button>
+            </div>
+          </div>
           <div className="settings-section-divider" />
           <label className="settings-label">Anthropic API Key</label>
           <div className="settings-input-row">
