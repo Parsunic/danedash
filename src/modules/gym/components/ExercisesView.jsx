@@ -325,6 +325,9 @@ export default function ExercisesView() {
           onClose={() => setEditingEx(null)}
         />
       )}
+      {selectedEx && (
+        <ExerciseDetailModal ex={selectedEx} onClose={() => setSelectedEx(null)} />
+      )}
     </div>
   )
 }
