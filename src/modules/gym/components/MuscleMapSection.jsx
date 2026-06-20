@@ -156,9 +156,10 @@ export default function MuscleMapSection({ logs }) {
     [primSets, secSets, primVol, secVol, metric]
   )
 
-  // Primary: muscles with meaningful activity (>0 sets primary)
-  const activePrimary   = Object.keys(primSets).filter(m => primSets[m] > 0)
-  const activeSecondary = Object.keys(secSets).filter(m => secSets[m] > 0 && !primSets[m])
+  const bodyData = useMemo(
+    () => buildBodyData(primSets, secSets, primVol, secVol, metric),
+    [primSets, secSets, primVol, secVol, metric]
+  )
 
   const pct = useMemo(() => {
     const hit = ALL_SUB_MUSCLES.filter(m => (primSets[m] || 0) + (secSets[m] || 0) > 0).length
