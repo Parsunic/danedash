@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { searchExercises, browseExercisesByMuscle, addCustomExercise, deleteCustomExercise, getCustomExercises } from '../../../lib/muscleUtils.js'
 import { storeSet } from '../../../lib/storage.js'
 import { supabase } from '../../../lib/supabase.js'
@@ -58,73 +59,99 @@ async function fetchExSubMuscles(ex) {
   return { primary: [], secondary: [] }
 }
 
-function ExerciseDetailModal({ ex, onClose }) {
-  const [subMuscles, setSubMuscles] = useState(null)
-  const [bodyData, setBodyData] = useState([])
+// Popover positioned near the clicked exercise row, rendered via portal
+function ExerciseDetailPopover({ detail, onClose }) {
+  const popRef = useRef(null)
 
   useEffect(() => {
-    fetchExSubMuscles(ex).then(sm => {
-      setSubMuscles(sm)
-      setBodyData(buildExBodyData(sm))
-    })
-  }, [ex])
+    const close = e => {
+      if (popRef.current && !popRef.current.contains(e.target)) onClose()
+    }
+    document.addEventListener('mousedown', close)
+    return () => document.removeEventListener('mousedown', close)
+  }, [onClose])
 
-  return (
-    <div className="gym-modal-overlay open" onClick={e => { if (e.target.classList.contains('gym-modal-overlay')) onClose() }}>
-      <div className="gym-modal" style={{ maxWidth: 560 }}>
-        <div className="gym-modal-title">
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span>{ex.name}</span>
-            {ex.primary_muscle && (
-              <span className={`gym-muscle-badge muscle-${ex.primary_muscle}`} style={{ fontSize: 10 }}>{ex.primary_muscle}</span>
-            )}
-          </div>
-          <button className="gym-modal-close" onClick={onClose}>✕</button>
+  const vW = window.innerWidth
+  const vH = window.innerHeight
+  const PANEL_W = Math.min(vW - 32, 500)
+  const PANEL_H = 480
+
+  const left = Math.max(16, (vW - PANEL_W) / 2)
+  let top = detail.rect.bottom + 8
+  if (top + PANEL_H > vH - 16) top = detail.rect.top - PANEL_H - 8
+  top = Math.max(16, Math.min(top, vH - PANEL_H - 16))
+
+  const { ex, subMuscles, bodyData } = detail
+
+  return createPortal(
+    <div
+      ref={popRef}
+      style={{
+        position: 'fixed',
+        top,
+        left,
+        width: PANEL_W,
+        zIndex: 9990,
+        background: '#0d0d0f',
+        border: '1px solid rgba(255,255,255,0.08)',
+        borderRadius: 16,
+        padding: '20px',
+        boxShadow: '0 8px 48px rgba(0,0,0,0.75)',
+        overflowY: 'auto',
+        maxHeight: PANEL_H,
+      }}
+    >
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span style={{ fontWeight: 500, fontSize: 15 }}>{ex.name}</span>
+          {ex.primary_muscle && (
+            <span className={`gym-muscle-badge muscle-${ex.primary_muscle}`} style={{ fontSize: 10 }}>{ex.primary_muscle}</span>
+          )}
         </div>
-
-        {!subMuscles ? (
-          <div style={{ textAlign: 'center', padding: '32px 0', color: 'var(--text-tertiary)' }}>···</div>
-        ) : bodyData.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '24px 0', color: 'var(--text-tertiary)', fontSize: 14 }}>
-            No muscle data available for this exercise.
-          </div>
-        ) : (
-          <>
-            <BodySVG data={bodyData} />
-            <div style={{ marginTop: 16, display: 'flex', gap: 16 }}>
-              {subMuscles.primary.length > 0 && (
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.4)', marginBottom: 6 }}>Primary</div>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
-                    {subMuscles.primary.map(m => (
-                      <span key={m} style={{ fontSize: 12, padding: '3px 8px', borderRadius: 6, background: 'rgba(232,160,32,0.15)', color: 'var(--accent)', border: '1px solid rgba(232,160,32,0.25)' }}>
-                        {formatSubMuscle(m)}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-              {subMuscles.secondary.length > 0 && (
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.4)', marginBottom: 6 }}>Secondary</div>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
-                    {subMuscles.secondary.map(m => (
-                      <span key={m} style={{ fontSize: 12, padding: '3px 8px', borderRadius: 6, background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.6)', border: '1px solid rgba(255,255,255,0.1)' }}>
-                        {formatSubMuscle(m)}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          </>
-        )}
-
-        <div className="gym-modal-footer" style={{ marginTop: 20 }}>
-          <button className="btn-secondary" style={{ flex: 1 }} onClick={onClose}>Close</button>
-        </div>
+        <button className="gym-modal-close" onClick={onClose} style={{ flexShrink: 0 }}>✕</button>
       </div>
-    </div>
+
+      {/* Body map — data already loaded, renders immediately */}
+      {bodyData.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '24px 0', color: 'var(--text-tertiary)', fontSize: 14 }}>
+          No muscle data available for this exercise.
+        </div>
+      ) : (
+        <BodySVG data={bodyData} />
+      )}
+
+      {/* Sub-muscle chips */}
+      {(subMuscles.primary.length > 0 || subMuscles.secondary.length > 0) && (
+        <div style={{ marginTop: 14, display: 'flex', gap: 14 }}>
+          {subMuscles.primary.length > 0 && (
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.4)', marginBottom: 6 }}>Primary</div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+                {subMuscles.primary.map(m => (
+                  <span key={m} style={{ fontSize: 12, padding: '3px 8px', borderRadius: 6, background: 'rgba(232,160,32,0.15)', color: 'var(--accent)', border: '1px solid rgba(232,160,32,0.25)' }}>
+                    {formatSubMuscle(m)}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+          {subMuscles.secondary.length > 0 && (
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.4)', marginBottom: 6 }}>Secondary</div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+                {subMuscles.secondary.map(m => (
+                  <span key={m} style={{ fontSize: 12, padding: '3px 8px', borderRadius: 6, background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.6)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                    {formatSubMuscle(m)}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>,
+    document.body
   )
 }
 
@@ -176,7 +203,8 @@ export default function ExercisesView() {
   const [customMuscle, setCustomMuscle] = useState('chest')
   const [addMsg, setAddMsg] = useState('')
   const [editingEx, setEditingEx] = useState(null)
-  const [selectedEx, setSelectedEx] = useState(null)
+  const [exDetail, setExDetail] = useState(null)   // { ex, subMuscles, bodyData, rect }
+  const [fetchingEx, setFetchingEx] = useState(null) // name being fetched
 
   const loadBrowse = useCallback((muscle) => {
     setLoading(true)
@@ -210,6 +238,20 @@ export default function ExercisesView() {
     setMuscleFilter(m)
     setQuery('')
   }
+
+  const handleExerciseClick = useCallback(async (ex, e) => {
+    if (fetchingEx) return
+    const rect = e.currentTarget.getBoundingClientRect()
+    setFetchingEx(ex.name)
+    setExDetail(null)
+    try {
+      const subMuscles = await fetchExSubMuscles(ex)
+      const bodyData = buildExBodyData(subMuscles)
+      setExDetail({ ex, subMuscles, bodyData, rect })
+    } finally {
+      setFetchingEx(null)
+    }
+  }, [fetchingEx])
 
   const handleAdd = async () => {
     if (!customName.trim()) return
@@ -269,25 +311,36 @@ export default function ExercisesView() {
         {!loading && results.length === 0 && (
           <div className="gym-exercises-placeholder">No exercises found</div>
         )}
-        {!loading && results.map((ex, i) => (
-          <div key={i} className="gym-exercise-row" style={{ cursor: 'pointer' }} onClick={() => setSelectedEx(ex)}>
-            <span className="gym-exercise-row-name">{ex.name}</span>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
-              {ex.is_custom && <span className="gym-exercise-custom-tag">custom</span>}
-              {ex.primary_muscle && (
-                <span className={`gym-muscle-badge muscle-${ex.primary_muscle}`}>{ex.primary_muscle}</span>
-              )}
-              {ex.is_custom && (
-                <>
-                  <button className="gym-set-remove-btn" style={{ padding: '2px 7px', fontSize: 12, color: 'var(--accent)' }}
-                    onClick={e => { e.stopPropagation(); setEditingEx(ex) }} title="Edit custom exercise">✎</button>
-                  <button className="gym-set-remove-btn" style={{ padding: '2px 7px', fontSize: 12 }}
-                    onClick={e => { e.stopPropagation(); handleDelete(ex.name) }} title="Remove custom exercise">×</button>
-                </>
-              )}
+        {!loading && results.map((ex, i) => {
+          const isFetching = fetchingEx === ex.name
+          return (
+            <div
+              key={i}
+              className="gym-exercise-row"
+              style={{ cursor: fetchingEx ? (isFetching ? 'wait' : 'default') : 'pointer', opacity: fetchingEx && !isFetching ? 0.5 : 1 }}
+              onClick={e => !fetchingEx && handleExerciseClick(ex, e)}
+            >
+              <span className="gym-exercise-row-name">
+                {ex.name}
+                {isFetching && <span style={{ marginLeft: 8, color: 'var(--text-tertiary)', fontSize: 12 }}>···</span>}
+              </span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+                {ex.is_custom && <span className="gym-exercise-custom-tag">custom</span>}
+                {ex.primary_muscle && (
+                  <span className={`gym-muscle-badge muscle-${ex.primary_muscle}`}>{ex.primary_muscle}</span>
+                )}
+                {ex.is_custom && (
+                  <>
+                    <button className="gym-set-remove-btn" style={{ padding: '2px 7px', fontSize: 12, color: 'var(--accent)' }}
+                      onClick={e => { e.stopPropagation(); setEditingEx(ex) }} title="Edit custom exercise">✎</button>
+                    <button className="gym-set-remove-btn" style={{ padding: '2px 7px', fontSize: 12 }}
+                      onClick={e => { e.stopPropagation(); handleDelete(ex.name) }} title="Remove custom exercise">×</button>
+                  </>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
 
       <div className="gym-add-exercise-form">
@@ -325,8 +378,8 @@ export default function ExercisesView() {
           onClose={() => setEditingEx(null)}
         />
       )}
-      {selectedEx && (
-        <ExerciseDetailModal ex={selectedEx} onClose={() => setSelectedEx(null)} />
+      {exDetail && (
+        <ExerciseDetailPopover detail={exDetail} onClose={() => setExDetail(null)} />
       )}
     </div>
   )
