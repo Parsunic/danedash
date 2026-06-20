@@ -115,7 +115,7 @@ function ExerciseCard({
         {editRows.map((row, ri) => (
           <div key={ri} className="gym-set-row-compact">
             <span className="gym-set-row-label">Set {ri + 1}</span>
-            <input type="text" inputMode="decimal" placeholder="lbs" className="gym-set-compact-input"
+            <input type="text" inputMode="decimal" placeholder={getWeightUnit()} className="gym-set-compact-input"
               value={row.weight} onChange={e => onEditChange(ri, 'weight', e.target.value)} />
             <input type="text" inputMode="numeric" placeholder="reps" className="gym-set-compact-input"
               value={row.reps} onChange={e => onEditChange(ri, 'reps', e.target.value)} />
