@@ -115,8 +115,11 @@ async function fetchExSubMuscles(ex) {
 }
 
 // Popover positioned near the clicked exercise row, rendered via portal
-function ExerciseDetailPopover({ detail, onClose }) {
+function ExerciseDetailPopover({ detail, onClose, onRename }) {
   const popRef = useRef(null)
+  const [renaming, setRenaming] = useState(false)
+  const [renameVal, setRenameVal] = useState(detail.ex.name)
+  const renameInputRef = useRef(null)
 
   useEffect(() => {
     const close = e => {
@@ -126,10 +129,14 @@ function ExerciseDetailPopover({ detail, onClose }) {
     return () => document.removeEventListener('mousedown', close)
   }, [onClose])
 
+  useEffect(() => {
+    if (renaming && renameInputRef.current) renameInputRef.current.focus()
+  }, [renaming])
+
   const vW = window.innerWidth
   const vH = window.innerHeight
   const PANEL_W = Math.min(vW - 32, 500)
-  const PANEL_H = 480
+  const PANEL_H = 460
 
   const left = Math.max(16, (vW - PANEL_W) / 2)
   let top = detail.rect.bottom + 8
@@ -137,6 +144,14 @@ function ExerciseDetailPopover({ detail, onClose }) {
   top = Math.max(16, Math.min(top, vH - PANEL_H - 16))
 
   const { ex, subMuscles, bodyData } = detail
+
+  const handleRenameSave = () => {
+    const newName = renameVal.trim()
+    if (!newName || newName === ex.name) { setRenaming(false); return }
+    renameExerciseEverywhere(ex.name, newName)
+    onRename(newName)
+    onClose()
+  }
 
   return createPortal(
     <div
@@ -152,22 +167,41 @@ function ExerciseDetailPopover({ detail, onClose }) {
         borderRadius: 16,
         padding: '20px',
         boxShadow: '0 8px 48px rgba(0,0,0,0.75)',
-        overflowY: 'auto',
-        maxHeight: PANEL_H,
+        overflow: 'hidden',
       }}
     >
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontWeight: 500, fontSize: 15 }}>{ex.name}</span>
-          {ex.primary_muscle && (
-            <span className={`gym-muscle-badge muscle-${ex.primary_muscle}`} style={{ fontSize: 10 }}>{ex.primary_muscle}</span>
-          )}
-        </div>
-        <button className="gym-modal-close" onClick={onClose} style={{ flexShrink: 0 }}>✕</button>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+        {renaming ? (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, marginRight: 8 }}>
+            <input
+              ref={renameInputRef}
+              className="gym-input"
+              value={renameVal}
+              onChange={e => setRenameVal(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') handleRenameSave(); if (e.key === 'Escape') setRenaming(false) }}
+              style={{ flex: 1, fontSize: 14, padding: '6px 10px' }}
+            />
+            <button className="btn-primary" style={{ fontSize: 12, padding: '6px 12px', flexShrink: 0 }} onClick={handleRenameSave}>Save</button>
+            <button className="btn-ghost" style={{ fontSize: 12, padding: '6px 10px', flexShrink: 0 }} onClick={() => { setRenaming(false); setRenameVal(ex.name) }}>Cancel</button>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1 }}>
+            <span style={{ fontWeight: 500, fontSize: 15 }}>{ex.name}</span>
+            {ex.primary_muscle && (
+              <span className={`gym-muscle-badge muscle-${ex.primary_muscle}`} style={{ fontSize: 10 }}>{ex.primary_muscle}</span>
+            )}
+            <button
+              className="btn-ghost"
+              style={{ fontSize: 11, padding: '3px 9px', marginLeft: 4, opacity: 0.7 }}
+              onClick={() => { setRenameVal(ex.name); setRenaming(true) }}
+            >✎ Rename</button>
+          </div>
+        )}
+        {!renaming && <button className="gym-modal-close" onClick={onClose} style={{ flexShrink: 0 }}>✕</button>}
       </div>
 
-      {/* Body map — data already loaded, renders immediately */}
+      {/* Body map — data already loaded, no resize */}
       {bodyData.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '24px 0', color: 'var(--text-tertiary)', fontSize: 14 }}>
           No muscle data available for this exercise.
