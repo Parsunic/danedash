@@ -22,6 +22,15 @@ async function fetchSubMuscles() {
       secondary: e.secondary_sub_muscles || [],
     }])
   )
+  // Merge custom exercises (may have AI-generated sub-muscles)
+  for (const ex of getCustomExercises()) {
+    if (ex.primary_sub_muscles || ex.secondary_sub_muscles) {
+      subMuscleCache.set(ex.name.toLowerCase(), {
+        primary:   ex.primary_sub_muscles   || [],
+        secondary: ex.secondary_sub_muscles || [],
+      })
+    }
+  }
   return subMuscleCache
 }
 
