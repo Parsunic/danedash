@@ -1,6 +1,5 @@
 import { createContext, useContext, useRef, useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase.js'
-import { storeGet } from '../lib/storage.js'
 
 // Keys that must sync — updated whenever a new feature adds persistent localStorage data.
 // Rule: every storeSet key used by any module must appear here or in the dynamic-key section.
@@ -28,10 +27,16 @@ const DYNAMIC_SYNC_PREFIXES = [
 
 const SYNC_ROW_ID = 'dane'
 
-// Set once per page load — used to distinguish "old _lastLocalChange from a prior session"
-// vs "changes made in this browser session." Only current-session changes should block
-// a remote pull; stale _lastLocalChange values must not prevent initial sync from applying.
-const SESSION_START = Date.now()
+// Snapshot of the last genuine local edit AT PAGE LOAD, captured before any startup
+// writes (migrations, rollovers, on-mount normalizations) run. This is the linchpin of
+// the conflict resolution: the initial remote pull is decided against THIS value, not the
+// live _lastLocalChange. Automated writes during the async pull window bump the live marker
+// to "now," which previously made a fresh reload look like it held newer edits than the
+// server — causing the pull to be skipped and stale local data to be pushed over good
+// remote data (e.g. a workout logged on another device got reverted). By comparing the
+// server against this boot-time snapshot, post-boot automated writes can no longer hijack
+// the decision. See storeSetSilent in storage.js for the companion guard.
+const BOOT_LOCAL_CHANGE = parseInt(localStorage.getItem('_lastLocalChange') || '0')
 
 const SyncContext = createContext({ status: 'offline', isOffline: false })
 
@@ -61,26 +66,18 @@ function getLocalPayload() {
   return payload
 }
 
-// Only apply remote payload if it's newer than any local changes made THIS SESSION.
-// The SESSION_START guard is critical: _lastLocalChange persists across page loads, so
-// a device opened fresh after being idle will have a stale timestamp that looks "newer"
-// than Supabase, blocking the pull and then pushing stale data overtop of the remote.
-// By requiring lastLocalChange > SESSION_START, only in-flight writes from the current
-// browser session can block a remote pull.
-function applyRemotePayload(payload, remoteUpdatedAt) {
+// Write remote data into localStorage and notify every feature module to re-read.
+// Uses raw setItem (not storeSet) so applying remote data does NOT register as a local
+// edit and does NOT trigger a push back to the server.
+function writeRemotePayload(payload) {
   if (!payload) return
-  if (remoteUpdatedAt) {
-    const lastLocalChange = parseInt(localStorage.getItem('_lastLocalChange') || '0')
-    const remoteMs = new Date(remoteUpdatedAt).getTime()
-    if (lastLocalChange > remoteMs && lastLocalChange > SESSION_START) return
-  }
   Object.entries(payload).forEach(([k, v]) => localStorage.setItem(k, JSON.stringify(v)))
-  // Notify all feature modules that remote data has been applied.
-  // Each module listens for the event(s) it cares about and re-reads from localStorage.
   window.dispatchEvent(new CustomEvent('goals-changed'))
   window.dispatchEvent(new CustomEvent('gym-changed'))
   window.dispatchEvent(new CustomEvent('sync-applied'))
 }
+
+const toMs = (ts) => (ts ? new Date(ts).getTime() : 0)
 
 export function SyncProvider({ children }) {
   const [status, setStatus] = useState('offline')
@@ -89,14 +86,19 @@ export function SyncProvider({ children }) {
   const debounceRef = useRef(null)
   const isSyncingRef = useRef(false)
   const initializedRef = useRef(false)
+  // Exact updated_at (ms) of the row WE last pushed, so the realtime echo of our own
+  // write can be ignored instead of re-applied.
+  const lastPushedMsRef = useRef(0)
 
   const pushToSupabase = useCallback(async () => {
     if (!clientRef.current || isSyncingRef.current) return
     setStatus('syncing')
     const data = getLocalPayload()
+    const updatedAt = new Date().toISOString()
+    lastPushedMsRef.current = toMs(updatedAt)
     const { error } = await clientRef.current
       .from('app_state')
-      .upsert({ key: SYNC_ROW_ID, data, updated_at: new Date().toISOString() })
+      .upsert({ key: SYNC_ROW_ID, data, updated_at: updatedAt })
     setStatus(error ? 'error' : 'synced')
     if (error) console.warn('Sync push failed:', error)
   }, [])
@@ -113,6 +115,40 @@ export function SyncProvider({ children }) {
     return () => window.removeEventListener('schedule-sync', handler)
   }, [schedulePush])
 
+  // Re-pull when the tab regains focus/visibility. Realtime websockets are dropped while a
+  // tab is backgrounded (e.g. computer left idle while you work out on your phone), so on
+  // return the local data can be stale. This fetches the server and applies it when it is
+  // newer than our last genuine local edit — the reliable backstop for cross-device sync.
+  const revalidate = useCallback(async () => {
+    if (!clientRef.current || !initializedRef.current || isSyncingRef.current) return
+    try {
+      const { data: row, error } = await clientRef.current
+        .from('app_state').select('data, updated_at').eq('key', SYNC_ROW_ID).single()
+      if (error || !row?.data) return
+      const remoteMs = toMs(row.updated_at)
+      if (remoteMs === lastPushedMsRef.current) return // our own write echoed back
+      const lastLocalChange = parseInt(localStorage.getItem('_lastLocalChange') || '0')
+      if (remoteMs >= lastLocalChange) {
+        isSyncingRef.current = true
+        writeRemotePayload(row.data)
+        isSyncingRef.current = false
+        setStatus('synced')
+      }
+    } catch (e) {
+      // Network blip on revalidation — ignore, the next focus/realtime event will retry.
+    }
+  }, [])
+
+  useEffect(() => {
+    const onVisible = () => { if (document.visibilityState === 'visible') revalidate() }
+    document.addEventListener('visibilitychange', onVisible)
+    window.addEventListener('focus', onVisible)
+    return () => {
+      document.removeEventListener('visibilitychange', onVisible)
+      window.removeEventListener('focus', onVisible)
+    }
+  }, [revalidate])
+
   useEffect(() => {
     let channel = null
     async function initSync() {
@@ -125,12 +161,13 @@ export function SyncProvider({ children }) {
         const { data: row, error } = await client
           .from('app_state').select('data, updated_at').eq('key', SYNC_ROW_ID).single()
 
+        let pushAfterInit = false
+
         if (error) {
           if (error.code === 'PGRST116') {
             // No row exists yet — brand-new user or row was deleted.
-            // Only push local data to seed Supabase if local actually has content.
-            // This guard prevents an empty or stale mobile device from creating a blank row
-            // and overwriting data that exists on another device.
+            // Only seed Supabase if local actually has content, so an empty/stale device
+            // can't create a blank row that wipes data living on another device.
             const localData = getLocalPayload()
             if (Object.keys(localData).length > 0) {
               await pushToSupabase()
@@ -138,46 +175,50 @@ export function SyncProvider({ children }) {
               setStatus('synced')
             }
           } else {
-            // Supabase is reachable but returned an unexpected error — treat as offline.
-            // Fall back to cached localStorage data and allow local writes to proceed.
+            // Supabase reachable but returned an unexpected error — treat as offline.
             console.warn('Sync pull failed:', error)
             setStatus('offline')
             setIsOffline(true)
-            // Allow writes so the user isn't blocked; they'll sync when connectivity returns.
             initializedRef.current = true
             return
           }
         } else if (row?.data) {
-          // Remote data fetched — apply only if newer than any local changes.
-          // Do NOT let any local write trigger a push during this phase (isSyncingRef guard).
+          // Decide against the BOOT snapshot, NOT the live marker. If the server is at least
+          // as new as our last pre-load edit, the server wins (covers the reverted-workout
+          // bug). Only when our pre-load local edits are genuinely newer do we keep local
+          // and push it up.
+          const remoteMs = toMs(row.updated_at)
           isSyncingRef.current = true
-          applyRemotePayload(row.data, row.updated_at)
+          if (remoteMs >= BOOT_LOCAL_CHANGE) {
+            writeRemotePayload(row.data)
+          } else {
+            pushAfterInit = true
+          }
           isSyncingRef.current = false
           setStatus('synced')
         } else {
           setStatus('synced')
         }
 
-        // Mark initialization complete only AFTER Supabase data has been applied.
+        // Mark initialization complete only AFTER the remote decision is made.
         // schedulePush checks this flag — no local push can reach Supabase before this point.
         initializedRef.current = true
 
-        // If local changes were made during the async fetch window (and therefore blocked
-        // from pushing by isSyncingRef), kick off a push now that init is complete.
-        // SESSION_START guard prevents stale _lastLocalChange from previous sessions
-        // from triggering a push that would overwrite the remote data we just applied.
-        const lastLocalChange = parseInt(localStorage.getItem('_lastLocalChange') || '0')
-        const remoteMs = row?.updated_at ? new Date(row.updated_at).getTime() : 0
-        if (lastLocalChange > remoteMs && lastLocalChange > SESSION_START) schedulePush()
+        // Our pre-load local data was genuinely newer than the server → push it now.
+        if (pushAfterInit) schedulePush()
 
         channel = client.channel('dashboard-sync')
           .on('postgres_changes', {
             event: '*', schema: 'public', table: 'app_state', filter: `key=eq.${SYNC_ROW_ID}`,
           }, change => {
-            if (change.new?.data) {
-              // Remote change — apply only if newer than any local changes.
+            if (!change.new?.data) return
+            const remoteMs = toMs(change.new.updated_at)
+            if (remoteMs === lastPushedMsRef.current) return // ignore echo of our own push
+            // Apply only if the incoming change is newer than our last genuine local edit.
+            const lastLocalChange = parseInt(localStorage.getItem('_lastLocalChange') || '0')
+            if (remoteMs >= lastLocalChange) {
               isSyncingRef.current = true
-              applyRemotePayload(change.new.data, change.new.updated_at)
+              writeRemotePayload(change.new.data)
               isSyncingRef.current = false
               setStatus('synced')
             }
@@ -188,7 +229,6 @@ export function SyncProvider({ children }) {
         console.warn('Sync init failed:', e)
         setStatus('offline')
         setIsOffline(true)
-        // Allow local writes to proceed so the user isn't blocked while offline.
         initializedRef.current = true
       }
     }
