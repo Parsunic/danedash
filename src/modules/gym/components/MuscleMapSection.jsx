@@ -166,7 +166,7 @@ export default function MuscleMapSection({ logs }) {
     return Math.round((hit / ALL_SUB_MUSCLES.length) * 100)
   }, [primSets, secSets])
 
-  const hasData = activePrimary.length > 0 || activeSecondary.length > 0
+  const hasData = bodyData.length > 0
 
   return (
     <div className="muscle-map-section">
