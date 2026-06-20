@@ -3660,6 +3660,11 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
   border: 1px solid rgba(255,255,255,0.06);
   padding: 14px 16px;
   backdrop-filter: blur(24px) saturate(1.2);
+  transition: transform 220ms cubic-bezier(0.22,1,0.36,1), border-color 220ms ease;
+}
+.gym-stats-exercise-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(232,160,32,0.18);
 }
 .gym-stats-ex-header {
   display: flex;
