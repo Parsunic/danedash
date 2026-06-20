@@ -53,12 +53,10 @@ function toDateObj(ds) {
 // Given workout logs + sub-muscle map, compute active sub-muscles for a time window.
 // Returns { primary: Set, secondary: Set, sets: {sub_muscle: count}, volume: {sub_muscle: number} }
 function computeActiveMuscles(logs, subMap, { sun, sat }) {
-  const primSets   = {}
-  const secSets    = {}
-  const primVol    = {}
-  const secVol     = {}
-  const primCount  = {}
-  const secCount   = {}
+  const primSets = {}
+  const secSets  = {}
+  const primVol  = {}
+  const secVol   = {}
 
   for (const log of logs) {
     const d = toDateObj(log.date)
@@ -73,14 +71,12 @@ function computeActiveMuscles(logs, subMap, { sun, sat }) {
       const vol = sets.reduce((s, st) => s + (st.weight || 0) * (st.reps || 0), 0)
 
       for (const m of info.primary) {
-        primSets[m]  = (primSets[m]  || 0) + numSets
-        primVol[m]   = (primVol[m]   || 0) + vol
-        primCount[m] = (primCount[m] || 0) + 1
+        primSets[m] = (primSets[m] || 0) + numSets
+        primVol[m]  = (primVol[m]  || 0) + vol
       }
       for (const m of info.secondary) {
-        secSets[m]  = (secSets[m]  || 0) + numSets
-        secVol[m]   = (secVol[m]   || 0) + vol
-        secCount[m] = (secCount[m] || 0) + 1
+        secSets[m] = (secSets[m] || 0) + numSets
+        secVol[m]  = (secVol[m]  || 0) + vol
       }
     }
   }
