@@ -37,7 +37,8 @@
       "PowerShell(\"token=[$env:SUPABASE_ACCESS_TOKEN]\")",
       "Bash(git reset *)",
       "Bash(node scripts/gen-icons.mjs)",
-      "Bash(git check-ignore *)"
+      "Bash(git check-ignore *)",
+      "Bash(grep -iE \"^sharp$|^puppeteer|^playwright|^canvas$|^@resvg\")"
     ]
   },
   "hooks": {
