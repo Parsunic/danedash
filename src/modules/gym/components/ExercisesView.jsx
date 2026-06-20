@@ -87,9 +87,9 @@ export default function ExercisesView() {
     setQuery('')
   }
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
     if (!customName.trim()) return
-    const added = addCustomExercise(customName.trim(), customMuscle)
+    const added = await addCustomExercise(customName.trim(), customMuscle)
     if (added) {
       setAddMsg(`✓ "${customName.trim()}" added`)
       setCustomName('')
