@@ -276,7 +276,7 @@ function DayModal({ ds, existing, templates, onClose, onSave, onRemove, onStartW
   }, [sel, customName, status, templates, existing, exercises, onRemove, onSave])
 
   return (
-    <div className="gym-modal-overlay open" onClick={e => { if (e.target.classList.contains('gym-modal-overlay')) onClose() }}>
+    <div className="gym-modal-overlay open">
       <div className="gym-modal" style={{ maxWidth: 520 }}>
         <div className="gym-modal-title">
           <span>{title}</span>
