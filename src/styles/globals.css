@@ -3571,6 +3571,36 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
 }
 .muscle-map-radar-wrap {
   margin-top: 8px;
+  animation: muscle-fade-up 500ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: 120ms;
+}
+
+/* Body diagram */
+.body-svg-wrap {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+  max-width: 360px;
+  margin: 4px auto 0;
+  animation: muscle-fade-up 500ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.body-svg-half {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.body-svg-label {
+  font-family: var(--font-body);
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.28);
+  margin-top: 2px;
+}
+@keyframes muscle-fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 /* ── STATS VIEW ── */
