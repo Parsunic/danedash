@@ -594,6 +594,10 @@ export default function PlannerView({ weekOffset = 0, onWeekOffsetChange = () =>
         </>
       )}
 
+      {historyModal && createPortal(
+        <DayHistoryModal ds={historyModal.ds} onClose={() => setHistoryModal(null)} />,
+        document.body
+      )}
       {dayModal && createPortal(
         <DayModal
           ds={dayModal.ds}
