@@ -241,6 +241,11 @@ function DayModal({ ds, existing, templates, onClose, onSave, onRemove, onStartW
   const title = DFULL[date.getDay()] + ', ' + MONTHS[m - 1] + ' ' + d
   const initSel = existing ? (existing.templateId || (existing.name ? '__custom__' : '')) : ''
   const [sel, setSel] = useState(initSel)
+
+  useEffect(() => {
+    window.__swipeDisabled = true
+    return () => { window.__swipeDisabled = false }
+  }, [])
   const [customName, setCustomName] = useState(existing?.name || '')
   const [status, setStatus] = useState(existing ? (existing.status || 'upcoming') : 'upcoming')
   const [exercises, setExercises] = useState(() => {
