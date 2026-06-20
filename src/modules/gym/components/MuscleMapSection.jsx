@@ -119,8 +119,7 @@ export default function MuscleMapSection({ logs }) {
   const [metric, setMetric] = useState('sets') // 'sets' | 'volume'
   const [subMap, setSubMap] = useState(null)
 
-  // Fetch sub-muscle data once
-  useMemo(() => {
+  useEffect(() => {
     fetchSubMuscles().then(m => setSubMap(m))
   }, [])
 
