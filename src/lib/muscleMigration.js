@@ -1,5 +1,5 @@
 import { lookupMusclesBatch } from './muscleUtils.js'
-import { storeGet, storeSet } from './storage.js'
+import { storeGet, storeSetSilent } from './storage.js'
 
 function normMuscle(m) {
   if (m === 'abs') return 'core'
