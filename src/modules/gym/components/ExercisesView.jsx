@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { searchExercises, browseExercisesByMuscle, addCustomExercise, deleteCustomExercise, getCustomExercises } from '../../../lib/muscleUtils.js'
-import { storeSet } from '../../../lib/storage.js'
+import { storeGet, storeSet } from '../../../lib/storage.js'
 import { supabase } from '../../../lib/supabase.js'
 import { SUB_TO_LIB_MUSCLE, DEFAULT_SUB_MUSCLES } from '../../../lib/subMuscleData.js'
 import BodySVG from './BodySVG.jsx'
