@@ -29,8 +29,9 @@ export function getExRec(exName, repRange, exHistory) {
   if (!h || !h.sessions || !h.sessions.length) return { seed: true, suggest: null }
   const s = h.sessions, last = s[s.length - 1]
   const { lo, hi } = parseRepRange(repRange)
+  const unit = getWeightUnit()
   const e1rmStr = last.e1rm ? `e1RM ${last.e1rm} · ` : ''
-  const lastStr = `Last: ${last.weight} lbs × ${last.reps}/${hi} @ RPE ${last.rpe}`
+  const lastStr = `Last: ${last.weight} ${unit} × ${last.reps}/${hi} @ RPE ${last.rpe}`
   const deload = s.length >= 2 && s[s.length-1].rpe >= 9 && s[s.length-2].rpe >= 9 && s[s.length-1].weight === s[s.length-2].weight
   let sW = last.weight, sR = lo, tag = '', tc = ''
   if (deload) {
