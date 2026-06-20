@@ -176,6 +176,7 @@ export default function ExercisesView() {
   const [customMuscle, setCustomMuscle] = useState('chest')
   const [addMsg, setAddMsg] = useState('')
   const [editingEx, setEditingEx] = useState(null)
+  const [selectedEx, setSelectedEx] = useState(null)
 
   const loadBrowse = useCallback((muscle) => {
     setLoading(true)
