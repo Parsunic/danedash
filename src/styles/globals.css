@@ -1394,9 +1394,9 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
 .gym-exercise-row {
   display:flex; align-items:center; gap:8px; padding:7px 10px;
   border-radius:8px; background:rgba(255,255,255,0.02);
-  transition:background 0.12s;
+  transition:background 0.12s, transform 0.15s cubic-bezier(0.22,1,0.36,1);
 }
-.gym-exercise-row:hover { background:rgba(255,255,255,0.05); }
+.gym-exercise-row:hover { background:rgba(255,255,255,0.05); transform: translateX(3px); }
 .gym-exercise-row-name { flex:1; font-size:13px; color:var(--text-primary); }
 .gym-exercise-custom-tag {
   font-size:9px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase;
