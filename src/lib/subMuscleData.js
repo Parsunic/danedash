@@ -44,15 +44,6 @@ export const SUB_TO_LIB_MUSCLE = {
   adductors: 'adductor',
 }
 
-// Which side of the body diagram each sub-muscle appears on
-export const MUSCLE_SIDE = {
-  chest: 'front', front_delt: 'front', mid_delt: 'front',
-  biceps: 'front', forearms: 'front', upper_abs: 'front',
-  lower_abs: 'front', obliques: 'front', quads: 'front', adductors: 'front',
-  traps: 'back', rear_delt: 'back', lats: 'back', mid_back: 'back',
-  lower_back: 'back', triceps: 'back', glutes: 'back', hamstrings: 'back', calves: 'back',
-}
-
 // Default sub-muscles when not stored in DB, derived from primary_muscle
 export const DEFAULT_SUB_MUSCLES = {
   chest:     { primary: ['chest'],            secondary: ['front_delt', 'triceps'] },
