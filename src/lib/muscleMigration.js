@@ -56,5 +56,8 @@ export async function runMuscleMigration() {
       }
     }
   }
-  if (tplsChanged) storeSet('gym_templates', templates)
+  if (tplsChanged) storeSetSilent('gym_templates', templates)
+
+  // Normalisation done silently above; let UI re-read the cleaned data.
+  if (logsChanged || tplsChanged) window.dispatchEvent(new CustomEvent('gym-changed'))
 }
