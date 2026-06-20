@@ -58,6 +58,7 @@ function SettingsModal({ onClose }) {
     setAudioEnabled(audioEnabled)
     const gymSettings = JSON.parse(localStorage.getItem('gym_settings') || '{}')
     gymSettings.autoFinish = gymAutoFinish
+    gymSettings.weightUnit = weightUnit
     storeSet('gym_settings', gymSettings)
     onClose()
   }, [anthropicKey, notionKey, gcalClientId, gcalClientSecret, audioEnabled, gymAutoFinish, onClose])
