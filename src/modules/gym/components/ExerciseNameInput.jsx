@@ -9,6 +9,7 @@ export default function ExerciseNameInput({ value, onChange, placeholder = 'Exer
   const [open, setOpen] = useState(false)
   const [dropRect, setDropRect] = useState(null)
   const [customPicker, setCustomPicker] = useState(null) // { name, muscle, added }
+  const [isFocused, setIsFocused] = useState(false)
   const inputRef = useRef(null)
   const timerRef = useRef(null)
 
@@ -19,6 +20,7 @@ export default function ExerciseNameInput({ value, onChange, placeholder = 'Exer
   }, [])
 
   useEffect(() => {
+    if (!isFocused) return
     if (value.trim().length < 2) { setSuggestions([]); setOpen(false); setCustomPicker(null); return }
     clearTimeout(timerRef.current)
     timerRef.current = setTimeout(async () => {
@@ -28,7 +30,7 @@ export default function ExerciseNameInput({ value, onChange, placeholder = 'Exer
       setOpen(true)
     }, 200)
     return () => clearTimeout(timerRef.current)
-  }, [value, calcRect])
+  }, [value, isFocused, calcRect])
 
   useEffect(() => {
     const close = e => {
