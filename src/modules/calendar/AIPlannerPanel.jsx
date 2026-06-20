@@ -405,7 +405,7 @@ Rules: date YYYY-MM-DD · times 24-hour HH:MM · do not overlap existing events 
 
   return (
     <>
-      <div className={`ai-planner-backdrop${open ? ' open' : ''}`} onClick={handleClose} />
+      <div className={`ai-planner-backdrop${open ? ' open' : ''}`} />
       <div className={`ai-planner-panel${open ? ' open' : ''}`}>
 
         {/* Header */}
