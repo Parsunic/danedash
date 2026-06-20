@@ -39,7 +39,8 @@
       "Bash(node scripts/gen-icons.mjs)",
       "Bash(git check-ignore *)",
       "Bash(grep -iE \"^sharp$|^puppeteer|^playwright|^canvas$|^@resvg\")",
-      "Bash(node preview_body.mjs)"
+      "Bash(node preview_body.mjs)",
+      "Bash(node preview_lib.mjs)"
     ]
   },
   "hooks": {

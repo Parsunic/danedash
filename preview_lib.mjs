@@ -1,7 +1,8 @@
 import React from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
-import Model from 'react-body-highlighter'
+import ModelNS from 'react-body-highlighter'
 import sharp from 'sharp'
+const Model = ModelNS.default || ModelNS
 
 const AMBER_RAMP = ['#6e4d18', '#946523', '#bd8024', '#d89620', '#E8A020']
 const data = [
