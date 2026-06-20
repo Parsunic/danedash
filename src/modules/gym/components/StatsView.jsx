@@ -5,6 +5,7 @@ import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis,
   Tooltip, ResponsiveContainer, CartesianGrid,
 } from 'recharts'
+import MuscleMapSection from './MuscleMapSection.jsx'
 
 // ── CONSTANTS ─────────────────────────────────────────────────────────────
 
