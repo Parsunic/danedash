@@ -270,7 +270,7 @@ export default function ExercisesView() {
           <div className="gym-exercises-placeholder">No exercises found</div>
         )}
         {!loading && results.map((ex, i) => (
-          <div key={i} className="gym-exercise-row">
+          <div key={i} className="gym-exercise-row" style={{ cursor: 'pointer' }} onClick={() => setSelectedEx(ex)}>
             <span className="gym-exercise-row-name">{ex.name}</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
               {ex.is_custom && <span className="gym-exercise-custom-tag">custom</span>}
@@ -280,9 +280,9 @@ export default function ExercisesView() {
               {ex.is_custom && (
                 <>
                   <button className="gym-set-remove-btn" style={{ padding: '2px 7px', fontSize: 12, color: 'var(--accent)' }}
-                    onClick={() => setEditingEx(ex)} title="Edit custom exercise">✎</button>
+                    onClick={e => { e.stopPropagation(); setEditingEx(ex) }} title="Edit custom exercise">✎</button>
                   <button className="gym-set-remove-btn" style={{ padding: '2px 7px', fontSize: 12 }}
-                    onClick={() => handleDelete(ex.name)} title="Remove custom exercise">×</button>
+                    onClick={e => { e.stopPropagation(); handleDelete(ex.name) }} title="Remove custom exercise">×</button>
                 </>
               )}
             </div>
