@@ -92,6 +92,31 @@ function buildRadarData(primSets, secSets, primVol, secVol, metric) {
   })
 }
 
+// Convert our sub-muscle scores into react-body-highlighter `data`. Each library muscle gets
+// one entry whose `frequency` (1–5) buckets its relative intensity into the amber gradient.
+function buildBodyData(primSets, secSets, primVol, secVol, metric) {
+  const prim = metric === 'sets' ? primSets : primVol
+  const sec  = metric === 'sets' ? secSets  : secVol
+  const libScore = {}
+  const accumulate = (obj, weight) => {
+    for (const [m, v] of Object.entries(obj)) {
+      const lib = SUB_TO_LIB_MUSCLE[m]
+      if (!lib || !v) continue
+      libScore[lib] = (libScore[lib] || 0) + v * weight
+    }
+  }
+  accumulate(prim, 1)
+  accumulate(sec, 0.4)
+
+  const max = Math.max(...Object.values(libScore), 0)
+  if (max <= 0) return []
+  return Object.entries(libScore).map(([lib, score]) => ({
+    name: lib,
+    muscles: [lib],
+    frequency: Math.max(1, Math.min(5, Math.ceil((score / max) * 5))),
+  }))
+}
+
 // ── CUSTOM RADAR TOOLTIP ──────────────────────────────────────────────────
 
 function RadarTip({ active, payload }) {
