@@ -9,6 +9,61 @@ import BodySVG from './BodySVG.jsx'
 const MUSCLES = ['all', 'chest', 'back', 'shoulders', 'biceps', 'triceps', 'legs', 'core', 'other']
 const FILTER_BTNS = [...MUSCLES, 'custom']
 
+function renameExerciseEverywhere(oldName, newName) {
+  const norm = s => s.toLowerCase().trim()
+  const old = norm(oldName)
+  let changed = false
+
+  const renameInList = (list, key) => {
+    const next = list.map(item => ({
+      ...item,
+      exercises: (item.exercises || []).map(ex =>
+        norm(ex.name) === old ? { ...ex, name: newName } : ex
+      ),
+    }))
+    storeSet(key, next)
+    changed = true
+  }
+
+  // gym_workout_logs — exercises nested in log entries
+  const logs = storeGet('gym_workout_logs') || []
+  const newLogs = logs.map(log => ({
+    ...log,
+    exercises: (log.exercises || []).map(ex =>
+      norm(ex.name) === old ? { ...ex, name: newName } : ex
+    ),
+  }))
+  storeSet('gym_workout_logs', newLogs)
+  changed = true
+
+  // gym_planned
+  renameInList(storeGet('gym_planned') || [], 'gym_planned')
+
+  // gym_templates
+  renameInList(storeGet('gym_templates') || [], 'gym_templates')
+
+  // gym_exercise_history — object keyed by exercise name
+  const history = storeGet('gym_exercise_history') || {}
+  if (history[oldName] !== undefined) {
+    const next = { ...history, [newName]: history[oldName] }
+    delete next[oldName]
+    storeSet('gym_exercise_history', next)
+    changed = true
+  }
+
+  // custom_exercises
+  const customs = getCustomExercises()
+  if (customs.some(e => norm(e.name) === old)) {
+    storeSet('custom_exercises', customs.map(e => norm(e.name) === old ? { ...e, name: newName } : e))
+    changed = true
+  }
+
+  if (changed) {
+    window.dispatchEvent(new Event('gym-changed'))
+    window.dispatchEvent(new Event('schedule-sync'))
+  }
+}
+
 function formatSubMuscle(name) {
   return name.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
 }
