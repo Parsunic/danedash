@@ -129,10 +129,14 @@ export function SyncProvider({ children }) {
       if (remoteMs === lastPushedMsRef.current) return // our own write echoed back
       const lastLocalChange = parseInt(localStorage.getItem('_lastLocalChange') || '0')
       if (remoteMs >= lastLocalChange) {
+        // Server is newer than our last local edit → pull it in.
         isSyncingRef.current = true
         writeRemotePayload(row.data)
         isSyncingRef.current = false
         setStatus('synced')
+      } else {
+        // We hold genuinely newer local edits (e.g. made while offline) → push them up.
+        schedulePush()
       }
     } catch (e) {
       // Network blip on revalidation — ignore, the next focus/realtime event will retry.
