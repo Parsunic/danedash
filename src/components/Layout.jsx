@@ -29,6 +29,9 @@ function SettingsModal({ onClose }) {
   const [gymAutoFinish, setGymAutoFinish]        = useState(() => {
     try { return (JSON.parse(localStorage.getItem('gym_settings')) || {}).autoFinish === true } catch { return false }
   })
+  const [weightUnit, setWeightUnit] = useState(() => {
+    try { return (JSON.parse(localStorage.getItem('gym_settings')) || {}).weightUnit || 'lbs' } catch { return 'lbs' }
+  })
   const [showAnthropic, setShowAnthropic]        = useState(false)
   const [showNotion, setShowNotion]              = useState(false)
   const [showGcalSecret, setShowGcalSecret]      = useState(false)
