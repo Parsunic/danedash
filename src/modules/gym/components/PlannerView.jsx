@@ -111,6 +111,30 @@ function WeekTemplateModal({ onClose, onSave }) {
 }
 
 function ExerciseEditor({ exercises, onChange }) {
+  const [muscleMap, setMuscleMap] = useState({})
+
+  useEffect(() => {
+    const names = exercises.map(e => e.name).filter(n => n?.trim().length > 0)
+    if (!names.length) { setMuscleMap({}); return }
+    const timer = setTimeout(async () => {
+      const batch = await lookupMusclesBatch(names).catch(() => ({}))
+      const customs = getCustomExercises()
+      const customByName = new Map(customs.map(e => [e.name.toLowerCase(), e.primary_muscle]))
+      const result = {}
+      for (const n of names) {
+        const key = n.toLowerCase().trim()
+        if (customByName.has(key)) {
+          result[n] = customByName.get(key) || null
+        } else {
+          const m = batch[n]
+          result[n] = (m && m !== 'other') ? m : null
+        }
+      }
+      setMuscleMap(result)
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [exercises])
+
   const addEx = () => onChange([...exercises, { name: '', sets: 3, repRange: '8-10', notes: '' }])
   const removeEx = i => onChange(exercises.filter((_, idx) => idx !== i))
   const updateEx = (i, field, val) => onChange(exercises.map((ex, idx) => idx === i ? { ...ex, [field]: val } : ex))
@@ -125,6 +149,11 @@ function ExerciseEditor({ exercises, onChange }) {
             onChange={val => updateEx(i, 'name', val)}
             placeholder="Exercise name"
           />
+          {ex.name && muscleMap[ex.name] && (
+            <span className={`gym-muscle-badge muscle-${muscleMap[ex.name]}`} style={{ flexShrink: 0, fontSize: 10, padding: '2px 6px', alignSelf: 'center' }}>
+              {muscleMap[ex.name]}
+            </span>
+          )}
           <input
             className="gym-input"
             placeholder="Sets"
