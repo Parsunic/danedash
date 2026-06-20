@@ -135,8 +135,6 @@ export default function MuscleMapSection({ logs }) {
     [primSets, secSets, primVol, secVol, metric]
   )
 
-  const maxVal = Math.max(...radarData.map(d => d.value), 1)
-
   // Primary: muscles with meaningful activity (>0 sets primary)
   const activePrimary   = Object.keys(primSets).filter(m => primSets[m] > 0)
   const activeSecondary = Object.keys(secSets).filter(m => secSets[m] > 0 && !primSets[m])
