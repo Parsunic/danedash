@@ -149,7 +149,7 @@ function ExerciseCard({
               {rec.e1rm ? <>e1RM <AnimatedNum value={rec.e1rm} /> · </> : ''}{rec.lastStr}
               <br />
               <span className="po-suggest">
-                → Try <strong>{rec.sW} lbs × {rec.sR}</strong>{' '}
+                → Try <strong>{rec.sW} {rec.unit || 'lbs'} × {rec.sR}</strong>{' '}
                 <span className={`po-tag${rec.tc ? ' ' + rec.tc : ''}`}>{rec.tag}</span>
               </span>
             </>
