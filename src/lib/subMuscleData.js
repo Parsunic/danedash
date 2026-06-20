@@ -20,6 +20,30 @@ export const RADAR_GROUPS = {
   Core:      ['upper_abs', 'lower_abs', 'obliques'],
 }
 
+// Maps our internal sub-muscle taxonomy onto the muscle names used by
+// react-body-highlighter (which has a fixed, coarser anatomical set).
+export const SUB_TO_LIB_MUSCLE = {
+  chest: 'chest',
+  front_delt: 'front-deltoids',
+  mid_delt: 'front-deltoids',
+  rear_delt: 'back-deltoids',
+  biceps: 'biceps',
+  triceps: 'triceps',
+  forearms: 'forearm',
+  traps: 'trapezius',
+  lats: 'upper-back',
+  mid_back: 'upper-back',
+  lower_back: 'lower-back',
+  upper_abs: 'abs',
+  lower_abs: 'abs',
+  obliques: 'obliques',
+  quads: 'quadriceps',
+  hamstrings: 'hamstring',
+  glutes: 'gluteal',
+  calves: 'calves',
+  adductors: 'adductor',
+}
+
 // Which side of the body diagram each sub-muscle appears on
 export const MUSCLE_SIDE = {
   chest: 'front', front_delt: 'front', mid_delt: 'front',
