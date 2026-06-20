@@ -86,11 +86,11 @@ function FrontBody({ primary, secondary }) {
       {/* Lower abs (centre) */}
       {m('lower_abs', '44,81 56,81 55,104 45,104', { mirrored: false })}
       {/* Quadriceps */}
-      {m('quads', '36,129 48,129 47,193 34,190 34,140')}
+      {m('quads', '34,124 49,124 48,194 31,191 32,134')}
       {/* Adductors (centre) */}
-      {m('adductors', '45,131 55,131 54,180 46,180', { mirrored: false })}
+      {m('adductors', '45,128 55,128 54,182 46,182', { mirrored: false })}
       {/* Shins / front calves */}
-      {m('calves', '36,201 47,202 46,232 38,230', { opacity: 0.92 })}
+      {m('calves', '34,200 48,201 46,233 36,231', { opacity: 0.92 })}
     </svg>
   )
 }
