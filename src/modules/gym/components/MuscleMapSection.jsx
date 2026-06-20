@@ -1,7 +1,6 @@
 import { useState, useMemo } from 'react'
 import { RadarChart, Radar, PolarGrid, PolarAngleAxis, ResponsiveContainer, Tooltip } from 'recharts'
-import { storeGet } from '../../../lib/storage.js'
-import { RADAR_GROUPS, DEFAULT_SUB_MUSCLES } from '../../../lib/subMuscleData.js'
+import { RADAR_GROUPS, DEFAULT_SUB_MUSCLES, ALL_SUB_MUSCLES } from '../../../lib/subMuscleData.js'
 import BodySVG from './BodySVG.jsx'
 import { supabase } from '../../../lib/supabase.js'
 
