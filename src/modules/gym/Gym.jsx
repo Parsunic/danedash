@@ -79,6 +79,11 @@ export default function Gym() {
   const flipperRef = useRef(null)
   const gymContainerRef = useRef(null)
 
+  useEffect(() => {
+    window.__swipeDisabled = flipped && overlayTab === 'log'
+    return () => { window.__swipeDisabled = false }
+  }, [flipped, overlayTab])
+
   // ── FLIP ──
   const flipToBack = useCallback((tab = 'templates') => {
     setOverlayTab(tab)
