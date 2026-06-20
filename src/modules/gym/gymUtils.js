@@ -43,7 +43,7 @@ export function getExRec(exName, repRange, exHistory) {
   } else {
     sR = Math.min(last.reps + 2, hi); tag = 'Add Reps'; tc = 'hold'
   }
-  return { seed: false, e1rmStr, e1rm: last.e1rm || null, lastStr, sW, sR, tag, tc, suggest: { weight: sW, reps: sR } }
+  return { seed: false, e1rmStr, e1rm: last.e1rm || null, lastStr, sW, sR, tag, tc, unit, suggest: { weight: sW, reps: sR } }
 }
 
 export function dateToStr(d) {
