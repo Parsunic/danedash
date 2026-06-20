@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { storeGet, storeSet } from '../../../lib/storage.js'
-import { MONTHS, fmtElapsed } from '../gymUtils.js'
+import { MONTHS, fmtElapsed, getWeightUnit } from '../gymUtils.js'
 
 function AnimatedNum({ value, duration = 600 }) {
   const [display, setDisplay] = useState(0)
@@ -27,10 +27,11 @@ function EditWorkoutModal({ log, onSave, onClose }) {
   const initM = Math.floor((totalMs % 3600000) / 60000)
   const [hours, setHours] = useState(initH)
   const [minutes, setMinutes] = useState(initM)
+  const [date, setDate] = useState(log.date || '')
 
   const save = () => {
     const newDuration = (hours * 3600 + minutes * 60) * 1000
-    onSave({ ...log, duration: newDuration })
+    onSave({ ...log, duration: newDuration, date })
   }
 
   return (
@@ -42,7 +43,19 @@ function EditWorkoutModal({ log, onSave, onClose }) {
         </div>
         <div className="gym-field">
           <label style={{ marginBottom: 6, display: 'block', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-tertiary)' }}>
-            Workout Duration
+            Date
+          </label>
+          <input
+            className="gym-input"
+            type="date"
+            value={date}
+            onChange={e => setDate(e.target.value)}
+            style={{ width: '100%' }}
+          />
+        </div>
+        <div className="gym-field">
+          <label style={{ marginBottom: 6, display: 'block', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-tertiary)' }}>
+            Duration
           </label>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             <input
@@ -63,9 +76,6 @@ function EditWorkoutModal({ log, onSave, onClose }) {
             <span style={{ color: 'var(--text-tertiary)', fontSize: 14 }}>m</span>
           </div>
         </div>
-        <p style={{ fontSize: '11px', color: 'var(--text-tertiary)', margin: '0 0 16px' }}>
-          Adjusting duration for workouts where you forgot to click Finish.
-        </p>
         <div className="gym-modal-footer">
           <button className="btn-secondary" style={{ flex: 1 }} onClick={onClose}>Cancel</button>
           <button className="btn-primary" style={{ flex: 2 }} onClick={save}>Save</button>
@@ -75,8 +85,9 @@ function EditWorkoutModal({ log, onSave, onClose }) {
   )
 }
 
-function HistorySession({ log, isFirst, onEdit, onResume }) {
+function HistorySession({ log, isFirst, onEdit, onDelete, onResume }) {
   const [expanded, setExpanded] = useState(false)
+  const unit = getWeightUnit()
   const prNames = (log.exercises || []).filter(ex => ex.sets?.some(s => s.isPR)).map(ex => ex.name)
   const dur = log.duration ? ' · ' + fmtElapsed(log.duration) : ''
   const exC = (log.exercises || []).filter(ex => ex.sets?.length).length
@@ -103,7 +114,7 @@ function HistorySession({ log, isFirst, onEdit, onResume }) {
           <div key={i} className="gym-history-ex">
             <div className="gym-history-ex-name">
               {ex.name}
-              {ex.e1rm && <span className="gym-history-ex-e1rm">e1RM <AnimatedNum value={ex.e1rm} /> lbs</span>}
+              {ex.e1rm && <span className="gym-history-ex-e1rm">e1RM <AnimatedNum value={ex.e1rm} /> {unit}</span>}
             </div>
             <div className="gym-history-sets">
               {ex.sets.map((s, si) => (
@@ -124,6 +135,10 @@ function HistorySession({ log, isFirst, onEdit, onResume }) {
           <button className="btn-ghost" style={{ fontSize: '0.75rem', padding: '5px 12px' }}
             onClick={e => { e.stopPropagation(); onEdit(log) }}>
             ✎ Edit
+          </button>
+          <button className="btn-ghost" style={{ fontSize: '0.75rem', padding: '5px 12px', color: 'var(--danger)' }}
+            onClick={e => { e.stopPropagation(); onDelete(log) }}>
+            ✕ Delete
           </button>
         </div>
       </div>
@@ -148,11 +163,38 @@ export default function HistoryView({ onResume }) {
     const all = storeGet('gym_workout_logs') || []
     const idx = all.findIndex(l => l.id === updated.id)
     if (idx >= 0) {
+      const oldDate = all[idx].date
       all[idx] = updated
       storeSet('gym_workout_logs', all)
+
+      // Cascade date change into gym_exercise_history
+      if (updated.date && updated.date !== oldDate) {
+        const history = storeGet('gym_exercise_history') || {}
+        let changed = false
+        for (const exName of Object.keys(history)) {
+          const ent = history[exName]
+          if (!ent.sessions) continue
+          const next = ent.sessions.map(s => s.date === oldDate ? { ...s, date: updated.date } : s)
+          if (next.some((s, i) => s !== ent.sessions[i])) {
+            history[exName] = { ...ent, sessions: next }
+            changed = true
+          }
+        }
+        if (changed) storeSet('gym_exercise_history', history)
+      }
+
       window.dispatchEvent(new Event('schedule-sync'))
     }
     setEditLog(null)
+    reload()
+  }, [reload])
+
+  const handleDelete = useCallback((log) => {
+    if (!confirm(`Delete "${log.name}" from ${log.date}? This cannot be undone.`)) return
+    const all = (storeGet('gym_workout_logs') || []).filter(l => l.id !== log.id)
+    storeSet('gym_workout_logs', all)
+    window.dispatchEvent(new Event('gym-changed'))
+    window.dispatchEvent(new Event('schedule-sync'))
     reload()
   }, [reload])
 
@@ -180,6 +222,7 @@ export default function HistoryView({ onResume }) {
           log={log}
           isFirst={i === 0}
           onEdit={setEditLog}
+          onDelete={handleDelete}
           onResume={handleResume}
         />
       ))}
