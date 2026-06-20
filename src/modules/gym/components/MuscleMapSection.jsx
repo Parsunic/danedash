@@ -102,13 +102,6 @@ function RadarTip({ active, payload }) {
   )
 }
 
-// ── PERCENTAGE COVERED ────────────────────────────────────────────────────
-
-function computeBodyPct(primSets, secSets) {
-  const { ALL_SUB_MUSCLES } = require('../../../lib/subMuscleData.js')
-  const hit = ALL_SUB_MUSCLES.filter(m => (primSets[m] || 0) + (secSets[m] || 0) > 0).length
-  return Math.round((hit / ALL_SUB_MUSCLES.length) * 100)
-}
 
 // ── MAIN COMPONENT ────────────────────────────────────────────────────────
 
