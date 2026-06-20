@@ -1443,10 +1443,10 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
 .gym-ex-result-row {
   display:flex; align-items:center; justify-content:space-between; gap:10px;
   width:100%; padding:11px 14px; background:none; border:none; border-bottom:1px solid rgba(255,255,255,0.05);
-  cursor:pointer; text-align:left; transition:background 0.12s;
+  cursor:pointer; text-align:left; transition:background 0.12s, padding-left 0.15s cubic-bezier(0.22,1,0.36,1);
 }
 .gym-ex-result-row:last-child { border-bottom:none; }
-.gym-ex-result-row:hover { background:rgba(255,255,255,0.05); }
+.gym-ex-result-row:hover { background:rgba(255,255,255,0.05); padding-left:18px; }
 .gym-ex-result-name { font-size:13px; color:var(--text-primary); font-weight:500; }
 .gym-muscle-badge {
   font-size:10px; font-weight:700; font-family:var(--font-mono); text-transform:uppercase;
