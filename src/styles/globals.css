@@ -3437,12 +3437,16 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.15s cubic-bezier(0.22,1,0.36,1);
   letter-spacing: 0.01em;
 }
 .gym-overlay-tab-btn:hover {
   background: rgba(255,255,255,0.07);
   color: var(--text-secondary);
+  transform: translateY(-1px);
+}
+.gym-overlay-tab-btn:active {
+  transform: translateY(0) scale(0.96);
 }
 .gym-overlay-tab-btn.active {
   background: rgba(232,160,32,0.13);
