@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom'
 import { storeGet, storeSet } from '../../../lib/storage.js'
 import ExerciseNameInput from './ExerciseNameInput.jsx'
 import { getActiveDateString, getTomorrowDateString } from '../../../lib/dateHelpers.js'
-import { gymUUID, DSHORT, DFULL, MONTHS, dateToStr } from '../gymUtils.js'
+import { gymUUID, DSHORT, DFULL, MONTHS, dateToStr, getWeightUnit } from '../gymUtils.js'
 import { lookupMusclesBatch, getCustomExercises } from '../../../lib/muscleUtils.js'
 
 const MUSCLE_COLORS = {
