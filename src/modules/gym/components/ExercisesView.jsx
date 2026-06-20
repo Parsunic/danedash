@@ -8,6 +8,126 @@ import BodySVG from './BodySVG.jsx'
 const MUSCLES = ['all', 'chest', 'back', 'shoulders', 'biceps', 'triceps', 'legs', 'core', 'other']
 const FILTER_BTNS = [...MUSCLES, 'custom']
 
+function formatSubMuscle(name) {
+  return name.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+}
+
+function buildExBodyData(subMuscles) {
+  const { primary = [], secondary = [] } = subMuscles
+  const libScore = {}
+  for (const m of primary) {
+    const lib = SUB_TO_LIB_MUSCLE[m]
+    if (lib) libScore[lib] = (libScore[lib] || 0) + 1
+  }
+  for (const m of secondary) {
+    const lib = SUB_TO_LIB_MUSCLE[m]
+    if (lib) libScore[lib] = (libScore[lib] || 0) + 0.4
+  }
+  const max = Math.max(...Object.values(libScore), 0)
+  if (max <= 0) return []
+  return Object.entries(libScore).map(([lib, score]) => ({
+    name: lib, muscles: [lib], frequency: Math.max(1, Math.min(5, Math.ceil((score / max) * 5))),
+  }))
+}
+
+async function fetchExSubMuscles(ex) {
+  if (ex.is_custom) {
+    const found = getCustomExercises().find(e => e.name.toLowerCase() === ex.name.toLowerCase())
+    if (found?.primary_sub_muscles?.length) {
+      return { primary: found.primary_sub_muscles, secondary: found.secondary_sub_muscles || [] }
+    }
+    if (found?.primary_muscle && DEFAULT_SUB_MUSCLES[found.primary_muscle]) {
+      return DEFAULT_SUB_MUSCLES[found.primary_muscle]
+    }
+  }
+  const { data } = await supabase
+    .from('exercises')
+    .select('primary_sub_muscles, secondary_sub_muscles, primary_muscle')
+    .ilike('name', ex.name)
+    .limit(1)
+  if (data?.[0]) {
+    if (data[0].primary_sub_muscles?.length) {
+      return { primary: data[0].primary_sub_muscles, secondary: data[0].secondary_sub_muscles || [] }
+    }
+    const muscle = data[0].primary_muscle
+    if (muscle && DEFAULT_SUB_MUSCLES[muscle]) return DEFAULT_SUB_MUSCLES[muscle]
+  }
+  if (ex.primary_muscle && DEFAULT_SUB_MUSCLES[ex.primary_muscle]) {
+    return DEFAULT_SUB_MUSCLES[ex.primary_muscle]
+  }
+  return { primary: [], secondary: [] }
+}
+
+function ExerciseDetailModal({ ex, onClose }) {
+  const [subMuscles, setSubMuscles] = useState(null)
+  const [bodyData, setBodyData] = useState([])
+
+  useEffect(() => {
+    fetchExSubMuscles(ex).then(sm => {
+      setSubMuscles(sm)
+      setBodyData(buildExBodyData(sm))
+    })
+  }, [ex])
+
+  return (
+    <div className="gym-modal-overlay open" onClick={e => { if (e.target.classList.contains('gym-modal-overlay')) onClose() }}>
+      <div className="gym-modal" style={{ maxWidth: 560 }}>
+        <div className="gym-modal-title">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span>{ex.name}</span>
+            {ex.primary_muscle && (
+              <span className={`gym-muscle-badge muscle-${ex.primary_muscle}`} style={{ fontSize: 10 }}>{ex.primary_muscle}</span>
+            )}
+          </div>
+          <button className="gym-modal-close" onClick={onClose}>✕</button>
+        </div>
+
+        {!subMuscles ? (
+          <div style={{ textAlign: 'center', padding: '32px 0', color: 'var(--text-tertiary)' }}>···</div>
+        ) : bodyData.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '24px 0', color: 'var(--text-tertiary)', fontSize: 14 }}>
+            No muscle data available for this exercise.
+          </div>
+        ) : (
+          <>
+            <BodySVG data={bodyData} />
+            <div style={{ marginTop: 16, display: 'flex', gap: 16 }}>
+              {subMuscles.primary.length > 0 && (
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.4)', marginBottom: 6 }}>Primary</div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+                    {subMuscles.primary.map(m => (
+                      <span key={m} style={{ fontSize: 12, padding: '3px 8px', borderRadius: 6, background: 'rgba(232,160,32,0.15)', color: 'var(--accent)', border: '1px solid rgba(232,160,32,0.25)' }}>
+                        {formatSubMuscle(m)}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {subMuscles.secondary.length > 0 && (
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.4)', marginBottom: 6 }}>Secondary</div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+                    {subMuscles.secondary.map(m => (
+                      <span key={m} style={{ fontSize: 12, padding: '3px 8px', borderRadius: 6, background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.6)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                        {formatSubMuscle(m)}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </>
+        )}
+
+        <div className="gym-modal-footer" style={{ marginTop: 20 }}>
+          <button className="btn-secondary" style={{ flex: 1 }} onClick={onClose}>Close</button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function EditCustomModal({ ex, onSave, onClose }) {
   const [name, setName] = useState(ex.name)
   const [muscle, setMuscle] = useState(ex.primary_muscle || 'other')
