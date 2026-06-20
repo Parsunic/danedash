@@ -161,6 +161,12 @@ Templates: collapsed cards, click to expand.
 Planner: `desktopMode` prop shows exercises inside day cells; Week Templates section is collapsible.
 Panel: tab-switched between AI Coach, History, Stats.
 
+## Muscle Map (Stats tab)
+`MuscleMapSection.jsx` shows muscles worked **this week** (Sun–Sat) as an amber body heatmap (`react-body-highlighter`, front + back) plus a 6-axis radar (Arms / Back / Legs / Chest / Shoulders / Core). A Sets/Volume toggle drives both. Big `%` = share of the 19 sub-muscles touched.
+- **Sub-muscle taxonomy** lives in `src/lib/subMuscleData.js`: `ALL_SUB_MUSCLES` (19), `RADAR_GROUPS` (axis → sub-muscles), `SUB_TO_LIB_MUSCLE` (our names → library's coarser set), `DEFAULT_SUB_MUSCLES` (fallback by `primary_muscle`), `SUB_MUSCLE_AI_PROMPT`.
+- Each exercise's `primary_sub_muscles`/`secondary_sub_muscles` come from the `exercises` table (fetched + cached in `MuscleMapSection`). Custom exercises get sub-muscles from a background Anthropic (Haiku) call in `addCustomExercise` (`muscleUtils.js`), stored on the `custom_exercises` entry.
+- Intensity = primary value + 0.4 × secondary value, bucketed 1–5 into the amber gradient.
+
 ## Calendar Header Labels (day view)
 - Today → "Today" | Yesterday → "Yesterday" | Tomorrow → "Tomorrow"
 - +2 to +7 days → weekday name (e.g. "Wednesday")
