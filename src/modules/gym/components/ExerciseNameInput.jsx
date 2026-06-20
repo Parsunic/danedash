@@ -80,7 +80,8 @@ export default function ExerciseNameInput({ value, onChange, placeholder = 'Exer
         placeholder={placeholder}
         value={value}
         onChange={e => { onChange(e.target.value); calcRect() }}
-        onFocus={() => { if (value.trim().length >= 2) { calcRect(); setOpen(true) } }}
+        onFocus={() => { setIsFocused(true); if (value.trim().length >= 2) { calcRect(); setOpen(true) } }}
+        onBlur={() => setIsFocused(false)}
         autoComplete="off"
         style={{ width: '100%', marginBottom: 0 }}
       />
