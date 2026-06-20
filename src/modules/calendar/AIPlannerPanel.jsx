@@ -161,6 +161,11 @@ export default function AIPlannerPanel({ events, gymPlanned, onEventsAdd, onClos
       .finally(() => setGoalsLoaded(true))
   }, [planMode, goalsLoaded])
 
+  useEffect(() => {
+    window.__swipeDisabled = true
+    return () => { window.__swipeDisabled = false }
+  }, [])
+
   const handleClose = () => { setOpen(false); setTimeout(onClose, 260) }
 
   const getApiKey = () => {
