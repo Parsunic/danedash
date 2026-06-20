@@ -396,6 +396,7 @@ export default function StatsView() {
 
   return (
     <div className="gym-stats-view">
+      <MuscleMapSection logs={logs} />
       <SummarySection logs={logs} hist={hist} />
 
       <div className="gym-stats-search-wrap" style={{ marginTop: 20 }}>
