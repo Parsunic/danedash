@@ -483,8 +483,14 @@ export default function PlannerView({ weekOffset = 0, onWeekOffsetChange = () =>
                   className={['planner-month-cell', !inMonth && 'other-month', isToday && 'is-today', pw && 'has-workout', isDone && 'is-completed'].filter(Boolean).join(' ')}
                   style={domColor ? { boxShadow: `0 0 0 1px ${hexToRgba(domColor, 0.4)}` } : {}}
                   onClick={(e) => {
-                    if (pw && pw.exercises?.length > 0) onStartWorkout(pw.exercises, pw.id, pw.name, !!pw.templateId, e.currentTarget, domColor)
-                    else setDayModal({ ds, existing: pw || null })
+                    const isNearToday = ds === todayStr || ds === tomorrowStr
+                    if (isNearToday && pw?.exercises?.length > 0) {
+                      onStartWorkout(pw.exercises, pw.id, pw.name, !!pw.templateId, e.currentTarget, domColor)
+                    } else if (isDone) {
+                      setHistoryModal({ ds })
+                    } else {
+                      setDayModal({ ds, existing: pw || null })
+                    }
                   }}
                 >
                   {displayMuscles.length > 0 && (
