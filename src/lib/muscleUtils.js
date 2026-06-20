@@ -1,5 +1,7 @@
 import { supabase } from './supabase.js'
 import { storeSet } from './storage.js'
+import { getAnthropicKey } from './api/anthropic.js'
+import { SUB_MUSCLE_AI_PROMPT } from './subMuscleData.js'
 
 const CUSTOM_KEY = 'custom_exercises'
 
@@ -7,13 +9,54 @@ export function getCustomExercises() {
   try { return JSON.parse(localStorage.getItem(CUSTOM_KEY)) || [] } catch { return [] }
 }
 
-export function addCustomExercise(name, primary_muscle) {
+async function fetchSubMusclesFromAI(exerciseName) {
+  const apiKey = getAnthropicKey()
+  if (!apiKey) return null
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'content-type': 'application/json',
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 200,
+        system: SUB_MUSCLE_AI_PROMPT,
+        messages: [{ role: 'user', content: `Exercise: ${exerciseName}` }],
+      }),
+    })
+    const data = await res.json()
+    const text = data?.content?.[0]?.text || ''
+    const match = text.match(/\{[\s\S]*\}/)
+    if (!match) return null
+    return JSON.parse(match[0])
+  } catch {
+    return null
+  }
+}
+
+export async function addCustomExercise(name, primary_muscle) {
   const normalized = name.trim()
   if (!normalized) return false
   const existing = getCustomExercises()
   if (existing.some(e => e.name.toLowerCase() === normalized.toLowerCase())) return false
-  existing.push({ name: normalized, primary_muscle, is_custom: true })
+  const entry = { name: normalized, primary_muscle, is_custom: true }
+  existing.push(entry)
   storeSet(CUSTOM_KEY, existing)
+
+  // Fire-and-forget: fetch sub-muscles from AI and update the stored entry
+  fetchSubMusclesFromAI(normalized).then(sub => {
+    if (!sub) return
+    const list = getCustomExercises()
+    const idx = list.findIndex(e => e.name === normalized)
+    if (idx === -1) return
+    list[idx] = { ...list[idx], primary_sub_muscles: sub.primary_sub_muscles || [], secondary_sub_muscles: sub.secondary_sub_muscles || [] }
+    storeSet(CUSTOM_KEY, list)
+  })
+
   return true
 }
 
