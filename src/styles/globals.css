@@ -326,9 +326,11 @@ body::after {
   text-align: left;
   text-decoration: none;
 }
-.nav-item:hover { background: rgba(255,255,255,0.04); color: var(--text-secondary); }
+.nav-item:hover { background: rgba(255,255,255,0.04); color: var(--text-secondary); transform: translateX(3px); }
+.nav-item:active { transform: translateX(3px) scale(0.98); }
 .nav-item.active { background: transparent; border-left-color: var(--accent); color: var(--accent); padding-left: 12px; }
-.nav-icon { flex-shrink: 0; display: flex; align-items: center; }
+.nav-icon { flex-shrink: 0; display: flex; align-items: center; transition: transform 200ms cubic-bezier(0.22,1,0.36,1); }
+.nav-item:hover .nav-icon { transform: scale(1.12); }
 
 /* ── BOTTOM TAB BAR ── */
 .bottom-tabbar {
