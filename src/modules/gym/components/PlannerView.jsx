@@ -216,7 +216,7 @@ function DayHistoryModal({ ds, onClose }) {
                   {(ex.sets || []).map((s, j) => (
                     <div key={j} style={{ fontSize: 12, color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', display: 'flex', alignItems: 'center', gap: 8 }}>
                       <span style={{ opacity: 0.5, width: 36 }}>Set {j + 1}</span>
-                      <span>{s.weight ? `${s.weight}kg` : '—'} × {s.reps || '—'} reps</span>
+                      <span>{s.weight ? `${s.weight} ${unit}` : '—'} × {s.reps || '—'} reps</span>
                       {s.rpe ? <span style={{ opacity: 0.6 }}>RPE {s.rpe}</span> : null}
                       {s.e1rm ? <span style={{ opacity: 0.55 }}>e1RM {Math.round(s.e1rm)}kg</span> : null}
                       {s.isPR && <span style={{ color: 'var(--accent)', fontWeight: 600 }}>PR</span>}
