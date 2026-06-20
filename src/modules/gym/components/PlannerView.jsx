@@ -184,6 +184,7 @@ function DayHistoryModal({ ds, onClose }) {
   const title = DFULL[date.getDay()] + ', ' + MONTHS[m - 1] + ' ' + d
   const logs = storeGet('gym_workout_logs') || []
   const log = logs.find(l => l.date === ds)
+  const unit = getWeightUnit()
 
   return (
     <div className="gym-modal-overlay open" onClick={e => { if (e.target.classList.contains('gym-modal-overlay')) onClose() }}>
