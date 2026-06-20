@@ -68,11 +68,12 @@ function RPESelect({ value, onChange }) {
 // ── SET INPUT ROW ─────────────────────────────────────────────────────────
 
 function SetInputRow({ setNum, row, onChange, onRemove, canRemove, repPlaceholder = 'reps' }) {
+  const unit = getWeightUnit()
   return (
     <div className="gym-set-row-compact">
       <span className="gym-set-row-label">Set {setNum}</span>
       <input
-        type="text" inputMode="decimal" placeholder="lbs"
+        type="text" inputMode="decimal" placeholder={unit}
         className="gym-set-compact-input"
         value={row.weight}
         onChange={e => onChange('weight', e.target.value)}
