@@ -41,7 +41,7 @@ export async function runMuscleMigration() {
       }
     }
   }
-  if (logsChanged) storeSet('gym_workout_logs', logs)
+  if (logsChanged) storeSetSilent('gym_workout_logs', logs)
 
   let tplsChanged = false
   for (const tpl of templates) {
