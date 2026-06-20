@@ -115,7 +115,10 @@ src/
         LogView.jsx          # Active workout logger (mobile primary)
         HistoryView.jsx      # Past workout sessions (expandable)
         RestTimer.jsx        # Rest timer overlay
-        StatsView.jsx        # Exercise stats + search bar (skeleton — graphs coming later)
+        StatsView.jsx        # Exercise stats + search bar; renders MuscleMapSection on top
+        MuscleMapSection.jsx # "Muscles Worked This Week" — body heatmap + 6-axis radar, Sets/Volume toggle
+        BodySVG.jsx          # Front+back body map via react-body-highlighter (amber gradient by intensity)
+        ExercisesView.jsx    # Browse/search exercises + add custom (AI fills sub-muscles)
     calendar/
       Calendar.jsx           # Shell: day (default) / week / month views
       TimeGrid.jsx           # Hour-by-hour grid for day/week
