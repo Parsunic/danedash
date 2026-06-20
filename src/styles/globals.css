@@ -3575,6 +3575,13 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
   border-radius: 50%;
   flex-shrink: 0;
 }
+.muscle-map-legend-grad {
+  width: 72px;
+  height: 8px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  background: linear-gradient(90deg, #6e4d18, #946523, #bd8024, #d89620, #E8A020);
+}
 .muscle-map-radar-wrap {
   margin-top: 8px;
   animation: muscle-fade-up 500ms cubic-bezier(0.22, 1, 0.36, 1) both;
