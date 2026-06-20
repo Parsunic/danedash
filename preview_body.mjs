@@ -37,9 +37,9 @@ M('mid_back','41,48 59,48 58,73 42,73',false)+
 M('lower_back','42,75 58,75 57,105 43,105',false)+
 M('triceps','26,53 33,52 32,76 25,74')+
 M('forearms','25,78 32,77 31,102 24,100')+
-M('glutes','34,119 49,119 49,151 33,151 32,133')+
-M('hamstrings','33,153 49,153 48,196 33,193')+
-M('calves','33,201 48,202 46,231 34,229')
+M('glutes','33,119 49,119 49,151 32,151 31,132')+
+M('hamstrings','32,153 49,153 48,197 31,194')+
+M('calves','32,201 48,202 46,232 33,230')
 const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="500" height="375" viewBox="0 0 200 250">
 <rect width="200" height="250" fill="#0d0d10"/>
 <g transform="translate(0,0)">${front}</g>
