@@ -39,6 +39,7 @@ All tables have RLS enabled. App uses the anon/publishable key only — no servi
 - **Supabase** blob sync via `src/contexts/SyncContext.jsx` (`app_state` table, keyed by `key`)
 - Active date: `getActiveDateString()` from `src/lib/dateHelpers.js`
 - Cross-module events: `window.dispatchEvent(new Event('gym-changed'))`, `'goals-changed'`, `'schedule-sync'`, `'sync-applied'`
+- **`storeSet` vs `storeSetSilent` — CRITICAL for sync correctness.** `storeSet` stamps `_lastLocalChange` (= "the user just edited") and schedules a push. Automated/startup writes (migrations, rollovers, back-fills) must use `storeSetSilent` instead — it writes without the stamp. A startup `storeSet` during the async pull window makes a fresh reload look like it holds newer edits than the server, which skips the remote pull and overwrites good cross-device data with stale local data. The initial pull is resolved against a boot-time snapshot of `_lastLocalChange`, and `SyncContext` also re-pulls on tab focus/visibility (realtime sockets die while backgrounded).
 
 ## Cross-Device Sync — REQUIRED FOR ALL FEATURES
 **Every new feature that persists data must be wired into Supabase sync.** localStorage alone does not sync across devices.
