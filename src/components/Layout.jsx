@@ -317,8 +317,10 @@ export default function Layout({ children }) {
   const [showSettings, setShowSettings] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
-  const touchStartX = useRef(null)
-  const touchStartY = useRef(null)
+  const mainRef = useRef(null)
+  const locationRef = useRef(location.pathname)
+
+  useEffect(() => { locationRef.current = location.pathname }, [location.pathname])
 
   useEffect(() => {
     const handler = () => setShowSettings(true)
@@ -326,31 +328,55 @@ export default function Layout({ children }) {
     return () => window.removeEventListener('open-settings', handler)
   }, [])
 
-  const handleTouchStart = useCallback((e) => {
-    touchStartX.current = e.touches[0].clientX
-    touchStartY.current = e.touches[0].clientY
-  }, [])
+  useEffect(() => {
+    const el = mainRef.current
+    if (!el) return
+    let startX = null, startY = null
 
-  const handleTouchEnd = useCallback((e) => {
-    if (touchStartX.current === null) return
-    const dx = e.changedTouches[0].clientX - touchStartX.current
-    const dy = e.changedTouches[0].clientY - touchStartY.current
-    touchStartX.current = null
-    touchStartY.current = null
-    if (Math.abs(dx) < 50 || Math.abs(dy) > Math.abs(dx)) return
-    const idx = modules.findIndex(m => m.path === location.pathname)
-    if (dx < 0 && idx < modules.length - 1) navigate(modules[idx + 1].path)
-    else if (dx > 0 && idx > 0) navigate(modules[idx - 1].path)
-  }, [navigate, location.pathname])
+    const onTouchStart = (e) => {
+      startX = e.touches[0].clientX
+      startY = e.touches[0].clientY
+    }
+
+    const onTouchMove = (e) => {
+      if (startX === null || window.__swipeDisabled) return
+      const dx = e.touches[0].clientX - startX
+      const dy = e.touches[0].clientY - startY
+      if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 10) {
+        e.preventDefault()
+      }
+    }
+
+    const onTouchEnd = (e) => {
+      if (startX === null) return
+      const dx = e.changedTouches[0].clientX - startX
+      const dy = e.changedTouches[0].clientY - startY
+      startX = null; startY = null
+      if (window.__swipeDisabled) return
+      if (Math.abs(dx) < 50 || Math.abs(dy) > Math.abs(dx)) return
+      const idx = modules.findIndex(m => m.path === locationRef.current)
+      if (dx < 0 && idx < modules.length - 1) navigate(modules[idx + 1].path)
+      else if (dx > 0 && idx > 0) navigate(modules[idx - 1].path)
+    }
+
+    el.addEventListener('touchstart', onTouchStart, { passive: true })
+    el.addEventListener('touchmove', onTouchMove, { passive: false })
+    el.addEventListener('touchend', onTouchEnd, { passive: true })
+
+    return () => {
+      el.removeEventListener('touchstart', onTouchStart)
+      el.removeEventListener('touchmove', onTouchMove)
+      el.removeEventListener('touchend', onTouchEnd)
+    }
+  }, [navigate])
 
   return (
     <>
       <Sidebar />
       <main
+        ref={mainRef}
         className="main-content"
         style={{ touchAction: 'pan-y' }}
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
       >
         <div key={location.key} className="page-wrap page-enter">
           {children}
