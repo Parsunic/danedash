@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { storeGet } from '../../../lib/storage.js'
 import { getActiveDateString } from '../../../lib/dateHelpers.js'
-import { getExRec, fmtElapsed } from '../gymUtils.js'
+import { getExRec, fmtElapsed, getWeightUnit } from '../gymUtils.js'
 import { searchExercises } from '../../../lib/muscleUtils.js'
 
 // ── ANIMATED NUMBER ───────────────────────────────────────────────────────
