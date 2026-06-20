@@ -468,7 +468,11 @@ export default function ExercisesView() {
         />
       )}
       {exDetail && (
-        <ExerciseDetailPopover detail={exDetail} onClose={() => setExDetail(null)} />
+        <ExerciseDetailPopover
+          detail={exDetail}
+          onClose={() => setExDetail(null)}
+          onRename={() => { setExDetail(null); loadBrowse(muscleFilter) }}
+        />
       )}
     </div>
   )
