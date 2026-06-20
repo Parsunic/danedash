@@ -217,6 +217,19 @@ export default function Journal() {
     return () => clearInterval(id)
   }, [])
 
+  // Re-read entries when a cross-device sync applies remote data (see SyncContext).
+  useEffect(() => {
+    const onSync = () => {
+      const saved = storeGet(JOURNAL_KEY) || []
+      setEntries(saved)
+      const map = {}
+      saved.forEach(e => { if (e.analysis) map[e.id] = e.analysis })
+      setAnalyses(map)
+    }
+    window.addEventListener('sync-applied', onSync)
+    return () => window.removeEventListener('sync-applied', onSync)
+  }, [])
+
   const saveEntry = useCallback(() => {
     if (!text.trim()) return
     const newEntry = {
