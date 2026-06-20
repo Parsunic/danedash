@@ -320,6 +320,7 @@ export default function PlannerView({ weekOffset = 0, onWeekOffsetChange = () =>
   const [weekTpls, setWeekTpls] = useState(() => storeGet('gym_week_tpls') || [])
   const [templates, setTemplates] = useState(() => storeGet('gym_templates') || [])
   const [dayModal, setDayModal] = useState(null)
+  const [historyModal, setHistoryModal] = useState(null)
   const [weekTplModal, setWeekTplModal] = useState(false)
   const [weekTplsOpen, setWeekTplsOpen] = useState(true)
   const [viewMode, setViewModeRaw] = useState('month')
@@ -327,6 +328,7 @@ export default function PlannerView({ weekOffset = 0, onWeekOffsetChange = () =>
   const [monthOffset, setMonthOffset] = useState(0)
   const [muscleDayData, setMuscleDayData] = useState({})
   const todayStr = getActiveDateString()
+  const tomorrowStr = getTomorrowDateString()
 
   const reload = useCallback(() => {
     setPlanned(storeGet('gym_planned') || [])
