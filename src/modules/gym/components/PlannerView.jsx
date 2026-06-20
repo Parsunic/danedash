@@ -178,6 +178,62 @@ function ExerciseEditor({ exercises, onChange }) {
   )
 }
 
+function DayHistoryModal({ ds, onClose }) {
+  const [y, m, d] = ds.split('-').map(Number)
+  const date = new Date(y, m - 1, d)
+  const title = DFULL[date.getDay()] + ', ' + MONTHS[m - 1] + ' ' + d
+  const logs = storeGet('gym_workout_logs') || []
+  const log = logs.find(l => l.date === ds)
+
+  return (
+    <div className="gym-modal-overlay open" onClick={e => { if (e.target.classList.contains('gym-modal-overlay')) onClose() }}>
+      <div className="gym-modal" style={{ maxWidth: 520 }}>
+        <div className="gym-modal-title">
+          <span>{title}</span>
+          <button className="gym-modal-close" onClick={onClose}>✕</button>
+        </div>
+        {!log ? (
+          <div style={{ color: 'var(--text-tertiary)', padding: '20px 0', textAlign: 'center', fontSize: 14 }}>
+            No workout log found for this day.
+          </div>
+        ) : (
+          <div style={{ maxHeight: 420, overflowY: 'auto' }}>
+            {log.duration > 0 && (
+              <div style={{ fontSize: 12, color: 'var(--text-tertiary)', marginBottom: 14, fontFamily: 'var(--font-mono)' }}>
+                Duration: {Math.floor(log.duration / 60000)} min
+              </div>
+            )}
+            {(log.exercises || []).map((ex, i) => (
+              <div key={i} style={{ marginBottom: 14 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                  <span style={{ fontWeight: 500, fontSize: 14 }}>{ex.name}</span>
+                  {ex.primary_muscle && (
+                    <span className={`gym-muscle-badge muscle-${ex.primary_muscle}`} style={{ fontSize: 10 }}>{ex.primary_muscle}</span>
+                  )}
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  {(ex.sets || []).map((s, j) => (
+                    <div key={j} style={{ fontSize: 12, color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ opacity: 0.5, width: 36 }}>Set {j + 1}</span>
+                      <span>{s.weight ? `${s.weight}kg` : '—'} × {s.reps || '—'} reps</span>
+                      {s.rpe ? <span style={{ opacity: 0.6 }}>RPE {s.rpe}</span> : null}
+                      {s.e1rm ? <span style={{ opacity: 0.55 }}>e1RM {Math.round(s.e1rm)}kg</span> : null}
+                      {s.isPR && <span style={{ color: 'var(--accent)', fontWeight: 600 }}>PR</span>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+        <div className="gym-modal-footer">
+          <button className="btn-secondary" style={{ flex: 1 }} onClick={onClose}>Close</button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function DayModal({ ds, existing, templates, onClose, onSave, onRemove, onStartWorkout }) {
   const [y, m, d] = ds.split('-').map(Number)
   const date = new Date(y, m - 1, d)
