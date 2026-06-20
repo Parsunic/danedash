@@ -196,13 +196,12 @@ export default function MuscleMapSection({ logs }) {
         <div className="muscle-map-empty">Log a workout this week to see your muscle map.</div>
       ) : (
         <>
-          <BodySVG activePrimary={activePrimary} activeSecondary={activeSecondary} />
+          <BodySVG data={bodyData} />
 
           <div className="muscle-map-legend">
-            <span className="muscle-map-legend-dot" style={{ background: '#E8A020' }} />
-            <span>Primary</span>
-            <span className="muscle-map-legend-dot" style={{ background: 'rgba(232,160,32,0.45)' }} />
-            <span>Secondary</span>
+            <span>Less</span>
+            <span className="muscle-map-legend-grad" />
+            <span>More</span>
           </div>
 
           <div className="muscle-map-radar-wrap">
