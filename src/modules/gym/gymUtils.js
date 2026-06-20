@@ -53,3 +53,7 @@ export function fmtElapsed(ms) {
   const s = Math.floor(ms / 1000), m = Math.floor(s / 60), h = Math.floor(m / 60)
   return h > 0 ? `${h}h ${String(m % 60).padStart(2,'0')}m` : `${m}:${String(s % 60).padStart(2,'0')}`
 }
+
+export function getWeightUnit() {
+  try { return (JSON.parse(localStorage.getItem('gym_settings')) || {}).weightUnit || 'lbs' } catch { return 'lbs' }
+}
