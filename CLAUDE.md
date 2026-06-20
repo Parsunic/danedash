@@ -23,7 +23,7 @@ Note: only single SQL statements per request reliably work (multi-statement with
 All tables have RLS enabled. App uses the anon/publishable key only — no service role in the browser.
 
 - **`app_state`**: `key (text, PK-ish)`, `data (jsonb)`, `updated_at`. Generic localStorage-mirror blob sync (`SyncContext.jsx`). RLS: anon SELECT/INSERT/UPDATE, `qual: true` (fully open).
-- **`exercises`**: `id (uuid)`, `name`, `primary_muscle`, `secondary_muscles (array)`, `created_at`. Exercise → muscle lookup (`muscleUtils.js`). RLS: public read (`true`), insert/update open (`true`).
+- **`exercises`**: `id (uuid)`, `name`, `primary_muscle`, `secondary_muscles (array)`, `primary_sub_muscles (text[])`, `secondary_sub_muscles (text[])`, `created_at`. Exercise → muscle lookup (`muscleUtils.js`); sub-muscles power the body map (see Muscle Map). RLS: public read (`true`), insert/update open (`true`).
 - **`health_metrics`**: `id`, `user_id`, `date`, `sleep_score`, `sleep_stages (jsonb)`, `hrv`, `resting_hr`, `steps`, `active_minutes`, `raw_fitbit_data (jsonb)`, `created_at`. Google Fit daily sync (`googleFitSync.js`), unique on `(user_id, date)`. RLS: anon ALL where `user_id = 'dane'`.
 - **`user_integrations`**: `id`, `user_id`, `provider`, `access_token`, `refresh_token`, `expires_at`, `scopes`. Cross-device OAuth token storage (currently used by Google Fit, `provider='googlefit'`), unique on `(user_id, provider)`. RLS: anon ALL, `qual: true` (fully open).
 - **`user_context`**: `id (uuid)`, `user_id`, `goals (text)`, `created_at`. RLS enabled but **no policies defined** — currently inaccessible to anon key (not actively used by the app yet).
