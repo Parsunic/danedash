@@ -560,7 +560,7 @@ Rules: date YYYY-MM-DD · times 24-hour HH:MM · do not overlap existing events 
               {messages.map((msg, i) => (
                 <div key={i} className={`ai-planner-msg ${msg.role}`}>
                   <div className="ai-planner-msg-bubble">
-                    {msg.content || <span className="ai-planner-cursor">▌</span>}
+                    {msg.content ? renderMarkdown(msg.content) : <span className="ai-planner-cursor">▌</span>}
                   </div>
                 </div>
               ))}
