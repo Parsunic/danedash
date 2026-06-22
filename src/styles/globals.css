@@ -7160,3 +7160,15 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
 .goal-list:has(.empty-state) {
   min-height: 44px;
 }
+
+/* ── MARKDOWN RENDERER ── */
+.md-heading { font-family: var(--font-display); font-weight: 600; font-size: 0.85em; margin: 8px 0 4px; color: var(--text-primary); }
+.md-p { margin: 0 0 5px; line-height: 1.5; }
+.md-p:last-child { margin-bottom: 0; }
+.md-table { border-collapse: collapse; width: 100%; margin: 8px 0; font-size: 0.85em; }
+.md-table th { text-align: left; padding: 4px 8px; border-bottom: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.45); font-weight: 700; font-size: 0.78em; text-transform: uppercase; letter-spacing: 0.08em; font-family: var(--font-mono); }
+.md-table td { padding: 4px 8px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+.md-table tr:last-child td { border-bottom: none; }
+.md-list { margin: 4px 0 5px; padding-left: 16px; }
+.md-list li { margin: 2px 0; line-height: 1.45; }
+.md-code { font-family: var(--font-mono); font-size: 0.85em; background: rgba(255,255,255,0.08); padding: 1px 5px; border-radius: 3px; }

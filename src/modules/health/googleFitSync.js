@@ -438,9 +438,20 @@ function parseSleep(dataPoints) {
 
     // Keep longest sleep session per date
     if (!byDate[date] || minutesAsleep > (byDate[date].totalMinutes ?? 0)) {
-      const total      = deepMin + remMin + lightMin + awakeMin
-      const sleepScore = total > 0
-        ? Math.round(((deepMin + remMin + lightMin) / total) * 100)
+      const total       = deepMin + remMin + lightMin + awakeMin
+      const asleepHours = minutesAsleep / 60
+      // Duration-based score: optimal 7–9 h (peaks at 8 h), efficiency as secondary weight
+      const dev      = Math.abs(asleepHours - 8)
+      const durScore = dev <= 1
+        ? 90 + Math.round((1 - dev) * 10)
+        : dev <= 2
+          ? 70 + Math.round((2 - dev) * 20)
+          : dev <= 3
+            ? 50 + Math.round((3 - dev) * 20)
+            : Math.max(0, 50 - Math.round((dev - 3) * 15))
+      const effScore = total > 0 ? ((deepMin + remMin + lightMin) / total) * 100 : 50
+      const sleepScore = minutesAsleep > 0
+        ? Math.round(durScore * 0.65 + effScore * 0.35)
         : null
 
       byDate[date] = {
