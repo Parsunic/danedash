@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { supabase } from '../../lib/supabase.js'
 import { JOURNAL_KEY } from '../journal/journalUtils.js'
+import { renderMarkdown } from '../../lib/renderMarkdown.jsx'
 
 // Required Supabase table (run once):
 // CREATE TABLE user_context (
