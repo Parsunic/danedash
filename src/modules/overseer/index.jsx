@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import BackgroundBlob from '../../components/BackgroundBlob.jsx'
+import { renderMarkdown } from '../../lib/renderMarkdown.jsx'
 import {
   selectModel, maxTokensForModel,
   fetchStaticPrompt, buildDynamicContext,
