@@ -21,8 +21,9 @@ const STATIC_SYNC_KEYS = [
 
 // Key prefixes whose instances are enumerated at push time (one key per date/week).
 const DYNAMIC_SYNC_PREFIXES = [
-  'goals:',       // today's and all future/past task lists
-  'habits_log:',  // one key per calendar week
+  'goals:',        // today's and all future/past task lists
+  'habits_log:',   // one key per calendar week
+  'daily_focus:',  // today's thematic focus (one per date)
 ]
 
 const SYNC_ROW_ID = 'dane'
