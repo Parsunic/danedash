@@ -42,6 +42,70 @@ function ParticleBurst({ onDone }) {
   )
 }
 
+// ── TODAY FOCUS CARD ──
+function TodayFocusCard() {
+  const dateStr = getActiveDateString()
+  const focusKey = 'daily_focus:' + dateStr
+  const [focus, setFocus] = useState(() => storeGet(focusKey))
+  const [inputVal, setInputVal] = useState('')
+
+  useEffect(() => {
+    const onSync = () => setFocus(storeGet(focusKey))
+    window.addEventListener('sync-applied', onSync)
+    return () => window.removeEventListener('sync-applied', onSync)
+  }, [focusKey])
+
+  function saveFocus(text) {
+    const trimmed = text.trim()
+    if (!trimmed) return
+    const entry = { text: trimmed, createdAt: new Date().toISOString() }
+    storeSet(focusKey, entry)
+    setFocus(entry)
+    setInputVal('')
+    window.dispatchEvent(new Event('goals-changed'))
+  }
+
+  function clearFocus() {
+    storeDelete(focusKey)
+    setFocus(null)
+    window.dispatchEvent(new Event('goals-changed'))
+  }
+
+  if (!focus) {
+    return (
+      <div className="today-focus-card today-focus-card--empty">
+        <input
+          type="text"
+          className="focus-input"
+          value={inputVal}
+          placeholder="today's focus..."
+          onChange={e => setInputVal(e.target.value)}
+          onBlur={() => saveFocus(inputVal)}
+          onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); saveFocus(inputVal) } }}
+        />
+      </div>
+    )
+  }
+
+  return (
+    <div className="today-focus-card today-focus-card--set">
+      <button className="focus-clear-btn" onClick={clearFocus} title="Clear focus">×</button>
+      <div className="focus-content-row">
+        <svg className="focus-icon" width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+          <circle cx="9" cy="9" r="7.5" stroke="var(--accent)" strokeWidth="1.2" opacity="0.55" />
+          <circle cx="9" cy="9" r="4.5" stroke="var(--accent)" strokeWidth="1.2" opacity="0.75" />
+          <circle cx="9" cy="9" r="1.8" fill="var(--accent)" />
+          <line x1="9" y1="0.5" x2="9" y2="3.2" stroke="var(--accent)" strokeWidth="1.2" strokeLinecap="round" />
+          <line x1="9" y1="14.8" x2="9" y2="17.5" stroke="var(--accent)" strokeWidth="1.2" strokeLinecap="round" />
+          <line x1="0.5" y1="9" x2="3.2" y2="9" stroke="var(--accent)" strokeWidth="1.2" strokeLinecap="round" />
+          <line x1="14.8" y1="9" x2="17.5" y2="9" stroke="var(--accent)" strokeWidth="1.2" strokeLinecap="round" />
+        </svg>
+        <span className="focus-text">{focus.text}</span>
+      </div>
+    </div>
+  )
+}
+
 // ── STREAK ──
 function computeStreak() {
   const activeDate = getActiveDateString()
