@@ -92,12 +92,27 @@ function GoalTicker() {
   const rowIdRef = useRef(0)
 
   const getItems = useCallback(() => {
-    const goals = storeGet('goals:' + getActiveDateString()) || []
+    const dateStr = getActiveDateString()
+    const goals = storeGet('goals:' + dateStr) || []
+    const focusEntry = storeGet('daily_focus:' + dateStr)
     const total = goals.length
     const done = goals.filter(g => g.done).length
-    if (total === 0) return { items: [{ status: 'empty', text: 'No goals set for today — add one to get rolling.' }], done, total }
-    if (done === total) return { items: [{ status: 'done', text: '✓ All goals done — solid day.' }], done, total }
-    return { items: goals.filter(g => !g.done).map(g => ({ status: 'pending', text: g.text })), done, total }
+    const pending = goals.filter(g => !g.done)
+
+    let goalItems
+    if (total === 0) goalItems = []
+    else if (done === total) goalItems = [{ status: 'done', text: '✓ All goals done — solid day.' }]
+    else goalItems = pending.map(g => ({ status: 'pending', text: g.text }))
+
+    if (!focusEntry?.text) {
+      if (goalItems.length === 0) return { items: [{ status: 'empty', text: 'No goals set for today — add one to get rolling.' }], done, total }
+      return { items: goalItems, done, total }
+    }
+
+    const focusItem = { status: 'focus', text: focusEntry.text }
+    if (goalItems.length === 0) return { items: [focusItem], done, total }
+    const focusCount = Math.max(1, Math.round(goalItems.length * 1.5))
+    return { items: [...Array(focusCount).fill(focusItem), ...goalItems], done, total }
   }, [])
 
   const tick = useCallback((first = false) => {
