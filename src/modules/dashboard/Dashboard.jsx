@@ -476,7 +476,7 @@ function DashChatWidget() {
         )}
         {messages.map((m, i) => (
           <div key={i} className={`dash-chat-msg dash-chat-msg--${m.role}`}>
-            {m.content || <span className="dash-chat-cursor">▌</span>}
+            {m.content ? renderMarkdown(m.content) : <span className="dash-chat-cursor">▌</span>}
           </div>
         ))}
         <div ref={endRef} />
