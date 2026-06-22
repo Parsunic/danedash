@@ -681,26 +681,29 @@ export default function Todo({ embedded = false }) {
   }
 
   const content = (
-    <div className="todo-desktop-grid stagger-1">
-      <TodayCard
-        goals={todayGoals}
-        goalKey={todayKey}
-        streak={streak}
-        onGoalsChange={reload}
-        onCrossListDrop={(task, fromKey) => moveTask(task, fromKey, todayKey)}
-      />
-      <TomorrowCard
-        goals={tomorrowGoals}
-        goalKey={tomorrowKey}
-        onGoalsChange={reload}
-        onCrossListDrop={(task, fromKey) => moveTask(task, fromKey, tomorrowKey)}
-      />
-      <GeneralCard
-        goals={generalTasks}
-        goalKey={generalKey}
-        onGoalsChange={reload}
-        onCrossListDrop={(task, fromKey) => moveTask(task, fromKey, generalKey)}
-      />
+    <div className="stagger-1">
+      <TodayFocusCard />
+      <div className="todo-desktop-grid">
+        <TodayCard
+          goals={todayGoals}
+          goalKey={todayKey}
+          streak={streak}
+          onGoalsChange={reload}
+          onCrossListDrop={(task, fromKey) => moveTask(task, fromKey, todayKey)}
+        />
+        <TomorrowCard
+          goals={tomorrowGoals}
+          goalKey={tomorrowKey}
+          onGoalsChange={reload}
+          onCrossListDrop={(task, fromKey) => moveTask(task, fromKey, tomorrowKey)}
+        />
+        <GeneralCard
+          goals={generalTasks}
+          goalKey={generalKey}
+          onGoalsChange={reload}
+          onCrossListDrop={(task, fromKey) => moveTask(task, fromKey, generalKey)}
+        />
+      </div>
     </div>
   )
 
