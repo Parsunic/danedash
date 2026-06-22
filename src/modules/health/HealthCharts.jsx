@@ -58,17 +58,17 @@ function GlassTooltip({ active, payload, label, renderContent }) {
   )
 }
 
-// ── 1. Sleep Trend — 14-day gradient area ──
+// ── 1. Sleep Trend — 14-day hours area + efficiency line ──
 
 export function SleepTrendChart({ history }) {
   const data = history.slice(-14).map(d => {
-    const s = d.sleep_stages
-    const totalMin = s ? (s.deep + s.light + s.rem + (s.wake ?? 0)) : null
-    return {
-      date:  fmtMonthDay(d.date),
-      score: d.sleep_score,
-      hours: totalMin != null ? +(totalMin / 60).toFixed(1) : null,
-    }
+    const s         = d.sleep_stages
+    const asleepMin = s ? (s.deep + s.light + s.rem) : null
+    const totalMin  = s ? (s.deep + s.light + s.rem + (s.wake ?? 0)) : null
+    // Cap at 10 so the axis reads "10+" for anything beyond
+    const hours = asleepMin != null ? Math.min(+(asleepMin / 60).toFixed(1), 10) : null
+    const eff   = (asleepMin != null && totalMin > 0) ? Math.round(asleepMin / totalMin * 100) : null
+    return { date: fmtMonthDay(d.date), hours, eff }
   })
 
   return (
@@ -78,52 +78,64 @@ export function SleepTrendChart({ history }) {
         <span className="health-chart-meta">14 days</span>
       </div>
       <ResponsiveContainer width="100%" height={160}>
-        <AreaChart data={data} margin={{ top: 8, right: 4, bottom: 0, left: -20 }}>
+        <ComposedChart data={data} margin={{ top: 8, right: 4, bottom: 0, left: -20 }}>
           <defs>
-            <linearGradient id="sleepTrendFill" x1="0" y1="0" x2="0" y2="1">
+            <linearGradient id="sleepHoursFill" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%"   stopColor="#7000FF" stopOpacity={0.75} />
               <stop offset="100%" stopColor="#7000FF" stopOpacity={0} />
             </linearGradient>
           </defs>
           <CartesianGrid {...GRID_PROPS} />
           <XAxis dataKey="date" {...AXIS_PROPS} interval="preserveStartEnd" />
-          <YAxis {...AXIS_PROPS} domain={[40, 100]} />
+          <YAxis
+            yAxisId="left"
+            {...AXIS_PROPS}
+            domain={[0, 10]}
+            ticks={[0, 2, 4, 6, 8, 10]}
+            tickFormatter={v => v === 10 ? '10+' : v === 0 ? '' : `${v}h`}
+          />
+          <YAxis yAxisId="right" orientation="right" domain={[0, 100]} hide />
           <Tooltip
             cursor={{ stroke: 'rgba(255,255,255,0.08)', strokeWidth: 1 }}
             content={
-              <GlassTooltip renderContent={pl => (
-                <>
-                  {pl[0]?.value != null && (
-                    <div className="chart-tooltip-row">
-                      <span className="chart-tooltip-name" style={{ color: '#8B5CF6' }}>Score</span>
-                      <span className="chart-tooltip-value">{pl[0].value}</span>
-                    </div>
-                  )}
-                  {pl[1]?.value != null && (
-                    <div className="chart-tooltip-row">
-                      <span className="chart-tooltip-name" style={{ color: 'rgba(255,255,255,0.35)' }}>Hours</span>
-                      <span className="chart-tooltip-value">{pl[1].value}h</span>
-                    </div>
-                  )}
-                </>
-              )} />
+              <GlassTooltip renderContent={pl => {
+                const h = pl.find(p => p.dataKey === 'hours')?.value
+                const e = pl.find(p => p.dataKey === 'eff')?.value
+                return (
+                  <>
+                    {h != null && (
+                      <div className="chart-tooltip-row">
+                        <span className="chart-tooltip-name" style={{ color: '#8B5CF6' }}>Hours</span>
+                        <span className="chart-tooltip-value">{h >= 10 ? '10+h' : `${h}h`}</span>
+                      </div>
+                    )}
+                    {e != null && (
+                      <div className="chart-tooltip-row">
+                        <span className="chart-tooltip-name" style={{ color: 'rgba(255,255,255,0.35)' }}>Efficiency</span>
+                        <span className="chart-tooltip-value">{e}%</span>
+                      </div>
+                    )}
+                  </>
+                )
+              }} />
             }
           />
           <Area
-            type="monotone" dataKey="score" name="Score"
+            yAxisId="left"
+            type="monotone" dataKey="hours" name="Hours"
             stroke="#7000FF" strokeWidth={2}
-            fill="url(#sleepTrendFill)"
+            fill="url(#sleepHoursFill)"
             dot={false} activeDot={{ r: 4, fill: '#7000FF', strokeWidth: 0 }}
             isAnimationActive animationDuration={900} animationEasing="ease-out"
           />
-          <Area
-            type="monotone" dataKey="hours" name="Hours"
-            stroke="rgba(255,255,255,0.18)" strokeWidth={1.5} strokeDasharray="5 4"
-            fill="none"
+          <Line
+            yAxisId="right"
+            type="monotone" dataKey="eff" name="Efficiency"
+            stroke="rgba(255,255,255,0.22)" strokeWidth={1.5} strokeDasharray="5 4"
             dot={false} activeDot={{ r: 3, fill: 'rgba(255,255,255,0.45)', strokeWidth: 0 }}
             isAnimationActive animationDuration={900} animationEasing="ease-out"
           />
-        </AreaChart>
+        </ComposedChart>
       </ResponsiveContainer>
     </div>
   )
