@@ -6,6 +6,7 @@ import { getDayEvents } from '../calendar/calendarUtils.js'
 import BackgroundBlob from '../../components/BackgroundBlob.jsx'
 import { STATIC_PROMPT_FALLBACK } from '../../lib/overseer.js'
 import GoalsPulseCard from './GoalsPulseCard.jsx'
+import { renderMarkdown } from '../../lib/renderMarkdown.jsx'
 
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages'
 const DASH_MODEL = 'claude-haiku-4-5-20251001'
