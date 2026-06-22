@@ -279,10 +279,14 @@ export default function Health() {
         <HeroCard
           label="Sleep Score" gradient="purple"
           value={today?.sleep_score}
-          micro={today?.sleep_score != null
-            ? today.sleep_score >= 80 ? 'Excellent'
-            : today.sleep_score >= 60 ? 'Fair' : 'Poor'
-            : null}
+          micro={(() => {
+            if (!today?.sleep_score) return null
+            const s = today?.sleep_stages
+            const asleepMin = s ? (s.deep + s.light + s.rem) : null
+            const quality = today.sleep_score >= 80 ? 'Excellent' : today.sleep_score >= 60 ? 'Fair' : 'Poor'
+            if (asleepMin == null) return quality
+            return `${Math.floor(asleepMin / 60)}h ${asleepMin % 60}m · ${quality}`
+          })()}
         />
         <HeroCard label="HRV"         gradient="green"  unit="ms"  value={today?.hrv != null ? Math.round(today.hrv) : null} />
         <HeroCard label="Resting HR"  gradient="orange" unit="bpm" value={today?.resting_hr} />
