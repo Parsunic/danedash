@@ -20,7 +20,7 @@ function Message({ msg }) {
   return (
     <div className={`overseer-msg overseer-msg--${msg.role}`}>
       <div className="overseer-msg-bubble">
-        {msg.content || <span className="overseer-cursor">▌</span>}
+        {msg.content ? renderMarkdown(msg.content) : <span className="overseer-cursor">▌</span>}
       </div>
       {!isUser && msg.model && <ModelBadge model={msg.model} />}
     </div>
