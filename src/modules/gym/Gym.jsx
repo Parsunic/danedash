@@ -523,7 +523,14 @@ export default function Gym() {
             {/* BACK FACE — Templates / AI Coach / History / Stats / Log */}
             <div className="gym-face gym-face-back" style={!flipped ? { pointerEvents: 'none' } : {}}>
               <div className="gym-back-header">
-                <button className="gym-back-btn" onClick={flipToFront}>‹ Planner</button>
+                <FlipTitle
+                  icon={<StatsIcon />}
+                  label="Stats"
+                  isFlipping={titleSpin}
+                  onClick={flipToFront}
+                  title="Back to Gym"
+                  className="gym-back-flip"
+                />
                 <div className="gym-overlay-tabs">
                   {visibleTabs.map(tab => (
                     <button
