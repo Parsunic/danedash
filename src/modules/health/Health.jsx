@@ -482,104 +482,103 @@ export default function Health() {
         </div>
       )}
 
-      {/* ══ OVERVIEW ══ */}
-      {view === 'overview' && (
-        <>
-          {/* Readiness + Sleep rings */}
-          <div className="health-rings-row stagger-1">
-            <StatRing
-              value={readiness}
-              label="Readiness"
-              sublabel={readiness == null ? null : readiness >= 80 ? 'Optimal' : readiness >= 60 ? 'Good' : 'Low'}
-              color={readiness == null || readiness >= 70 ? '#6BE3A4' : readiness >= 50 ? '#F2C063' : '#EF4444'}
-            />
-            <StatRing
-              value={today?.sleep_score}
-              label="Sleep Score"
-              sublabel={today?.sleep_score == null ? null : today.sleep_score >= 80 ? 'Excellent' : today.sleep_score >= 60 ? 'Fair' : 'Poor'}
-              color="#7048E8"
-            />
-          </div>
-
-          {/* HRV + Resting HR */}
-          <div className="health-mini-stats-row stagger-2">
-            <MiniStat
-              label="HRV"
-              value={today?.hrv != null ? Math.round(today.hrv) : null}
-              unit="ms"
-              color="#00C896"
-              micro={hrvDiff == null ? null : `${hrvDiff > 0 ? '+' : ''}${hrvDiff} vs baseline`}
-            />
-            <MiniStat
-              label="Resting HR"
-              value={today?.resting_hr ?? null}
-              unit="bpm"
-              color="#E8A020"
-              micro={hrDiff == null ? null : hrDiff === 0 ? 'At baseline' : `${hrDiff > 0 ? '+' : ''}${hrDiff} vs baseline`}
-            />
-          </div>
-
-          {/* Stress gauge */}
-          <div className="stagger-3">
-            <StressGauge value={stress} />
-          </div>
-
-          {/* Sleep breakdown */}
-          <div className="stagger-4">
-            <SleepCard today={today} />
-          </div>
-        </>
-      )}
-
-      {/* ══ TRENDS ══ */}
-      {view === 'trends' && (
-        <>
-          <div className="health-section-label stagger-1">Sleep</div>
-          <div className="health-chart-row stagger-1">
-            <SleepTrendChart history={history} />
-            <SleepStagesChart history={history} />
-          </div>
-
-          <div className="health-section-label stagger-2">Recovery</div>
-          <div className="health-chart-row stagger-2">
-            <HRVTrendChart history={history} />
-            <RestingHRChart history={history} />
-          </div>
-
-          <div className="health-section-label stagger-3">AI Coach</div>
-          <div className="health-ai-card stagger-3">
-            <div className="health-ai-top">
-              <div>
-                <div className="health-card-label">Weekly Health Analysis</div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 3 }}>
-                  7 days of health + training data
-                </div>
-              </div>
-              <button
-                className="btn-ghost"
-                style={{ fontSize: 12, padding: '6px 14px', flexShrink: 0 }}
-                onClick={handleAnalyze}
-                disabled={aiLoading}
-              >
-                {aiLoading ? 'Analyzing…' : analysis ? 'Refresh' : 'Analyze'}
-              </button>
+      {/* ══ Switchable content (flips between Overview & Trends) ══ */}
+      <div className={`health-views flip-content${animState ? ' ' + animState : ''}`}>
+        {view === 'overview' ? (
+          <>
+            {/* Stress gauge — top of the overview */}
+            <div className="stagger-1">
+              <StressGauge value={stress} />
             </div>
-            {analysis?.error && (
-              <div className="health-ai-error">{analysis.error}</div>
-            )}
-            {analysis?.text && (
-              <div className="health-ai-result">
-                {renderMarkdown(analysis.text)}
+
+            {/* Readiness + Sleep rings */}
+            <div className="health-rings-row stagger-2">
+              <StatRing
+                value={readiness}
+                label="Readiness"
+                sublabel={readiness == null ? null : readiness >= 80 ? 'Optimal' : readiness >= 60 ? 'Good' : 'Low'}
+                color={readiness == null || readiness >= 70 ? '#6BE3A4' : readiness >= 50 ? '#F2C063' : '#EF4444'}
+              />
+              <StatRing
+                value={today?.sleep_score}
+                label="Sleep Score"
+                sublabel={today?.sleep_score == null ? null : today.sleep_score >= 80 ? 'Excellent' : today.sleep_score >= 60 ? 'Fair' : 'Poor'}
+                color="#7048E8"
+              />
+            </div>
+
+            {/* HRV + Resting HR */}
+            <div className="health-mini-stats-row stagger-3">
+              <MiniStat
+                label="HRV"
+                value={today?.hrv != null ? Math.round(today.hrv) : null}
+                unit="ms"
+                color="#00C896"
+                micro={hrvDiff == null ? null : `${hrvDiff > 0 ? '+' : ''}${hrvDiff} vs baseline`}
+              />
+              <MiniStat
+                label="Resting HR"
+                value={today?.resting_hr ?? null}
+                unit="bpm"
+                color="#E8A020"
+                micro={hrDiff == null ? null : hrDiff === 0 ? 'At baseline' : `${hrDiff > 0 ? '+' : ''}${hrDiff} vs baseline`}
+              />
+            </div>
+
+            {/* Sleep breakdown */}
+            <div className="stagger-4">
+              <SleepCard today={today} />
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="health-section-label stagger-1">Sleep</div>
+            <div className="health-chart-row stagger-1">
+              <SleepTrendChart history={history} />
+              <SleepStagesChart history={history} />
+            </div>
+
+            <div className="health-section-label stagger-2">Recovery</div>
+            <div className="health-chart-row stagger-2">
+              <HRVTrendChart history={history} />
+              <RestingHRChart history={history} />
+            </div>
+
+            <div className="health-section-label stagger-3">AI Coach</div>
+            <div className="health-ai-card stagger-3">
+              <div className="health-ai-top">
+                <div>
+                  <div className="health-card-label">Weekly Health Analysis</div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 3 }}>
+                    7 days of health + training data
+                  </div>
+                </div>
+                <button
+                  className="btn-ghost"
+                  style={{ fontSize: 12, padding: '6px 14px', flexShrink: 0 }}
+                  onClick={handleAnalyze}
+                  disabled={aiLoading}
+                >
+                  {aiLoading ? 'Analyzing…' : analysis ? 'Refresh' : 'Analyze'}
+                </button>
               </div>
-            )}
-            {!analysis && !aiLoading && (
-              <div className="health-ai-placeholder">
-                Tap Analyze for personalized insights based on your health and workout data.
-              </div>
-            )}
-          </div>
-        </>
-      )}
+              {analysis?.error && (
+                <div className="health-ai-error">{analysis.error}</div>
+              )}
+              {analysis?.text && (
+                <div className="health-ai-result">
+                  {renderMarkdown(analysis.text)}
+                </div>
+              )}
+              {!analysis && !aiLoading && (
+                <div className="health-ai-placeholder">
+                  Tap Analyze for personalized insights based on your health and workout data.
+                </div>
+              )}
+            </div>
+          </>
+        )}
+      </div>
     </div>
   )
 }
