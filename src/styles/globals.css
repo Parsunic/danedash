@@ -6217,6 +6217,8 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
     column-gap: 2px;
   }
   .habit-cell { width: 22px; height: 22px; }
+  .habits-form-row { flex-wrap: wrap; }
+  .habits-days-picker { flex-wrap: wrap; }
 }
 
 .habits-day-header {
