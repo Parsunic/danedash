@@ -5565,6 +5565,15 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
 
 .health-page { padding-top: 8px; position: relative; }
 
+/* Center the health column on wide screens so content isn't left-anchored. */
+@media (min-width: 1024px) {
+  .health-page {
+    max-width: 880px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
 /* ── Page header ── */
 .health-page-header {
   display: flex;
