@@ -5269,9 +5269,9 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
 
 /* ── Journal responsive ── */
 @media (max-width: 600px) {
-  .journal-root { padding: 16px 14px 36px; gap: 28px; }
+  .journal-root { padding: 16px 14px 36px; gap: 14px; }
   .journal-date-heading { font-size: 30px; }
-  .journal-textarea { min-height: 200px; font-size: 16px; line-height: 1.7; }
+  .journal-textarea { min-height: 300px; font-size: 16px; line-height: 1.7; }
   .journal-cal-cell { min-height: 38px; }
   .journal-cal-count { font-size: 17px; }
   .journal-day-panel {
