@@ -503,10 +503,13 @@ export default function Gym() {
             {/* FRONT FACE — Planner */}
             <div className="gym-face gym-face-front" style={flipped ? { pointerEvents: 'none' } : {}}>
               <div className="gym-face-top" style={isDesktop && plannerViewMode === 'month' ? { paddingRight: 90 } : {}}>
-                <h1 className="dash-title">Gym</h1>
-                <button className="btn-secondary" style={{ fontSize: '0.8125rem', padding: '7px 16px' }} onClick={() => flipToBack('stats')}>
-                  Stats ›
-                </button>
+                <FlipTitle
+                  icon={<DumbbellIcon />}
+                  label="Gym"
+                  isFlipping={titleSpin}
+                  onClick={() => flipToBack('stats')}
+                  title="Switch to Stats"
+                />
               </div>
               <PlannerView
                 weekOffset={plannerWeekOffset}
