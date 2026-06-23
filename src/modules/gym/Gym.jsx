@@ -66,6 +66,22 @@ function getOverlayStyle(overlay) {
   }
 }
 
+function DumbbellIcon() {
+  return (
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M6.5 6.5v11M3.5 9v6M17.5 6.5v11M20.5 9v6M6.5 12h11" />
+    </svg>
+  )
+}
+
+function StatsIcon() {
+  return (
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M4 20V10M10 20V4M16 20v-7M22 20H2" />
+    </svg>
+  )
+}
+
 export default function Gym() {
   const _savedSession = storeGet(ACTIVE_SESSION_KEY)
   const _hasSession = !!(_savedSession && !_savedSession.__done)
