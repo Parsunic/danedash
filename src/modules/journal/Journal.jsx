@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { storeGet, storeSet } from '../../lib/storage.js'
 import BackgroundBlob from '../../components/BackgroundBlob.jsx'
+import { useFlip, FlipTitle } from '../../components/FlipSwitch.jsx'
 import { formatDate } from '../../lib/dateHelpers.js'
 import {
   JOURNAL_KEY, TAGS, AI_MODELS,
