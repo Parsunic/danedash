@@ -4875,7 +4875,7 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
 .journal-textarea {
   display: block;
   width: 100%;
-  min-height: 190px;
+  min-height: 300px;
   background: rgba(255,255,255,0.03);
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 14px;
@@ -4883,10 +4883,13 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
   font-family: var(--font-body);
   font-size: 15px;
   line-height: 1.75;
-  padding: 16px 18px;
+  padding: 18px 20px;
   resize: vertical;
   outline: none;
   transition: border-color 0.15s;
+}
+@media (min-width: 1024px) {
+  .journal-textarea { min-height: 360px; }
 }
 .journal-textarea::placeholder { color: rgba(255,255,255,0.18); }
 .journal-textarea:focus { border-color: rgba(232,160,32,0.28); }
