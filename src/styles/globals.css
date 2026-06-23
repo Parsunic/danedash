@@ -3450,9 +3450,13 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
 .gym-back-header {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
+  gap: 14px;
   padding: 24px 20px 16px;
   border-bottom: 1px solid rgba(255,255,255,0.06);
+  flex-shrink: 0;
+}
+.gym-back-flip {
+  align-self: center;
   flex-shrink: 0;
 }
 .gym-back-btn {
