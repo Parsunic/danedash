@@ -6202,11 +6202,21 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
 
 .habits-grid {
   display: grid;
-  grid-template-columns: 1fr repeat(7, 26px) 30px;
+  grid-template-columns: minmax(0, 1fr) repeat(7, 26px) 30px;
   column-gap: 3px;
   row-gap: 10px;
   align-items: center;
   margin-bottom: 16px;
+}
+
+/* Narrow phones: shrink cells/padding so the 7-day grid never runs off-screen */
+@media (max-width: 390px) {
+  .habits-card { padding: 16px 14px; }
+  .habits-grid {
+    grid-template-columns: minmax(0, 1fr) repeat(7, 22px) 26px;
+    column-gap: 2px;
+  }
+  .habit-cell { width: 22px; height: 22px; }
 }
 
 .habits-day-header {
