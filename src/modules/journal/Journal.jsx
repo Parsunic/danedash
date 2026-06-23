@@ -382,130 +382,139 @@ Keep the total response under 220 words. Be direct. Skip affirmations and filler
     <div className="journal-root">
       <BackgroundBlob page="journal" />
 
-      {/* Left col: write area */}
-      <div className="journal-left-col stagger-1">
-        <div className="journal-eyebrow">TODAY'S REFLECTION</div>
-
-        <h1 className="journal-date-heading">{formatDate(todayStr)}</h1>
-
-        {/* Streak */}
-        <div className="journal-streak-row">
-          {streak > 0 ? (
-            <>
-              <span className="journal-streak-num">{streak}</span>
-              <span className="journal-streak-label">day streak</span>
-            </>
-          ) : (
-            <span className="page-subtitle">Start your streak today</span>
-          )}
-        </div>
-
-        {/* Mode toggle */}
-        <div className="journal-mode-toggle">
-          <button
-            className={`journal-mode-btn${!isFreestyle ? ' active' : ''}`}
-            onClick={() => setIsFreestyle(false)}
-          >Prompted</button>
-          <button
-            className={`journal-mode-btn${isFreestyle ? ' active' : ''}`}
-            onClick={() => { setIsFreestyle(true); setAiPrompt(null) }}
-          >Freestyle</button>
-        </div>
-
-        {/* Prompt */}
-        <div className={`journal-prompt-row${!isFreestyle ? ' visible' : ''}`}>
-          <p className="journal-prompt-text">{activePrompt}</p>
-          <button
-            className="journal-ai-prompt-btn"
-            onClick={generateAIPrompt}
-            disabled={generatingPrompt}
-            title="Generate a new prompt with AI"
-          >
-            {generatingPrompt ? '…' : '✦'}
-          </button>
-        </div>
-
-        {/* Write area */}
-        <textarea
-          ref={textareaRef}
-          className="journal-textarea"
-          placeholder="What's on your mind?"
-          value={text}
-          onChange={e => setText(e.target.value)}
-          onKeyDown={e => { if (e.key === 'Enter' && e.metaKey) saveEntry() }}
+      {/* Tap to flip Write ⇄ Reflect */}
+      <div className="journal-flip-header">
+        <FlipTitle
+          icon={view === 'write' ? <PenIcon /> : <ReflectIcon />}
+          label={view === 'write' ? 'Write' : 'Reflect'}
+          isFlipping={isFlipping}
+          onClick={() => flip()}
+          title={view === 'write' ? 'Switch to Reflections' : 'Back to Writing'}
         />
-
-        {/* Tags */}
-        <div className="journal-tag-row">
-          {TAGS.map(tag => (
-            <button
-              key={tag}
-              className={`journal-tag-pill${selectedTags.includes(tag) ? ' active' : ''}`}
-              onClick={() => toggleTag(tag)}
-            >
-              {tag}
-            </button>
-          ))}
-        </div>
-
-        {/* Save — only when there's content */}
-        <div className={`journal-save-wrap${isDirty ? ' visible' : ''}`}>
-          <button className="btn-primary" style={{ width: '100%', justifyContent: 'center' }} onClick={saveEntry}>
-            Save entry
-          </button>
-        </div>
-
-        {/* Past reflections */}
-        {allSortedEntries.length > 0 && (
-          <>
-            <button className="journal-past-toggle" onClick={() => setShowPast(v => !v)}>
-              <span>Past reflections ({allSortedEntries.length})</span>
-              <span className={`journal-past-chevron${showPast ? ' open' : ''}`}>›</span>
-            </button>
-
-            {showPast && (
-              <div className="journal-past-list">
-                {(() => {
-                  let lastDate = null
-                  let todayCardShown = false
-                  return allSortedEntries.map(entry => {
-                    const isNewDate = entry.date !== lastDate
-                    lastDate = entry.date
-                    const dateLabel = entry.date === todayStr ? 'Today' : formatDate(entry.date)
-                    const isLatestToday = entry.date === todayStr && !todayCardShown
-                    if (isLatestToday) todayCardShown = true
-                    return (
-                      <div key={`${entry.id}-${lockTick}`}>
-                        {isNewDate && <div className="journal-past-date-label">{dateLabel}</div>}
-                        <EntryCard
-                          entry={entry}
-                          onAnalyze={analyzeEntry}
-                          analysis={analyses[entry.id]}
-                          isAnalyzing={analyzing[entry.id]}
-                          isLatestToday={isLatestToday}
-                        />
-                      </div>
-                    )
-                  })
-                })()}
-              </div>
-            )}
-          </>
-        )}
       </div>
 
-      {/* Right col: calendar heatmap */}
-      <div className="journal-cal-section stagger-2">
-        <div className="journal-cal-section-header">
-          <span className="journal-eyebrow" style={{ marginBottom: 0 }}>ENTRIES</span>
-        </div>
-        <MonthCalendar
-          entries={entries}
-          month={calMonth}
-          onMonthChange={setCalMonth}
-          onDayClick={setSelectedDay}
-          todayStr={todayStr}
-        />
+      <div className={`flip-content journal-flip-content${animState ? ' ' + animState : ''}`}>
+        {view === 'write' ? (
+          /* ── WRITE FACE ── */
+          <div className="journal-write-face">
+            <h1 className="journal-date-heading">{formatDate(todayStr)}</h1>
+
+            <div className="journal-streak-row">
+              {streak > 0 ? (
+                <>
+                  <span className="journal-streak-num">{streak}</span>
+                  <span className="journal-streak-label">day streak</span>
+                </>
+              ) : (
+                <span className="page-subtitle">Start your streak today</span>
+              )}
+            </div>
+
+            {/* Mode toggle */}
+            <div className="journal-mode-toggle">
+              <button
+                className={`journal-mode-btn${!isFreestyle ? ' active' : ''}`}
+                onClick={() => setIsFreestyle(false)}
+              >Prompted</button>
+              <button
+                className={`journal-mode-btn${isFreestyle ? ' active' : ''}`}
+                onClick={() => { setIsFreestyle(true); setAiPrompt(null) }}
+              >Freestyle</button>
+            </div>
+
+            {/* Prompt */}
+            <div className={`journal-prompt-row${!isFreestyle ? ' visible' : ''}`}>
+              <p className="journal-prompt-text">{activePrompt}</p>
+              <button
+                className="journal-ai-prompt-btn"
+                onClick={generateAIPrompt}
+                disabled={generatingPrompt}
+                title="Generate a new prompt with AI"
+              >
+                {generatingPrompt ? '…' : '✦'}
+              </button>
+            </div>
+
+            {/* Write area */}
+            <textarea
+              ref={textareaRef}
+              className="journal-textarea"
+              placeholder="What's on your mind?"
+              value={text}
+              onChange={e => setText(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter' && e.metaKey) saveEntry() }}
+            />
+
+            {/* Tags */}
+            <div className="journal-tag-row">
+              {TAGS.map(tag => (
+                <button
+                  key={tag}
+                  className={`journal-tag-pill${selectedTags.includes(tag) ? ' active' : ''}`}
+                  onClick={() => toggleTag(tag)}
+                >
+                  {tag}
+                </button>
+              ))}
+            </div>
+
+            {/* Save — only when there's content */}
+            <div className={`journal-save-wrap${isDirty ? ' visible' : ''}`}>
+              <button className="btn-primary" style={{ width: '100%', justifyContent: 'center' }} onClick={saveEntry}>
+                Save entry
+              </button>
+            </div>
+          </div>
+        ) : (
+          /* ── REFLECT FACE ── */
+          <div className="journal-reflect-face">
+            <div className="journal-cal-section">
+              <div className="journal-cal-section-header">
+                <span className="journal-eyebrow" style={{ marginBottom: 0 }}>ENTRIES</span>
+              </div>
+              <MonthCalendar
+                entries={entries}
+                month={calMonth}
+                onMonthChange={setCalMonth}
+                onDayClick={setSelectedDay}
+                todayStr={todayStr}
+              />
+            </div>
+
+            <div className="journal-reflect-list">
+              <div className="journal-eyebrow">PAST REFLECTIONS</div>
+              {allSortedEntries.length === 0 ? (
+                <div className="journal-day-panel-empty">No reflections yet — flip back and write your first.</div>
+              ) : (
+                <div className="journal-past-list">
+                  {(() => {
+                    let lastDate = null
+                    let todayCardShown = false
+                    return allSortedEntries.map(entry => {
+                      const isNewDate = entry.date !== lastDate
+                      lastDate = entry.date
+                      const dateLabel = entry.date === todayStr ? 'Today' : formatDate(entry.date)
+                      const isLatestToday = entry.date === todayStr && !todayCardShown
+                      if (isLatestToday) todayCardShown = true
+                      return (
+                        <div key={`${entry.id}-${lockTick}`}>
+                          {isNewDate && <div className="journal-past-date-label">{dateLabel}</div>}
+                          <EntryCard
+                            entry={entry}
+                            onAnalyze={analyzeEntry}
+                            analysis={analyses[entry.id]}
+                            isAnalyzing={analyzing[entry.id]}
+                            isLatestToday={isLatestToday}
+                          />
+                        </div>
+                      )
+                    })
+                  })()}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Day slide-over */}
