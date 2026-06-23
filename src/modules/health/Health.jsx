@@ -318,7 +318,8 @@ const TrendsIcon = () => (
 // ── Main Health component ──
 
 export default function Health() {
-  const [view,       setView]       = useState('overview')
+  const { flipped, animState, isFlipping, flip } = useFlip(false)
+  const view = flipped ? 'trends' : 'overview'
   const [history,    setHistory]    = useState([])
   const [syncStatus, setSyncStatus] = useState(null)
   const [lastSync,   setLastSync]   = useState(() => getGfitLastSync())
