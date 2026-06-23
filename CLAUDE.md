@@ -234,5 +234,12 @@ Active toggle state = btn-primary. Inactive toggle state = btn-secondary.
 ### Page Subtitles
 All page-level subtitles use `.page-subtitle`: uppercase, letter-spacing 0.12em, 0.7rem, rgba(255,255,255,0.4), not italic, not bold. Never use sentence-case or italic for page-level descriptors.
 
+### View Switching (Flip Pattern)
+All in-module view switches use ONE shared, congruent pattern — the "tap-the-title-and-it-flips" control from `src/components/FlipSwitch.jsx`:
+- `useFlip(initial)` → `{ flipped, animState, isFlipping, flip }`. Wrap the swapping content in `<div className={`flip-content ${animState}`}>` and pick the face from `flipped`.
+- `<FlipTitle icon label isFlipping onClick title />` — an understated, section-label-styled tappable control with a leading contextual icon (swaps per side) + trailing swap-arrows hint. It deliberately does NOT look like a button.
+- CSS: the "UNIVERSAL FLIP SWITCH" block in `globals.css` (`.flip-title-btn`, `.flip-content`, `flip-exit`/`flip-enter` keyframes).
+- Used by: Goals (Goals⇄Tasks), Health (Overview⇄Trends), Journal (Write⇄Reflect). Gym (Gym⇄Stats) keeps its 3D card-flip transition but uses the same `FlipTitle` control. Do NOT add one-off toggle buttons for view switching — use `FlipTitle`.
+
 ### Adding New Modules
-Any new module must use only btn-primary / btn-secondary / btn-ghost for all interactive controls, and .page-subtitle for any page-level descriptor. No new button styles may be introduced without updating this section first.
+Any new module must use only btn-primary / btn-secondary / btn-ghost for all interactive controls, and .page-subtitle for any page-level descriptor. No new button styles may be introduced without updating this section first. Any module-level view switch must use the shared FlipSwitch (`FlipTitle` + `useFlip`).
