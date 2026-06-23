@@ -515,8 +515,8 @@ export default function Dashboard() {
           <DayRing />
         </div>
         <div className="dash-side-col stagger-2">
-          <TopTasksWidget />
           <CalendarNowWidget />
+          <TopTasksWidget />
           <GoalsPulseCard />
         </div>
         <div className="dash-overseer-wrap stagger-3">
