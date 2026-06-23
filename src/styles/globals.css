@@ -2569,8 +2569,9 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
 /* ── DASHBOARD DESKTOP ── */
 .dash-desktop-layout { display: flex; flex-direction: column; gap: 0; }
 .dash-main-col { width: 100%; order: 1; }
-.dash-side-col { display: flex; flex-direction: column; margin-top: 0; order: 3; }
-.dash-overseer-wrap { order: 2; }
+/* Mobile stack: day ring → schedule/queue/pulse → overseer last */
+.dash-side-col { display: flex; flex-direction: column; margin-top: 0; order: 2; }
+.dash-overseer-wrap { order: 3; }
 
 @media (min-width: 1024px) {
   .dash-desktop-layout {
