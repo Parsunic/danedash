@@ -212,7 +212,8 @@ export default function Journal() {
   const [aiPrompt, setAiPrompt] = useState(null)
   const [generatingPrompt, setGeneratingPrompt] = useState(false)
   const [isFreestyle, setIsFreestyle] = useState(false)
-  const [showPast, setShowPast] = useState(false)
+  const { flipped, animState, isFlipping, flip } = useFlip(false)
+  const view = flipped ? 'reflect' : 'write'
   const [calMonth, setCalMonth] = useState(() => new Date())
   const [selectedDay, setSelectedDay] = useState(null)
   const [lockTick, setLockTick] = useState(0)
