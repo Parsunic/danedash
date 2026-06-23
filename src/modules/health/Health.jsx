@@ -443,22 +443,15 @@ export default function Health() {
         </div>
       </div>
 
-      {/* ── View toggle ── */}
+      {/* ── View toggle (tap to flip Overview ⇄ Trends) ── */}
       <div className="health-view-bar">
-        <button
-          className={view === 'overview' ? 'btn-primary' : 'btn-secondary'}
-          style={{ fontSize: '0.8125rem', padding: '7px 16px' }}
-          onClick={() => setView('overview')}
-        >
-          <HeartIcon /> Overview
-        </button>
-        <button
-          className={view === 'trends' ? 'btn-primary' : 'btn-secondary'}
-          style={{ fontSize: '0.8125rem', padding: '7px 16px' }}
-          onClick={() => setView('trends')}
-        >
-          <TrendsIcon /> Trends
-        </button>
+        <FlipTitle
+          icon={view === 'overview' ? <HeartIcon /> : <TrendsIcon />}
+          label={view === 'overview' ? 'Overview' : 'Trends'}
+          isFlipping={isFlipping}
+          onClick={() => flip()}
+          title={view === 'overview' ? 'Switch to Trends' : 'Switch to Overview'}
+        />
       </div>
 
       {/* ── Connect banner ── */}
