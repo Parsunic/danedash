@@ -150,7 +150,7 @@ export default function Gym() {
     }, 1000)
   }, [])
 
-  useEffect(() => () => clearInterval(restIntervalRef.current), [])
+  useEffect(() => () => { clearInterval(restIntervalRef.current); clearTimeout(titleSpinTimer.current) }, [])
   useEffect(() => { runMuscleMigration().catch(() => {}) }, [])
 
   // Auto-finish logic: if enabled, finish workout after 3h total with 30m idle
