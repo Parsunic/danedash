@@ -113,13 +113,15 @@ export default function Gym() {
   const flipToBack = useCallback((tab = 'templates') => {
     setOverlayTab(tab)
     if (flipperRef.current) flipperRef.current.style.transition = 'transform 680ms cubic-bezier(0.34, 1.3, 0.64, 1)'
+    spinTitle()
     setFlipped(true)
-  }, [])
+  }, [spinTitle])
 
   const flipToFront = useCallback(() => {
     if (flipperRef.current) flipperRef.current.style.transition = 'transform 520ms cubic-bezier(0.4, 0, 0.2, 1)'
+    spinTitle()
     setFlipped(false)
-  }, [])
+  }, [spinTitle])
 
   // ── REST TIMER ──
   const startRestTimer = useCallback(secs => {
