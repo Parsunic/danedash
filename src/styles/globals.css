@@ -6009,11 +6009,11 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
   }
 }
 
-/* ── Health view toggle ── */
+/* ── Health view toggle (single flip control) ── */
 .health-view-bar {
   display: flex;
   gap: 6px;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 
 /* ── Rings row ── */
