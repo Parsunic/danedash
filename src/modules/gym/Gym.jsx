@@ -92,9 +92,17 @@ export default function Gym() {
   const [activeSession, setActiveSession] = useState(_savedSession || null)
   const [restState, setRestState] = useState(INIT_REST)
   const [expandOverlay, setExpandOverlay] = useState(null)
+  const [titleSpin, setTitleSpin] = useState(false)
   const restIntervalRef = useRef(null)
   const flipperRef = useRef(null)
   const gymContainerRef = useRef(null)
+  const titleSpinTimer = useRef(null)
+
+  const spinTitle = useCallback(() => {
+    setTitleSpin(true)
+    clearTimeout(titleSpinTimer.current)
+    titleSpinTimer.current = setTimeout(() => setTitleSpin(false), 680)
+  }, [])
 
   useEffect(() => {
     window.__swipeDisabled = flipped && overlayTab === 'log'
