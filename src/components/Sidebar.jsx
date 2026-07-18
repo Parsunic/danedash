@@ -1,7 +1,9 @@
 import { NavLink } from 'react-router-dom'
-import { modules } from '../App.jsx'
+import { useNavModules } from '../lib/navOrder.js'
 
 export default function Sidebar() {
+  // Sidebar shows ALL modules (never filtered) — just in the customized order.
+  const { ordered } = useNavModules()
   return (
     <aside className="sidebar">
       <div className="sidebar-brand">
