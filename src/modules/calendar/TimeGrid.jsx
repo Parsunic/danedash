@@ -143,6 +143,7 @@ export default function TimeGrid({
 
   // ── DESKTOP: column mouse-down → drag-to-create ──
   const handleColumnMouseDown = (di, e) => {
+    if (editing) return
     if (!isDesktop || e.button !== 0) return
     e.preventDefault()
     const snapped = clientYToSnapped(e.clientY)
