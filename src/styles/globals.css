@@ -7596,3 +7596,84 @@ body.dc-editing .bottom-tabbar { border-top-color: rgba(232,160,32,0.3); }
   .dc-drag-clone { transition: none !important; }
 }
 /* ==== END DYNAMIC CARDS (dc-) ==== */
+
+/* ==== NAV CUSTOMIZE (setnav-) ==== */
+/* Settings → Navigation reorder UI. All selectors setnav- prefixed.
+   Inert until SettingsModal renders a .setnav-list. */
+.setnav-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 10px;
+}
+.setnav-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 6px 9px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 9px;
+}
+.setnav-row.is-hidden { opacity: 0.42; }
+.setnav-icon {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  color: var(--text-tertiary);
+}
+.setnav-icon svg { width: 16px; height: 16px; }
+.setnav-label {
+  font-size: 13px;
+  color: var(--text-primary);
+}
+.setnav-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 4px;
+}
+.setnav-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 6px;
+  color: var(--text-tertiary);
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+}
+.setnav-btn:hover:not(:disabled) { border-color: rgba(255,255,255,0.28); color: var(--text-primary); }
+.setnav-btn:disabled { opacity: 0.25; cursor: default; }
+.setnav-preview {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  gap: 4px;
+  margin-top: 12px;
+  padding: 7px 6px;
+  background: rgba(5,5,6,0.96);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 11px;
+}
+.setnav-preview-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-tertiary);
+}
+.setnav-preview-icon svg { width: 15px; height: 15px; }
+.setnav-hint {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  margin-top: 8px;
+  line-height: 1.5;
+}
+/* ==== END NAV CUSTOMIZE ==== */
