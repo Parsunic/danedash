@@ -107,7 +107,7 @@ function makeEntriesWidget(ctxRef) {
 
 // ── Registry (area 'journal_reflect') ──
 
-export const JOURNAL_REFLECT_ORDER = ['calendar', 'entries']
+export const JOURNAL_REFLECT_ORDER = ['calendar', 'entries', 'browse', 'moodtrend', 'synthesis']
 
 export function buildJournalReflectRegistry(ctxRef) {
   return {
@@ -131,5 +131,7 @@ export function buildJournalReflectRegistry(ctxRef) {
       autoPriority: 2,
       autoSize: { 2: 'XL', 3: 'XL', 4: 'XL' },
     },
+    // F4 Journal Intelligence — browse/search, mood trend, monthly synthesis.
+    ...buildJournalIntelWidgets(ctxRef),
   }
 }
