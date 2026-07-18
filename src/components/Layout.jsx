@@ -442,6 +442,11 @@ export default function Layout({ children }) {
   const location = useLocation()
   const mainRef = useRef(null)
   const locationRef = useRef(location.pathname)
+  // Swipe sequence follows the customized bottom-bar order. Held in a ref so the
+  // touch listeners (bound once) read the latest list without re-binding on nav changes.
+  const { mobileVisible } = useNavModules()
+  const navListRef = useRef(mobileVisible)
+  navListRef.current = mobileVisible
 
   useEffect(() => { locationRef.current = location.pathname }, [location.pathname])
 
