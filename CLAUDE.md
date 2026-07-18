@@ -205,10 +205,12 @@ src/
                              # getDayEvents merges calendar_events + gym_planned for a day
       googleSync.js          # GCal OAuth flow + sync functions
     journal/
-      Journal.jsx            # Daily entries, AI analysis, tags, rotating prompts, 24h lock
-      journalUtils.js        # Entry dating, prompts, streak calc, AI model list
+      Journal.jsx            # Write ⇄ Reflect flip. Write face + MonthCalendar; Reflect = CardGrid (area 'journal_reflect')
+      journalReflectRegistry.jsx  # Reflect-face cards (calendar/entries) — ctxRef builder
+      journalUtils.js        # Entry dating, prompts, streak calc, AI model list, getMonthGrid
     health/
-      Health.jsx             # Google Fit data display: sleep, HR, HRV, activity
+      Health.jsx             # Overview ⇄ Trends flip; both faces = CardGrid (health_overview / health_trends)
+      healthCardRegistries.jsx    # buildHealthOverviewRegistry / buildHealthTrendsRegistry — ctxRef builders
       HealthCharts.jsx       # Recharts components (SleepTrend, HRVTrend, RestingHR,
                              # SleepStages, WeeklyActivity)
       googleFitSync.js       # Google Fit OAuth + data fetching
