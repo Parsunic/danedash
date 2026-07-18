@@ -7805,3 +7805,23 @@ body.dc-editing .bottom-tabbar { border-top-color: rgba(232,160,32,0.3); }
    cell it sits directly under the section label with no preceding heading. */
 .dc-goals-cell > .ai-insights-micro-copy { margin-top: 2px; }
 /* ==== END GOALS CARDS (dc-goals-) ==== */
+
+/* ==== JOURNAL REFLECT CARDS (dc-journal-) ==== */
+/* Reflect-face cells (area 'journal_reflect'). Widgets are chromeless — today's
+   Reflect face is frameless (bare eyebrow + calendar, then a stack of
+   .journal-entry-card glass cards), so no .dc-card frame is added. This turns
+   each cell into a bounded, internally-scrolling container: the month calendar
+   and the variable-height reflections list scroll inside the fixed grid cell
+   rather than pushing the grid (the 5b list-scroll rule; calendars/lists scroll
+   fine, unlike charts). */
+.dc-journal-cell {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow-y: auto;
+  /* room so the scrollbar and the edit-mode hide button don't crowd content */
+  padding-right: 2px;
+}
+/* In a cell the reflections list sits directly under its own eyebrow — drop the
+   standalone face's top offset so it isn't pushed down inside the card. */
+.dc-journal-cell > .journal-past-list { margin-top: 0; }
+/* ==== END JOURNAL REFLECT CARDS (dc-journal-) ==== */
