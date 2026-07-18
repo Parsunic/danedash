@@ -356,7 +356,7 @@ export function SleepStagesChart({ history, fill, hideKey }) {
 
 // ── 5. Weekly Activity — 7-day steps bar with goal line ──
 
-export function WeeklyActivityChart({ history }) {
+export function WeeklyActivityChart({ history, fill }) {
   const GOAL = 10_000
   const data = history.slice(-7).map(d => ({
     date:  fmtWeekday(d.date),
