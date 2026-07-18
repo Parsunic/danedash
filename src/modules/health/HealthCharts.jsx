@@ -421,3 +421,137 @@ export function WeeklyActivityChart({ history, fill }) {
     </div>
   )
 }
+
+// ── 6. Readiness Trend — 30-day derived readiness with verdict thresholds ──
+
+export function ReadinessTrendChart({ history, fill }) {
+  const data = readinessSeries(history).map(d => ({ date: fmtMonthDay(d.date), readiness: d.readiness }))
+
+  return (
+    <div className={fill ? 'dc-health-chart' : 'health-chart-card'}>
+      <div className="health-chart-header">
+        <span className="health-card-label">Readiness</span>
+        <span className="health-chart-meta">30 days · sleep + HRV + RHR</span>
+      </div>
+      <ResponsiveContainer width="100%" height={fill ? '100%' : 160}>
+        <AreaChart data={data} margin={{ top: 8, right: 4, bottom: 0, left: -20 }}>
+          <defs>
+            <linearGradient id="readinessTrendFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%"   stopColor="#6BE3A4" stopOpacity={0.7} />
+              <stop offset="100%" stopColor="#6BE3A4" stopOpacity={0} />
+            </linearGradient>
+          </defs>
+          <CartesianGrid {...GRID_PROPS} />
+          <XAxis dataKey="date" {...AXIS_PROPS} interval="preserveStartEnd" />
+          <YAxis {...AXIS_PROPS} domain={[0, 100]} ticks={[0, 25, 50, 75, 100]} />
+          {/* Verdict thresholds: >=75 train hard, <50 go easy */}
+          <ReferenceLine y={75} stroke="rgba(107,227,164,0.32)" strokeDasharray="4 3" strokeWidth={1} />
+          <ReferenceLine y={50} stroke="rgba(242,192,99,0.32)" strokeDasharray="4 3" strokeWidth={1} />
+          <Tooltip
+            cursor={{ stroke: 'rgba(255,255,255,0.08)', strokeWidth: 1 }}
+            content={
+              <GlassTooltip renderContent={pl => {
+                const v = pl[0]?.value
+                const zone = v == null ? null : v >= 75 ? 'Train hard' : v >= 50 ? 'Steady' : 'Go easy'
+                const zoneColor = v == null ? '#6BE3A4' : v >= 75 ? '#6BE3A4' : v >= 50 ? '#F2C063' : '#EF4444'
+                return (
+                  <>
+                    <div className="chart-tooltip-row">
+                      <span className="chart-tooltip-name" style={{ color: '#6BE3A4' }}>Readiness</span>
+                      <span className="chart-tooltip-value">{v}</span>
+                    </div>
+                    {zone && (
+                      <div className="chart-tooltip-row">
+                        <span className="chart-tooltip-name" style={{ color: zoneColor }}>{zone}</span>
+                      </div>
+                    )}
+                  </>
+                )
+              }} />
+            }
+          />
+          <Area
+            type="monotone" dataKey="readiness" name="Readiness"
+            stroke="#6BE3A4" strokeWidth={2}
+            fill="url(#readinessTrendFill)"
+            dot={false} activeDot={{ r: 4, fill: '#6BE3A4', strokeWidth: 0 }}
+            isAnimationActive animationDuration={900} animationEasing="ease-out"
+          />
+        </AreaChart>
+      </ResponsiveContainer>
+    </div>
+  )
+}
+
+// ── 7. Sleep × Training — prior-night sleep score vs that day's volume ──
+
+function fmtVolumeTick(v) {
+  return v >= 1000 ? `${(v / 1000).toFixed(v >= 10000 ? 0 : 1)}k` : String(v)
+}
+
+export function SleepPerformanceChart({ pairs, r, fill }) {
+  const data = pairs ?? []
+  const note = r == null
+    ? 'Not enough spread to read a relationship yet.'
+    : Math.abs(r) < 0.2 ? 'No real link between sleep and volume yet.'
+    : r >= 0.5  ? 'Strong link — sleep is fueling your sessions.'
+    : r >= 0.2  ? 'Better nights tend to precede bigger sessions.'
+    : r <= -0.5 ? 'Big sessions keep following rough nights — watch recovery.'
+    : 'Slight inverse lean — bigger days after worse nights.'
+
+  return (
+    <div className={fill ? 'dc-health-chart' : 'health-chart-card'}>
+      <div className="health-chart-header">
+        <span className="health-card-label">Sleep × Training</span>
+        <span className="health-chart-meta">prior night → day volume</span>
+      </div>
+      <ResponsiveContainer width="100%" height={fill ? '100%' : 160}>
+        <ScatterChart margin={{ top: 8, right: 8, bottom: 0, left: -10 }}>
+          <CartesianGrid {...GRID_PROPS} />
+          <XAxis
+            type="number" dataKey="sleep" name="Sleep"
+            {...AXIS_PROPS} domain={['dataMin - 4', 'dataMax + 4']}
+            tickFormatter={v => Math.round(v)}
+          />
+          <YAxis
+            type="number" dataKey="volume" name="Volume"
+            {...AXIS_PROPS} domain={[0, 'auto']}
+            tickFormatter={fmtVolumeTick}
+          />
+          <Tooltip
+            cursor={{ stroke: 'rgba(255,255,255,0.08)', strokeWidth: 1 }}
+            content={
+              <GlassTooltip renderContent={pl => {
+                const p = pl[0]?.payload
+                if (!p) return null
+                return (
+                  <>
+                    <div className="chart-tooltip-row">
+                      <span className="chart-tooltip-name" style={{ color: '#7048E8' }}>Sleep</span>
+                      <span className="chart-tooltip-value">{p.sleep}</span>
+                    </div>
+                    <div className="chart-tooltip-row">
+                      <span className="chart-tooltip-name" style={{ color: '#E8A020' }}>Volume</span>
+                      <span className="chart-tooltip-value">{p.volume.toLocaleString()} lbs</span>
+                    </div>
+                    <div className="chart-tooltip-row">
+                      <span className="chart-tooltip-name" style={{ color: 'rgba(255,255,255,0.3)' }}>{fmtMonthDay(p.date)}</span>
+                    </div>
+                  </>
+                )
+              }} />
+            }
+          />
+          <Scatter
+            data={data} fill="#E8A020" fillOpacity={0.85}
+            isAnimationActive animationDuration={600} animationEasing="ease-out"
+          />
+        </ScatterChart>
+      </ResponsiveContainer>
+      <div className="dc-health-corr-stat">
+        {r != null ? `r = ${r.toFixed(2)}` : 'r = —'} · n = {data.length}
+      </div>
+      <p className="dc-health-corr-note">{note}</p>
+    </div>
+  )
+}
