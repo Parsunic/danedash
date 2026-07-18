@@ -313,7 +313,10 @@ function GCalSyncStatus() {
   )
 }
 
+import { useUIEdit } from '../contexts/UIEditContext.jsx'
+
 export default function Layout({ children }) {
+  const { editing, stopEditing } = useUIEdit()
   const [showSettings, setShowSettings] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
