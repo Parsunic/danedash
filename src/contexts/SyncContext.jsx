@@ -17,6 +17,8 @@ const STATIC_SYNC_KEYS = [
   'calendar_events',
   // Journal
   'journal_entries',
+  // Layout customization (card grids + nav order)
+  'layouts_v1', 'nav_order_v1',
 ]
 
 // Key prefixes whose instances are enumerated at push time (one key per date/week).
