@@ -7773,4 +7773,26 @@ body.dc-editing .bottom-tabbar { border-top-color: rgba(232,160,32,0.3); }
 /* In a cell the reflections list sits directly under its own eyebrow — drop the
    standalone face's top offset so it isn't pushed down inside the card. */
 .dc-journal-cell > .journal-past-list { margin-top: 0; }
+
+/* Compact month calendar so a full 6-row month fits the L cell without internal
+   scroll. The journal column caps at 760px, so the reflect grid measures ≤3 cols
+   → the L cell (grid-row span 2) is at most 2 rows: mobile 2×132+14=278px, desktop
+   3-col 2×142+14=298px. Chromeless, so this whole height reaches the cell (no card
+   pad). Budget the smallest tier (278px): compacted chrome (section-header 22 +
+   header 32 + dow 20 = 74px) leaves ~204px for 6 rows; (204 − 5×3px gap)/6 ≈ 31px
+   per row → set 30px and drop the square aspect-ratio (the real overflow cause).
+   Total 74 + 6×30 + 5×3 = 269px ≤ 278; overflow-y:auto stays as sub-pixel slack. */
+.dc-journal-cell .journal-cal-section-header { margin-bottom: 8px; }
+.dc-journal-cell .journal-cal-header { margin-bottom: 8px; }
+.dc-journal-cell .journal-cal-nav-btn { width: 24px; height: 24px; font-size: 13px; }
+.dc-journal-cell .journal-cal-dow { margin-bottom: 3px; }
+.dc-journal-cell .journal-cal-dow-label { padding: 2px 0; }
+.dc-journal-cell .journal-cal-cell {
+  aspect-ratio: auto;
+  min-height: 0;
+  height: 30px;
+  border-radius: 6px;
+}
+.dc-journal-cell .journal-cal-count { font-size: 15px; }
+.dc-journal-cell .journal-cal-date { top: 4px; left: 5px; }
 /* ==== END JOURNAL REFLECT CARDS (dc-journal-) ==== */
