@@ -1,5 +1,6 @@
 import { formatDate } from '../../lib/dateHelpers.js'
 import { EntryCard, MonthCalendar } from './Journal.jsx'
+import { buildJournalIntelWidgets } from './journalIntelWidgets.jsx'
 
 // Journal Reflect-face card registry (area 'journal_reflect').
 //
