@@ -482,9 +482,11 @@ export default function Layout({ children }) {
       startX = null; startY = null
       if (window.__swipeDisabled) return
       if (Math.abs(dx) < 50 || Math.abs(dy) > Math.abs(dx)) return
-      const idx = modules.findIndex(m => m.path === locationRef.current)
-      if (dx < 0 && idx < modules.length - 1) navigate(modules[idx + 1].path)
-      else if (dx > 0 && idx > 0) navigate(modules[idx - 1].path)
+      const list = navListRef.current
+      const idx = list.findIndex(m => m.path === locationRef.current)
+      if (idx === -1) return // current tab isn't in the phone bar → swipe does nothing
+      if (dx < 0 && idx < list.length - 1) navigate(list[idx + 1].path)
+      else if (dx > 0 && idx > 0) navigate(list[idx - 1].path)
     }
 
     el.addEventListener('touchstart', onTouchStart, { passive: true })
