@@ -60,6 +60,11 @@ export default function TimeGrid({
   onEventUpdate,
   onSkipGymWorkout,
 }) {
+  // Global card-edit mode (Settings → Edit Layout) suspends TimeGrid's own drag
+  // create/move/resize so it can't fight the card system. Safe default (false)
+  // outside the provider.
+  const { editing } = useUIEdit()
+
   const days = view === 'week' ? getWeekDays(currentDate) : [currentDate]
   const scrollRef = useRef(null)
   const colsWrapRef = useRef(null)
