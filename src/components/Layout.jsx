@@ -57,6 +57,27 @@ function SettingsModal({ onClose }) {
   const { layoutMode, setLayoutMode, startEditing } = useUIEdit()
   const [layoutModeDraft, setLayoutModeDraft] = useState(layoutMode)
 
+  // Navigation reorder draft — local until Save. Seeded from the reconciled
+  // stored value (never writes on read). Arrows swap within order; eye toggles
+  // hidden; reset restores the App.jsx default order with nothing hidden.
+  const [navDraft, setNavDraft] = useState(() => resolveNavOrder(storeGet(NAV_ORDER_KEY), modules))
+  const navMove = (idx, dir) => setNavDraft(d => {
+    const j = idx + dir
+    if (j < 0 || j >= d.order.length) return d
+    const order = [...d.order]
+    ;[order[idx], order[j]] = [order[j], order[idx]]
+    return { ...d, order }
+  })
+  const navToggleHide = (path) => setNavDraft(d => {
+    if (path === '/') return d
+    const hidden = d.hidden.includes(path) ? d.hidden.filter(p => p !== path) : [...d.hidden, path]
+    return { ...d, hidden }
+  })
+  const navReset = () => setNavDraft({ order: modules.map(m => m.path), hidden: [] })
+  const navHiddenSet = new Set(navDraft.hidden)
+  const navOrdered = navDraft.order.map(p => modules.find(m => m.path === p)).filter(Boolean)
+  const navVisible = navOrdered.filter(m => !navHiddenSet.has(m.path))
+
   const save = useCallback(() => {
     setAnthropicKey(anthropicKey)
     setNotionKey(notionKey)
