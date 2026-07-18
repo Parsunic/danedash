@@ -12,6 +12,7 @@ import {
 import CardGrid from '../../components/cards/CardGrid.jsx'
 import { useUIEdit } from '../../contexts/UIEditContext.jsx'
 import { buildJournalReflectRegistry, JOURNAL_REFLECT_ORDER } from './journalReflectRegistry.jsx'
+import MoodDots from './MoodDots.jsx'
 
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages'
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December']
