@@ -210,6 +210,54 @@ function SettingsModal({ onClose }) {
               onClick={handleEditLayout}
             >Edit Layout</button>
           </div>
+          <p className="settings-section-title" style={{ marginTop: 18 }}>Navigation</p>
+          <p className="settings-hint" style={{ marginTop: 0 }}>Reorder tabs. Hidden tabs leave your phone bar but stay in the sidebar.</p>
+          <div className="setnav-list">
+            {navOrdered.map((m, i) => {
+              const hidden = navHiddenSet.has(m.path)
+              const locked = m.path === '/'
+              // Hiding a currently-visible tab is blocked when it would drop below 2.
+              const eyeDisabled = locked || (!hidden && navVisible.length <= 2)
+              return (
+                <div key={m.path} className={`setnav-row${hidden ? ' is-hidden' : ''}`}>
+                  <span className="setnav-icon">{m.icon}</span>
+                  <span className="setnav-label">{m.label}</span>
+                  <div className="setnav-actions">
+                    <button
+                      className="setnav-btn"
+                      onClick={() => navToggleHide(m.path)}
+                      disabled={eyeDisabled}
+                      aria-label={hidden ? 'Show tab' : 'Hide tab'}
+                      title={locked ? 'Dashboard is always shown' : hidden ? 'Show on phone bar' : 'Hide from phone bar'}
+                    >{hidden ? '🙈' : '👁'}</button>
+                    <button
+                      className="setnav-btn"
+                      onClick={() => navMove(i, -1)}
+                      disabled={i === 0}
+                      aria-label="Move up"
+                    >↑</button>
+                    <button
+                      className="setnav-btn"
+                      onClick={() => navMove(i, 1)}
+                      disabled={i === navOrdered.length - 1}
+                      aria-label="Move down"
+                    >↓</button>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+          <div className="setnav-preview">
+            {navVisible.map(m => (
+              <span key={m.path} className="setnav-preview-icon">{m.icon}</span>
+            ))}
+          </div>
+          <p className="setnav-hint">Your phone bar — {navVisible.length} tabs.</p>
+          <button
+            className="btn-ghost"
+            style={{ fontSize: '0.75rem', padding: '5px 14px', marginTop: 8 }}
+            onClick={navReset}
+          >Reset to default</button>
           <div className="settings-section-divider" />
           <label className="settings-label">Anthropic API Key</label>
           <div className="settings-input-row">
