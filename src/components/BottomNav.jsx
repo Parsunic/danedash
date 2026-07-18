@@ -1,10 +1,12 @@
 import { NavLink } from 'react-router-dom'
-import { modules } from '../App.jsx'
+import { useNavModules } from '../lib/navOrder.js'
 
 export default function BottomNav() {
+  // Bottom bar shows only the visible (non-hidden) modules, in customized order.
+  const { mobileVisible } = useNavModules()
   return (
     <nav className="bottom-tabbar">
-      {modules.map(({ path, label, icon }) => (
+      {mobileVisible.map(({ path, label, icon }) => (
         <NavLink
           key={path}
           to={path}
