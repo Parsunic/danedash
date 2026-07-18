@@ -41,6 +41,14 @@ const ICONS = {
       <path d="M16.5 15.5l1.6 1.6 3.2-3.6" opacity="0.7" />
     </svg>
   ),
+  habitstats: (
+    <svg {...ICON_PROPS}>
+      <path d="M4 20h16" opacity="0.5" />
+      <rect x="5" y="12" width="3" height="6" rx="0.6" />
+      <rect x="10.5" y="8" width="3" height="10" rx="0.6" />
+      <rect x="16" y="4" width="3" height="14" rx="0.6" />
+    </svg>
+  ),
 }
 
 // ── Static widgets (each wraps a self-contained section) ──
