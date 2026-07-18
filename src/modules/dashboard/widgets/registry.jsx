@@ -138,13 +138,22 @@ export const DASH_WIDGETS = {
     autoPriority: 6,
     autoSize: { 2: 'S', 3: 'S', 4: 'S' },
   },
+  readiness: {
+    title: 'Readiness',
+    icon: ICONS.readiness,
+    component: ReadinessWidget,
+    sizes: ['S', 'M'],
+    defaultSize: 'S',
+    autoPriority: 7,
+    autoSize: { 2: 'S', 3: 'S', 4: 'S' },
+  },
   sleep: {
     title: 'Sleep',
     icon: ICONS.sleep,
     component: SleepWidget,
     sizes: ['S', 'M', 'L'],
     defaultSize: 'S',
-    autoPriority: 7,
+    autoPriority: 8,
     autoSize: { 2: 'S', 3: 'S', 4: 'M' },
   },
   habits: {
@@ -153,7 +162,7 @@ export const DASH_WIDGETS = {
     component: HabitsWeekWidget,
     sizes: ['S', 'M', 'L'],
     defaultSize: 'M',
-    autoPriority: 8,
+    autoPriority: 9,
     autoSize: { 2: 'M', 3: 'M', 4: 'M' },
   },
   journal: {
@@ -162,7 +171,7 @@ export const DASH_WIDGETS = {
     component: JournalWidget,
     sizes: ['S', 'M'],
     defaultSize: 'S',
-    autoPriority: 9,
+    autoPriority: 10,
     autoSize: { 2: 'S', 3: 'S', 4: 'S' },
   },
   streak: {
@@ -171,10 +180,11 @@ export const DASH_WIDGETS = {
     component: StreakWidget,
     sizes: ['S', 'M'],
     defaultSize: 'S',
-    autoPriority: 10,
+    autoPriority: 11,
     autoSize: { 2: 'S', 3: 'S', 4: 'S' },
   },
 }
 
-// Seed order mirrors today's dashboard, then the five new widgets appended.
-export const DEFAULT_DASH_ORDER = ['dayring', 'schedule', 'queue', 'pulse', 'overseer', 'gymnext', 'sleep', 'habits', 'journal', 'streak']
+// Seed order mirrors today's dashboard, then the five new widgets appended,
+// then readiness (F2) — appended so existing stored layouts sanitize-append it.
+export const DEFAULT_DASH_ORDER = ['dayring', 'schedule', 'queue', 'pulse', 'overseer', 'gymnext', 'sleep', 'habits', 'journal', 'streak', 'readiness']
