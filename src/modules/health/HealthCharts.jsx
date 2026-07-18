@@ -60,7 +60,7 @@ function GlassTooltip({ active, payload, label, renderContent }) {
 
 // ── 1. Sleep Trend — 14-day hours area + efficiency line ──
 
-export function SleepTrendChart({ history }) {
+export function SleepTrendChart({ history, fill }) {
   const data = history.slice(-14).map(d => {
     const s         = d.sleep_stages
     const asleepMin = s ? (s.deep + s.light + s.rem) : null
