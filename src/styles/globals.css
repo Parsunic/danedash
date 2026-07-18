@@ -7384,6 +7384,11 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
 /* Apple-widgets-style card grid engine. All selectors dc- prefixed.
    Inert until the card system mounts a .dc-grid. */
 
+/* body{display:flex} makes #root shrink-wrap to its content's intrinsic width,
+   and .dc-grid (minmax(0,1fr) columns) has no intrinsic width to offer — the
+   app column would collapse. Stretch root only while a card grid is mounted. */
+body:has(.dc-grid) #root { width: 100%; }
+
 .dc-grid {
   position: relative; /* item offsetLeft/Top resolve against the grid — drag hit-testing */
   display: grid;
