@@ -61,7 +61,7 @@ function LockIcon({ size = 13 }) {
 
 // ── EntryCard ──
 
-function EntryCard({ entry, onAnalyze, analysis, isAnalyzing, isLatestToday }) {
+export function EntryCard({ entry, onAnalyze, analysis, isAnalyzing, isLatestToday }) {
   const locked = isEntryLocked(entry)
   const remaining = locked ? lockTimeRemaining(entry) : ''
   const d = new Date(entry.created_at)
