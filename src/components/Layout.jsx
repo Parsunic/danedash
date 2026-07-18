@@ -386,6 +386,9 @@ export default function Layout({ children }) {
         </div>
       </main>
       <BottomNav />
+      {editing && (
+        <button className="dc-done-pill" onClick={stopEditing}>Done</button>
+      )}
       <SyncStatus onSettings={() => setShowSettings(true)} />
       <GCalSyncStatus />
       {showSettings && <SettingsModal onClose={() => setShowSettings(false)} />}
