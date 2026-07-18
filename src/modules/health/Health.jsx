@@ -513,6 +513,16 @@ export default function Health() {
       {/* ══ Switchable content (flips between Overview & Trends) ══ */}
       <div className={`health-views flip-content${animState ? ' ' + animState : ''}`}>
         {view === 'overview' ? (
+          hasData ? (
+            <CardGrid
+              area="health_overview"
+              registry={overviewRegistry}
+              defaultOrder={HEALTH_OVERVIEW_ORDER}
+              editing={editing}
+              mode={layoutMode}
+              onAdoptAuto={() => setLayoutMode('manual')}
+            />
+          ) : (
           <>
             {/* Stress gauge — top of the overview */}
             <div className="stagger-1">
