@@ -306,6 +306,9 @@ export default function TimeGrid({
         return
       }
 
+      // Global card-edit mode suspends long-press-to-create (pinch-zoom stays).
+      if (editing) return
+
       pinchActive = false
       const t = e.touches[0]
       startX = t.clientX; startY = t.clientY
