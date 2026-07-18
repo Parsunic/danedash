@@ -72,7 +72,7 @@ export function SleepTrendChart({ history, fill }) {
   })
 
   return (
-    <div className="health-chart-card">
+    <div className={fill ? 'dc-health-chart' : 'health-chart-card'}>
       <div className="health-chart-header">
         <span className="health-card-label">Sleep Trend</span>
         <span className="health-chart-meta">14 days</span>
@@ -158,7 +158,7 @@ export function HRVTrendChart({ history, fill }) {
   const hi = mean != null ? Math.round(mean + sd) : null
 
   return (
-    <div className="health-chart-card">
+    <div className={fill ? 'dc-health-chart' : 'health-chart-card'}>
       <div className="health-chart-header">
         <span className="health-card-label">HRV</span>
         <span className="health-chart-meta">30 days · baseline ±1 SD</span>
@@ -225,7 +225,7 @@ export function RestingHRChart({ history, fill }) {
   const minHR = vals.length ? Math.min(...vals) : 0
 
   return (
-    <div className="health-chart-card">
+    <div className={fill ? 'dc-health-chart' : 'health-chart-card'}>
       <div className="health-chart-header">
         <span className="health-card-label">Resting Heart Rate</span>
         <span className="health-chart-meta">30 days · lower is better</span>
@@ -299,7 +299,7 @@ export function SleepStagesChart({ history, fill, hideKey }) {
   })
 
   return (
-    <div className="health-chart-card">
+    <div className={fill ? 'dc-health-chart' : 'health-chart-card'}>
       <div className="health-chart-header">
         <span className="health-card-label">Sleep Stages</span>
         <span className="health-chart-meta">7 days</span>
@@ -365,7 +365,7 @@ export function WeeklyActivityChart({ history, fill }) {
   }))
 
   return (
-    <div className="health-chart-card">
+    <div className={fill ? 'dc-health-chart' : 'health-chart-card'}>
       <div className="health-chart-header">
         <span className="health-card-label">Weekly Steps</span>
         <span className="health-chart-meta">Goal 10,000</span>
