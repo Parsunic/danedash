@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import MiniMonth from './MiniMonth.jsx'
+import { useUIEdit } from '../../contexts/UIEditContext.jsx'
 import {
   HOUR_HEIGHT, HOURS, getEventStyle,
   isSameDay, getWeekDays, formatHour, formatTimeRange,
