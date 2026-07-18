@@ -13,6 +13,7 @@ import {
   buildHealthOverviewRegistry, HEALTH_OVERVIEW_ORDER,
   buildHealthTrendsRegistry, HEALTH_TRENDS_ORDER,
 } from './healthCardRegistries.jsx'
+import { readinessFromHistory } from './readinessUtils.js'
 
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages'
 const ANALYSIS_MODEL = 'claude-haiku-4-5-20251001'
