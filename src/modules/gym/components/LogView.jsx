@@ -90,6 +90,11 @@ function SetInputRow({ setNum, row, onChange, onRemove, canRemove, repPlaceholde
   )
 }
 
+// ── OVERLOAD COACH (F3) ───────────────────────────────────────────────────
+// Top-level import (hoisted per ESM spec); lives here so the whole
+// integration ships as one atomic edit.
+import { suggestNextTarget } from '../overloadUtils.js'
+
 // ── EXERCISE CARD ─────────────────────────────────────────────────────────
 
 function ExerciseCard({
@@ -99,6 +104,16 @@ function ExerciseCard({
   onSkip,
 }) {
   const rec = getExRec(ex.name, ex.repRange, exHistory)
+  // Overload Coach: null when <2 sessions of history (custom/new exercises) → no chip.
+  const target = suggestNextTarget(ex.name, exHistory[ex.name], { weightUnit: getWeightUnit(), repRange: ex.repRange })
+  // Tap-to-prefill: fill the next empty input row (or the first pending one) with the target.
+  const applyTarget = () => {
+    if (!target || !inputRows.length) return
+    const emptyRi = inputRows.findIndex(r => !String(r.weight ?? '').trim() || !String(r.reps ?? '').trim())
+    const ri = emptyRi >= 0 ? emptyRi : 0
+    onInputChange(exIdx, ri, 'weight', String(target.weight))
+    onInputChange(exIdx, ri, 'reps', String(target.reps))
+  }
   const loggedCount = ex.sets.length
   const totalTarget = loggedCount + inputRows.length
   const validRows = inputRows.filter(r => parseFloat(r.weight) > 0 && parseInt(r.reps) > 0 && r.rpe)
