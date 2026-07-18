@@ -7753,6 +7753,110 @@ body.dc-editing .bottom-tabbar { border-top-color: rgba(232,160,32,0.3); }
 /* Kill the negative top margin the standalone insights micro-copy carries; in a
    cell it sits directly under the section label with no preceding heading. */
 .dc-goals-cell > .ai-insights-micro-copy { margin-top: 2px; }
+
+/* ── Habit Analytics card (HabitStatsCard) ──
+   Own glass surface + voice micro-copy, matching the sibling cards' chromeless
+   self-framed look. Sized to fit the L (compact) and XL cells without scroll;
+   the heatmap never scrolls — its week count is chosen in JS per card size. */
+.habitstats-micro-copy {
+  font-size: 0.72rem;
+  color: var(--text-tertiary);
+  margin: 2px 0 10px;
+  line-height: 1.4;
+}
+.habitstats-card {
+  background: var(--card-bg);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: var(--card-radius);
+  padding: 14px 16px;
+}
+.habitstats-empty {
+  font-size: 0.8rem;
+  color: var(--text-tertiary);
+  line-height: 1.5;
+}
+.habitstats-body { display: flex; flex-direction: column; gap: 12px; }
+/* XL on desktop is full-width but short — split hero/rows left, heatmap right. */
+.habitstats-body--wide { flex-direction: row; align-items: flex-start; gap: 22px; }
+.habitstats-body--wide .habitstats-left { flex: 1 1 0; min-width: 0; }
+.habitstats-body--wide .habitstats-heatwrap { flex: 0 0 auto; }
+
+.habitstats-left { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.habitstats-hero { display: flex; flex-direction: column; }
+.habitstats-hero-num {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 42px;
+  line-height: 1;
+  color: var(--text-primary);
+}
+.habitstats-hero-label {
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: rgba(255,255,255,0.4);
+  margin-top: 4px;
+}
+/* Compact (L): number + label on one baseline row to save vertical space. */
+.habitstats-card--compact .habitstats-hero { flex-direction: row; align-items: baseline; gap: 7px; }
+.habitstats-card--compact .habitstats-hero-num { font-size: 30px; }
+.habitstats-card--compact .habitstats-hero-label { margin-top: 0; }
+
+.habitstats-rows { display: flex; flex-direction: column; gap: 6px; }
+.habitstats-row { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.habitstats-row .habit-dot { flex: 0 0 auto; }
+.habitstats-row-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.habitstats-row-streak {
+  flex: 0 0 auto;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--accent);
+}
+.habitstats-row-streak[data-live="0"] { color: var(--text-tertiary); }
+.habitstats-row-unit { opacity: 0.55; margin-left: 1px; }
+.habitstats-row-pct {
+  flex: 0 0 auto;
+  min-width: 34px;
+  text-align: right;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-tertiary);
+}
+.habitstats-more { font-size: 0.7rem; color: var(--text-tertiary); padding-left: 15px; }
+
+/* Heatmap: weeks as columns, Mon→Sun down each column. Cell size per card size. */
+.habitstats-heat {
+  display: grid;
+  grid-template-rows: repeat(7, var(--hs-cell, 11px));
+  grid-auto-flow: column;
+  grid-auto-columns: var(--hs-cell, 11px);
+  gap: 2px;
+}
+.dc-item[data-size="L"]  .habitstats-heat { --hs-cell: 10px; }
+.dc-item[data-size="XL"] .habitstats-heat { --hs-cell: 12px; }
+.habitstats-cell { border-radius: 2px; }
+.habitstats-cell--future { opacity: 0.3; }
+.habitstats-legend {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-tertiary);
+}
+.habitstats-legend-cells { display: flex; gap: 2px; }
+.habitstats-legend-cell { width: 10px; height: 10px; border-radius: 2px; }
 /* ==== END GOALS CARDS (dc-goals-) ==== */
 
 /* ==== JOURNAL REFLECT CARDS (dc-journal-) ==== */
