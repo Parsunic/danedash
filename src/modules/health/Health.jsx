@@ -38,29 +38,12 @@ function avg(arr) {
 }
 
 // ── Derived metrics ──
+// The readiness formula (sleep .4 / HRV .4 / RHR .2 vs 30-day baselines) lives
+// in readinessUtils.js, shared with the verdict card, the readiness trend
+// chart, and the dashboard Readiness widget — one source, numbers always agree.
 
 function computeReadiness(today, history) {
-  if (!today) return null
-  const last30 = history.slice(-30)
-  const avgHRV = avg(last30.filter(d => d.hrv != null).map(d => d.hrv))
-  const avgHR  = avg(last30.filter(d => d.resting_hr != null).map(d => d.resting_hr))
-
-  const sleepComp = today.sleep_score ?? null
-  const hrvComp   = today.hrv != null && avgHRV != null
-    ? Math.min(100, Math.max(0, 50 + ((today.hrv - avgHRV) / avgHRV) * 150))
-    : null
-  const hrComp    = today.resting_hr != null && avgHR != null
-    ? Math.min(100, Math.max(0, 50 + ((avgHR - today.resting_hr) / avgHR) * 200))
-    : null
-
-  const parts = []
-  if (sleepComp != null) parts.push([sleepComp, 0.4])
-  if (hrvComp   != null) parts.push([hrvComp,   0.4])
-  if (hrComp    != null) parts.push([hrComp,    0.2])
-  if (!parts.length) return null
-
-  const totalW = parts.reduce((s, [, w]) => s + w, 0)
-  return Math.round(parts.reduce((s, [v, w]) => s + v * (w / totalW), 0))
+  return readinessFromHistory(today, history)
 }
 
 function computeStress(today, history) {
