@@ -1,1 +1,1 @@
-export { default } from './DashboardSwitch.jsx'
+export { default } from './DashboardCards.jsx'
