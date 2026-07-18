@@ -150,6 +150,11 @@ function ExerciseCard({
     <div className={`gym-log-exercise-card${isActiveCard ? ' card-breathing' : ''}`}>
       <div className="gym-log-ex-header">
         <div className="gym-log-ex-name">{ex.name}</div>
+        {target && (
+          <button type="button" className="gym-target-chip" title={target.reason} onClick={applyTarget}>
+            ⭑ {target.display}
+          </button>
+        )}
         {totalTarget > 0 && (
           <div className={`gym-log-ex-progress${loggedCount >= totalTarget && totalTarget > 0 ? ' done' : ''}`}>
             {loggedCount}/{totalTarget}
