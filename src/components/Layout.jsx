@@ -90,8 +90,12 @@ function SettingsModal({ onClose }) {
     storeSet('gym_settings', gymSettings)
     // Dirty check — setLayoutMode does a storeSet, so only fire on a real change.
     if (layoutModeDraft !== layoutMode) setLayoutMode(layoutModeDraft)
+    // Nav order — saveNavOrder does a storeSet, so only fire when the draft
+    // actually differs from the reconciled stored value (compare canonical forms).
+    const storedNav = resolveNavOrder(storeGet(NAV_ORDER_KEY), modules)
+    if (JSON.stringify(storedNav) !== JSON.stringify(navDraft)) saveNavOrder(navDraft)
     onClose()
-  }, [anthropicKey, notionKey, gcalClientId, gcalClientSecret, audioEnabled, gymAutoFinish, weightUnit, layoutModeDraft, layoutMode, setLayoutMode, onClose])
+  }, [anthropicKey, notionKey, gcalClientId, gcalClientSecret, audioEnabled, gymAutoFinish, weightUnit, layoutModeDraft, layoutMode, setLayoutMode, navDraft, onClose])
 
   const handleEditLayout = useCallback(() => {
     save() // persist pending settings (also closes the modal)
