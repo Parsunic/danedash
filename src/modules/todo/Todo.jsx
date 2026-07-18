@@ -421,7 +421,7 @@ function GoalList({ goals, goalKey, readOnly, onGoalsChange, onCrossListDrop }) 
       ul.removeEventListener('touchend', onTouchEnd)
       ul.removeEventListener('touchcancel', onTouchCancel)
     }
-  }, [goalKey, readOnly, hasFinePointer, onGoalsChange])
+  }, [goalKey, readOnly, hasFinePointer, onGoalsChange, editing])
 
   const LIMIT = 5
   const visibleGoals = showAll ? goals : goals.slice(0, LIMIT)
