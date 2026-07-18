@@ -57,6 +57,12 @@ const ICONS = {
       <path d="M21 12.8A8 8 0 1 1 11.2 3a6.2 6.2 0 0 0 9.8 9.8z" />
     </svg>
   ),
+  readiness: (
+    <svg {...ICON_PROPS}>
+      <path d="M4 17a8 8 0 1 1 16 0" opacity="0.4" />
+      <path d="M12 17l3.5-5" />
+    </svg>
+  ),
   habits: (
     <svg {...ICON_PROPS}>
       <circle cx="12" cy="12" r="9" opacity="0.35" />
