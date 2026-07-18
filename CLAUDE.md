@@ -160,12 +160,23 @@ src/
     globals.css              # ALL CSS (single file)
   modules/
     dashboard/
-      Dashboard.jsx          # DayRing, GoalTicker, TopTasksWidget, CalendarNowWidget
-                             # Desktop: 2-col grid (ring | widgets)
+      index.jsx              # Re-exports DashboardCards
+      DashboardCards.jsx     # Card-grid dashboard: blob + GoalTicker strip + CardGrid (area 'dashboard')
+      widgets/
+        registry.jsx         # DASH_WIDGETS (10) + DEFAULT_DASH_ORDER
+        GoalTickerStrip.jsx  # Fixed ticker strip above the grid (NOT a registry widget)
+        *Widget.jsx          # DayRing/Schedule/Queue/Pulse/Overseer + GymNext/Sleep/HabitsWeek/Journal/Streak
+    goals/                   # /goals route — Goals ⇄ Tasks flip (FlipTitle)
+      Goals.jsx              # Shell: Goals face = CardGrid (area 'goals'); Tasks face = <Todo embedded>
+      goalsCardRegistry.jsx  # GOALS_REGISTRY (insights/habits/projects) — static self-contained widgets
+      components/AIInsightsCard.jsx  # AI "how you're doing" read
+      HabitsSection.jsx      # Habits 7×N grid; re-reads on 'sync-applied'
+      GoalsProjectsSection.jsx       # Long-term goals + milestones
     todo/
-      Todo.jsx               # Goals (today/tomorrow), recurring tasks
-                             # Queue feature: goal.queued=true marks high-priority (⚡ button)
-                             # Desktop: 2-col grid (today | tomorrow)
+      Todo.jsx               # Tasks face (embedded in Goals): today/tomorrow goals, recurring tasks
+                             # Queue: goal.queued=true marks high-priority (⚡); internal drag guarded via useUIEdit
+    overseer/
+      index.jsx              # /overseer — full-page AI chat (Dashboard Overseer widget links here)
     gym/
       Gym.jsx                # Shell: mobile 6-tab / desktop 3-col layout + rest timer
       gymUtils.js            # gymUUID, calcE1RM, parseRepRange, DSHORT, DFULL, MONTHS, dateToStr
