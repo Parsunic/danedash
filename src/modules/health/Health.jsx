@@ -412,6 +412,28 @@ export default function Health() {
   const hrvDiff = today?.hrv != null && hrvBaseline != null ? Math.round(today.hrv - hrvBaseline) : null
   const hrDiff  = today?.resting_hr != null && hrBaseline != null ? Math.round(today.resting_hr - hrBaseline) : null
 
+  // ── Dynamic card grids (dc-) — wired like DashboardCards ──
+  const { editing: ctxEditing, layoutMode, setLayoutMode } = useUIEdit()
+  const [devEditing, setDevEditing] = useState(false)
+  useEffect(() => {
+    const onToggle = () => setDevEditing(v => !v)
+    window.addEventListener('dc-toggle-edit', onToggle)
+    return () => window.removeEventListener('dc-toggle-edit', onToggle)
+  }, [])
+  const editing = ctxEditing || devEditing
+
+  // Widgets read page state through this ref: fresh on every render, but the
+  // registries (built once) keep stable component identities — no remounts
+  // when data or AI state changes, so charts never replay animations.
+  const cardCtxRef = useRef(null)
+  cardCtxRef.current = {
+    today, history, readiness, stress, hrvDiff, hrDiff,
+    analysis, aiLoading, onAnalyze: handleAnalyze,
+  }
+  const overviewRegistry = useMemo(() => buildHealthOverviewRegistry(cardCtxRef), [])
+  const trendsRegistry   = useMemo(() => buildHealthTrendsRegistry(cardCtxRef), [])
+  const hasData = history.length > 0
+
   return (
     <div className="health-page">
       <BackgroundBlob page="health" />
