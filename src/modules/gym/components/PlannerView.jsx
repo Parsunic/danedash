@@ -553,7 +553,7 @@ export default function PlannerView({ weekOffset = 0, onWeekOffsetChange = () =>
                 <div className={`planner-day-header${isToday ? ' is-today' : ''}`}>{DSHORT[d]}</div>
                 <div
                   className={`planner-day-cell${isToday ? ' is-today' : ''}${isDone ? ' is-completed' : ''}${pw && !isDone ? ' has-workout' : ''}`}
-                  onClick={() => setDayModal({ ds, existing: pw || null })}
+                  onClick={() => { if (editing) return; setDayModal({ ds, existing: pw || null }) }}
                 >
                   <div className={`planner-day-num${isToday ? ' is-today' : ''}`}>{date.getDate()}</div>
                   {pw ? (
