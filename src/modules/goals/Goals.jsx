@@ -33,6 +33,16 @@ export default function Goals() {
   const { flipped, animState, isFlipping, flip } = useFlip(initialTasks)
   const view = flipped ? 'tasks' : 'goals'
 
+  // ── Dynamic card grid (dc-) — Goals face only; wired like Health/DashboardCards ──
+  const { editing: ctxEditing, layoutMode, setLayoutMode } = useUIEdit()
+  const [devEditing, setDevEditing] = useState(false)
+  useEffect(() => {
+    const onToggle = () => setDevEditing(v => !v)
+    window.addEventListener('dc-toggle-edit', onToggle)
+    return () => window.removeEventListener('dc-toggle-edit', onToggle)
+  }, [])
+  const editing = ctxEditing || devEditing
+
   return (
     <div className="section">
       <BackgroundBlob page="goals" />
@@ -48,19 +58,14 @@ export default function Goals() {
 
       <div className={`flip-content${animState ? ' ' + animState : ''}`}>
         {view === 'goals' ? (
-          <>
-            <div className="goals-top-grid">
-              <div>
-                <div className="goals-section-label">AI Insights</div>
-                <div className="ai-insights-micro-copy">One honest read on how you're actually doing.</div>
-                <AIInsightsCard />
-              </div>
-              <div>
-                <HabitsSection />
-              </div>
-            </div>
-            <GoalsProjectsSection />
-          </>
+          <CardGrid
+            area="goals"
+            registry={GOALS_REGISTRY}
+            defaultOrder={GOALS_ORDER}
+            editing={editing}
+            mode={layoutMode}
+            onAdoptAuto={() => setLayoutMode('manual')}
+          />
         ) : (
           <Todo embedded />
         )}
