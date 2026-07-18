@@ -568,7 +568,18 @@ export default function Health() {
               <SleepCard today={today} />
             </div>
           </>
+          )
         ) : (
+          hasData ? (
+            <CardGrid
+              area="health_trends"
+              registry={trendsRegistry}
+              defaultOrder={HEALTH_TRENDS_ORDER}
+              editing={editing}
+              mode={layoutMode}
+              onAdoptAuto={() => setLayoutMode('manual')}
+            />
+          ) : (
           <>
             <div className="health-section-label stagger-1">Sleep</div>
             <div className="health-chart-row stagger-1">
