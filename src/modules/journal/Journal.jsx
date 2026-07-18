@@ -381,6 +381,27 @@ Keep the total response under 220 words. Be direct. Skip affirmations and filler
     [entries, selectedDay]
   )
 
+  // ── Dynamic card grid (dc-) — Reflect face only; wired like Health/Goals ──
+  const { editing: ctxEditing, layoutMode, setLayoutMode } = useUIEdit()
+  const [devEditing, setDevEditing] = useState(false)
+  useEffect(() => {
+    const onToggle = () => setDevEditing(v => !v)
+    window.addEventListener('dc-toggle-edit', onToggle)
+    return () => window.removeEventListener('dc-toggle-edit', onToggle)
+  }, [])
+  const editing = ctxEditing || devEditing
+
+  // Reflect widgets read Journal's page state through this ref (Health pattern):
+  // fresh every render, but the registry is built once so widget identities stay
+  // stable — analyzing an entry re-renders, never remounts, the cards.
+  const cardCtxRef = useRef(null)
+  cardCtxRef.current = {
+    entries, allSortedEntries, calMonth, setCalMonth,
+    onDayClick: setSelectedDay, todayStr,
+    analyses, analyzing, analyzeEntry, lockTick,
+  }
+  const reflectRegistry = useMemo(() => buildJournalReflectRegistry(cardCtxRef), [])
+
   return (
     <div className="journal-root">
       <BackgroundBlob page="journal" />
