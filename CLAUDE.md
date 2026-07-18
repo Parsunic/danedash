@@ -123,17 +123,31 @@ src/
   App.jsx                    # Route definitions + modules array (used by nav)
   main.jsx                   # Entry point: doRollover + injectRecurringTasks on startup
   components/
-    Layout.jsx               # Shell: sidebar + bottom nav + settings modal + sync status
-    Sidebar.jsx              # Desktop sidebar nav
-    BottomNav.jsx            # Mobile bottom tab bar
+    Layout.jsx               # Shell: sidebar + bottom nav + settings modal (Customize/nav) + sync status + Done pill
+    Sidebar.jsx              # Desktop sidebar nav (useNavModules → ordered)
+    BottomNav.jsx            # Mobile bottom tab bar (useNavModules → mobileVisible)
     BackgroundBlob.jsx       # Animated per-page blob background
+    FlipSwitch.jsx           # Shared view-switch control: useFlip + FlipTitle
+    cards/                   # Dynamic Card System engine (see "Dynamic Card System")
+      CardGrid.jsx           # Grid renderer + drag/auto/sync orchestration
+      CardShell.jsx          # Per-card chrome (.dc-item > .dc-jiggle > .dc-content; hide/size badge)
+      WidgetTray.jsx         # Hidden-widget re-add chips
+      useCardDrag.js         # Pointer/touch drag engine
+      useFlipReflow.js       # FLIP glide on order/size/cols change
   contexts/
     SyncContext.jsx          # Supabase sync provider (debounced)
+    UIEditContext.jsx        # Global card-edit state (editing/layoutMode) — never persisted
+  hooks/
+    useViewport.js           # Container-measured grid tiers {cols, bp, rowUnit, vhTier}
   lib/
     storage.js               # storeGet / storeSet / storeDelete / storeListKeys
     dateHelpers.js           # getActiveDateString (rolls at 5 AM), getTomorrowDateString, formatDate
     init.js                  # doRollover / injectRecurringTasks
     supabase.js              # Supabase client init
+    navOrder.js              # resolveNavOrder / saveNavOrder / useNavModules (nav_order_v1)
+    cards/
+      layoutStore.js         # load/sanitize/save layouts_v1; clampSize, bpBucket
+      autoLayout.js          # pure computeAutoLayout (in-memory, never persisted)
     muscleUtils.js           # Exercise → primary_muscle lookup (Supabase exercises table)
     muscleMigration.js       # Back-fills primary_muscle on existing logs/templates
     api/
