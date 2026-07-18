@@ -153,6 +153,7 @@ export default function TimeGrid({
 
   // ── DESKTOP: event mouse-down → move / resize ──
   const handleEventMouseDown = (ev, di, e) => {
+    if (editing) return
     if (!isDesktop || e.button !== 0 || ev.is_gym_planned) return
     e.stopPropagation()
     e.preventDefault()
