@@ -486,6 +486,12 @@ Keep the total response under 220 words. Be direct. Skip affirmations and filler
               ))}
             </div>
 
+            {/* Mood — optional 1–5 */}
+            <div className="journal-mood">
+              <span className="journal-mood-label">Mood</span>
+              <MoodDots value={mood} onChange={setMood} ariaPrefix="Mood" />
+            </div>
+
             {/* Save — only when there's content */}
             <div className={`journal-save-wrap${isDirty ? ' visible' : ''}`}>
               <button className="btn-primary" style={{ width: '100%', justifyContent: 'center' }} onClick={saveEntry}>
