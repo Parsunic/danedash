@@ -26,6 +26,7 @@ const DYNAMIC_SYNC_PREFIXES = [
   'goals:',        // today's and all future/past task lists
   'habits_log:',   // one key per calendar week
   'daily_focus:',  // today's thematic focus (one per date)
+  'journal_synthesis:', // one cached AI synthesis per month (F4)
 ]
 
 const SYNC_ROW_ID = 'dane'
