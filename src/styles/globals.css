@@ -7787,3 +7787,21 @@ body.dc-editing .bottom-tabbar { border-top-color: rgba(232,160,32,0.3); }
   overflow-y: auto;
 }
 /* ==== END HEALTH CARDS (dc-health-) ==== */
+
+/* ==== GOALS CARDS (dc-goals-) ==== */
+/* Goals-face sections inside the dynamic card grid (area 'goals'). Cards are
+   chromeless — the sections render their own glass surfaces — so this block only
+   turns each cell into a bounded, internally-scrolling container. Variable-height
+   lists (habits, projects, AI text) scroll inside the fixed cell rather than
+   pushing the grid; list scroll is acceptable here (unlike charts). */
+.dc-goals-cell {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow-y: auto;
+  /* room so the scrollbar and the edit-mode hide button don't crowd content */
+  padding-right: 2px;
+}
+/* Kill the negative top margin the standalone insights micro-copy carries; in a
+   cell it sits directly under the section label with no preceding heading. */
+.dc-goals-cell > .ai-insights-micro-copy { margin-top: 2px; }
+/* ==== END GOALS CARDS (dc-goals-) ==== */
