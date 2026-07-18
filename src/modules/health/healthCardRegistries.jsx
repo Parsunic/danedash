@@ -546,13 +546,22 @@ export function buildHealthOverviewRegistry(ctxRef) {
       autoPriority: 3,
       autoSize: { 2: 'M', 3: 'M', 4: 'M' },
     },
+    verdict: {
+      title: 'Training Verdict',
+      icon: ICONS.verdict,
+      component: makeVerdictWidget(ctxRef),
+      sizes: ['S', 'M'],
+      defaultSize: 'S',
+      autoPriority: 4,
+      autoSize: { 2: 'S', 3: 'S', 4: 'S' },
+    },
     stages: {
       title: 'Last Night',
       icon: ICONS.stages,
       component: makeStagesWidget(ctxRef),
       sizes: ['M', 'L'],
       defaultSize: 'M',
-      autoPriority: 4,
+      autoPriority: 5,
       autoSize: { 2: 'M', 3: 'M', 4: 'M' },
     },
     hrv: {
@@ -567,7 +576,7 @@ export function buildHealthOverviewRegistry(ctxRef) {
       })),
       sizes: ['S'],
       defaultSize: 'S',
-      autoPriority: 5,
+      autoPriority: 6,
       autoSize: { 2: 'S', 3: 'S', 4: 'S' },
     },
     rhr: {
@@ -582,7 +591,7 @@ export function buildHealthOverviewRegistry(ctxRef) {
       })),
       sizes: ['S'],
       defaultSize: 'S',
-      autoPriority: 6,
+      autoPriority: 7,
       autoSize: { 2: 'S', 3: 'S', 4: 'S' },
     },
   }
