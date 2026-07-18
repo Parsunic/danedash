@@ -116,4 +116,18 @@ export const GOALS_REGISTRY = {
     autoPriority: 3,
     autoSize: { 2: 'L', 3: 'XL', 4: 'XL' },
   },
+  // HabitStatsCard renders its own `.dc-goals-cell` + section label + glass
+  // surface (like the sibling cards), so it stays chromeless. Not in GOALS_ORDER
+  // on purpose — sanitizeLayout appends never-seen ids visible at the end for
+  // existing users, no migration needed.
+  habitstats: {
+    title: 'Habit Analytics',
+    icon: ICONS.habitstats,
+    component: HabitStatsCard,
+    chromeless: true,
+    sizes: ['L', 'XL'],
+    defaultSize: 'XL',
+    autoPriority: 4,
+    autoSize: { 2: 'L', 3: 'XL', 4: 'XL' },
+  },
 }
