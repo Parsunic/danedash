@@ -1,33 +1,20 @@
 import { useState, useEffect } from 'react'
-import { fetchHealthHistory } from '../../health/googleFitSync.js'
+import { getHealthRows, peekHealthRows, invalidateHealthCache } from './healthData.js'
 
 // Sleep widget — last-night sleep score + 7-day context from health_metrics.
 //
-// fetchHealthHistory() hits Supabase, so a module-scope cache guards it: rows are
-// reused for 15 minutes and concurrent callers (React.StrictMode double-mount,
-// remounts across sizes) share one in-flight promise — never a double request.
-// A completed Google Health sync ('gfit-sync-status' → 'synced') invalidates the
-// cache so fresh data appears without a reload. No mutation, read-only.
+// Health rows come from the shared dashboard TTL cache (healthData.js) so the
+// dashboard makes at most ONE health fetch across widgets (Sleep + Readiness).
+// The cache holds 30 days for readiness baselines; we window down to the last
+// 7 calendar days so every number here stays exactly what the old
+// fetchHealthHistory(7) produced. A completed Google Health sync
+// ('gfit-sync-status' → 'synced') invalidates the cache so fresh data appears
+// without a reload. No mutation, read-only.
 
-const TTL = 15 * 60 * 1000
-let healthCache = { ts: 0, rows: null, promise: null }
-
-function getHealthRows() {
-  const now = Date.now()
-  if (healthCache.rows && now - healthCache.ts < TTL) return Promise.resolve(healthCache.rows)
-  if (healthCache.promise) return healthCache.promise
-  healthCache.promise = fetchHealthHistory(7)
-    .then(rows => {
-      healthCache.rows = Array.isArray(rows) ? rows : []
-      healthCache.ts = Date.now()
-      healthCache.promise = null
-      return healthCache.rows
-    })
-    .catch(() => {
-      healthCache.promise = null
-      return healthCache.rows || []
-    })
-  return healthCache.promise
+function weekWindowStart() {
+  const d = new Date()
+  d.setDate(d.getDate() - 6)
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
 
 const ROOT_STYLE = { height: '100%', display: 'flex', flexDirection: 'column', minHeight: 0 }
