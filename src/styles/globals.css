@@ -7677,3 +7677,113 @@ body.dc-editing .bottom-tabbar { border-top-color: rgba(232,160,32,0.3); }
   line-height: 1.5;
 }
 /* ==== END NAV CUSTOMIZE ==== */
+
+/* ==== HEALTH CARDS (dc-health-) ==== */
+/* Health module widgets inside the dynamic card grid. Card chrome comes from
+   .dc-card — these classes only shape content within fixed-height cells.
+   NO transform/filter on layout wrappers (containing-block rule); the only
+   transform is a centering translateX on a small text overlay. */
+
+/* Health column is capped at 880px which lands the container-measured grid in
+   the 3-col tier; widen only while a card grid is mounted so desktop gets the
+   4-col tier and M charts pair up side by side like the legacy layout. */
+@media (min-width: 1024px) {
+  .health-page:has(.dc-grid) { max-width: 1080px; }
+}
+
+.dc-health-widget {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Fill-mode chart frame (HealthCharts `fill` prop): header + flexed plot. */
+.dc-health-chart {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.dc-health-chart .health-chart-header { margin-bottom: 6px; }
+.dc-health-chart .recharts-responsive-container {
+  flex: 1 1 0;
+  min-height: 0;
+  width: 100%;
+}
+.dc-health-chart .sleep-stages-key { margin-top: 6px; padding-top: 6px; }
+
+/* Rings */
+.dc-health-ring-s {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  text-align: center;
+}
+.dc-health-ring-m {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+.dc-health-ring-m-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  max-width: 200px;
+}
+
+/* Stress gauge */
+.dc-health-gauge-box {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  margin-top: 2px;
+}
+.dc-health-gauge-box svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.dc-health-gauge-value {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%); /* text overlay only — never a card wrapper */
+  font-family: var(--font-display);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+.dc-health-gauge-value-inline {
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+/* Mini stats (HRV / Resting HR) */
+.dc-health-stat {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* AI analysis — text may exceed the fixed cell; text scroll is acceptable
+   (charts never scroll). */
+.dc-health-ai-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+/* ==== END HEALTH CARDS (dc-health-) ==== */
