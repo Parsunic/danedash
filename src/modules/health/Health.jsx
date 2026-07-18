@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import BackgroundBlob from '../../components/BackgroundBlob.jsx'
 import { useFlip, FlipTitle } from '../../components/FlipSwitch.jsx'
 import { isGfitConnected, getGfitLastSync } from '../../lib/api/googlefit.js'
