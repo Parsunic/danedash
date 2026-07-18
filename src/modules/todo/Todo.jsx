@@ -324,7 +324,9 @@ function GoalList({ goals, goalKey, readOnly, onGoalsChange, onCrossListDrop }) 
   // Touch drag (mobile, press-and-hold 450ms)
   useEffect(() => {
     const ul = ulRef.current
-    if (!ul || readOnly || hasFinePointer) return
+    // `editing` in deps: when card-edit mode toggles, this effect re-runs so the
+    // touch listeners unbind (edit on) / rebind (edit off) — no long-press lift.
+    if (!ul || readOnly || hasFinePointer || editing) return
 
     let dragState = null
     let longPressTimer = null
