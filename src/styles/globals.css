@@ -7735,6 +7735,59 @@ body.dc-editing .bottom-tabbar { border-top-color: rgba(232,160,32,0.3); }
   min-height: 0;
   overflow-y: auto;
 }
+
+/* F2 Training Readiness — verdict card + sleep×training correlation */
+.dc-health-verdict-center {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.dc-health-verdict-row {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.dc-health-verdict-word {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 24px;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+.dc-health-verdict-row .dc-health-verdict-word { font-size: 28px; }
+.dc-health-verdict-sub {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.4);
+  margin-top: 4px;
+}
+.dc-health-verdict-info {
+  flex: 1;
+  min-width: 0;
+}
+.dc-health-verdict-vol {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.45);
+  margin-top: 6px;
+}
+.dc-health-corr-stat {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.45);
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+.dc-health-corr-note {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.35);
+  margin: 3px 0 0;
+}
 /* ==== END HEALTH CARDS (dc-health-) ==== */
 
 /* ==== GOALS CARDS (dc-goals-) ==== */
