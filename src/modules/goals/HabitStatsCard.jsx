@@ -189,7 +189,7 @@ export default function HabitStatsCard({ size, bp }) {
       <div className="goals-section-label">Habit Analytics</div>
       <div className="habitstats-micro-copy">{voiceFor(best)}</div>
       <div className={`habitstats-card${compact ? ' habitstats-card--compact' : ''}`}>
-        <div className={`habitstats-body${!compact && bp === 'desktop' ? ' habitstats-body--wide' : ''}`}>
+        <div className={`habitstats-body${!compact && bp !== 'mobile' ? ' habitstats-body--wide' : ''}`}>
           <div className="habitstats-left">
             <div className="habitstats-hero">
               <span className="habitstats-hero-num">{best}</span>
