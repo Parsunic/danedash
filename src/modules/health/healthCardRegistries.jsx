@@ -275,9 +275,11 @@ function makeStressWidget(ctxRef) {
     return (
       <div className="dc-health-widget">
         {header}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 18, flex: 1, minHeight: 0 }}>
+        {/* stretch (not center) so the gauge box gets a definite height — an
+            auto-height box makes the svg fall back to aspect sizing and overflow */}
+        <div style={{ display: 'flex', alignItems: 'stretch', gap: 18, flex: 1, minHeight: 0 }}>
           {gauge}
-          <div style={{ width: 132, flexShrink: 0 }}>
+          <div style={{ width: 132, flexShrink: 0, alignSelf: 'center' }}>
             <div className="dc-health-gauge-value-inline" style={{ color: needleColor }}>
               {value != null ? animated : '—'}
             </div>
