@@ -3,6 +3,7 @@ import { storeGet, storeSet, storeDelete, storeListKeys } from '../../lib/storag
 import { isAudioEnabled, playDing } from '../../lib/audio.js'
 import { getActiveDateString, getTomorrowDateString, formatDate } from '../../lib/dateHelpers.js'
 import BackgroundBlob from '../../components/BackgroundBlob.jsx'
+import { useUIEdit } from '../../contexts/UIEditContext.jsx'
 
 const BURST_COLORS = ['#E8A020', '#6BE3A4', '#F2C063']
 const BURST_COUNT = 14
