@@ -145,7 +145,7 @@ function DayPanel({ dateStr, entries, onClose, onAnalyze, analyses, analyzing })
 
 // ── MonthCalendar (heatmap grid) ──
 
-function MonthCalendar({ entries, month, onMonthChange, onDayClick, todayStr }) {
+export function MonthCalendar({ entries, month, onMonthChange, onDayClick, todayStr }) {
   const year = month.getFullYear()
   const mon  = month.getMonth()
   const grid = useMemo(() => getMonthGrid(year, mon), [year, mon])
