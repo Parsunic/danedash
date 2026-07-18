@@ -330,6 +330,12 @@ function ExerciseStatCard({ name, data, volData }) {
           Last: {last.date} · {last.weight}×{last.reps} @ RPE {last.rpe}
         </div>
       )}
+      {note && (
+        <div className="gym-progression-note">
+          {note}
+          {target && <> Next: <span className="gym-progression-target">{target.display}</span></>}
+        </div>
+      )}
 
       {hasE1rm && (
         <div className="gym-stats-chart-section">
