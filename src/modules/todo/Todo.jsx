@@ -276,6 +276,7 @@ function GoalList({ goals, goalKey, readOnly, onGoalsChange, onCrossListDrop }) 
   }
 
   function handleDragOver(e) {
+    if (editing) return
     e.preventDefault()
     const li = e.target.closest('[data-idx]')
     ulRef.current?.querySelectorAll('[data-idx]').forEach(r => r.classList.remove('drag-over'))
@@ -283,12 +284,14 @@ function GoalList({ goals, goalKey, readOnly, onGoalsChange, onCrossListDrop }) 
   }
 
   function handleDragLeave(e) {
+    if (editing) return
     if (!ulRef.current?.contains(e.relatedTarget)) {
       ulRef.current?.querySelectorAll('[data-idx]').forEach(r => r.classList.remove('drag-over'))
     }
   }
 
   function handleDrop(e) {
+    if (editing) return
     e.preventDefault()
     ulRef.current?.querySelectorAll('[data-idx]').forEach(r => r.classList.remove('drag-over'))
 
