@@ -255,10 +255,15 @@ function GoalList({ goals, goalKey, readOnly, onGoalsChange, onCrossListDrop }) 
   const dragIdxRef = useRef(null)
   const [showAll, setShowAll] = useState(false)
   const hasFinePointer = window.matchMedia('(pointer: fine)').matches
+  // Global card-edit mode suspends the Tasks-face item drag. The Tasks face is
+  // NOT inside a card grid, so the CSS pointer-inertness never reaches it — this
+  // JS guard is what keeps item reordering from firing while editing layouts.
+  const { editing } = useUIEdit()
 
   useEffect(() => { goalsRef.current = goals }, [goals])
 
   function handleDragStart(e) {
+    if (editing) return
     const li = e.target.closest('[data-idx]')
     if (!li) return
     const idx = parseInt(li.dataset.idx)
