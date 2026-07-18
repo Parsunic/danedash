@@ -5,6 +5,7 @@ import ExerciseNameInput from './ExerciseNameInput.jsx'
 import { getActiveDateString, getTomorrowDateString } from '../../../lib/dateHelpers.js'
 import { gymUUID, DSHORT, DFULL, MONTHS, dateToStr, getWeightUnit } from '../gymUtils.js'
 import { lookupMusclesBatch, getCustomExercises } from '../../../lib/muscleUtils.js'
+import { useUIEdit } from '../../../contexts/UIEditContext.jsx'
 
 const MUSCLE_COLORS = {
   chest: '#E03131', shoulders: '#F59F00', back: '#1971C2',
