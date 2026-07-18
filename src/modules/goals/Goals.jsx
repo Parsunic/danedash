@@ -1,10 +1,11 @@
+import { useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import BackgroundBlob from '../../components/BackgroundBlob.jsx'
 import { useFlip, FlipTitle } from '../../components/FlipSwitch.jsx'
-import HabitsSection from './HabitsSection.jsx'
-import GoalsProjectsSection from './GoalsProjectsSection.jsx'
-import AIInsightsCard from './components/AIInsightsCard.jsx'
 import Todo from '../todo/Todo.jsx'
+import CardGrid from '../../components/cards/CardGrid.jsx'
+import { useUIEdit } from '../../contexts/UIEditContext.jsx'
+import { GOALS_REGISTRY, GOALS_ORDER } from './goalsCardRegistry.jsx'
 
 function GoalsIcon() {
   return (
