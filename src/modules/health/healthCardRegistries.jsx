@@ -79,6 +79,41 @@ const ICONS = {
       <path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3z" />
     </svg>
   ),
+  verdict: (
+    <svg {...ICON_PROPS}>
+      <path d="M13 2L4.5 13.5H11L10 22l8.5-11.5H12L13 2z" />
+    </svg>
+  ),
+  corr: (
+    <svg {...ICON_PROPS}>
+      <path d="M3 3v18h18" opacity="0.4" />
+      <circle cx="9" cy="14" r="1.4" />
+      <circle cx="13" cy="9" r="1.4" />
+      <circle cx="17" cy="12" r="1.4" />
+      <circle cx="19" cy="6" r="1.4" />
+    </svg>
+  ),
+}
+
+// ── Gym logs (verdict + correlation cards derive volume at render time) ──
+
+function useGymLogs() {
+  const [logs, setLogs] = useState(() => storeGet('gym_workout_logs') ?? [])
+  useEffect(() => {
+    // Compare before setState so sync-applied storms don't re-render for
+    // identical data (read-only handler per sync discipline).
+    const reload = () => setLogs(prev => {
+      const next = storeGet('gym_workout_logs') ?? []
+      return JSON.stringify(prev) === JSON.stringify(next) ? prev : next
+    })
+    window.addEventListener('gym-changed', reload)
+    window.addEventListener('sync-applied', reload)
+    return () => {
+      window.removeEventListener('gym-changed', reload)
+      window.removeEventListener('sync-applied', reload)
+    }
+  }, [])
+  return logs
 }
 
 // ── Count-up (copied from Health.jsx — page original stays for the no-data face) ──
