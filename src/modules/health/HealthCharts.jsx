@@ -1,9 +1,10 @@
 import {
   AreaChart, Area, BarChart, Bar, Cell,
-  ComposedChart, Line,
+  ComposedChart, Line, ScatterChart, Scatter,
   XAxis, YAxis, CartesianGrid, Tooltip,
   ReferenceLine, ReferenceArea, ResponsiveContainer,
 } from 'recharts'
+import { readinessSeries } from './readinessUtils.js'
 
 // ── Stage colors ──
 
