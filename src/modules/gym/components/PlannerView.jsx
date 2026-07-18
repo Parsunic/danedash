@@ -323,6 +323,12 @@ function DayModal({ ds, existing, templates, onClose, onSave, onRemove, onStartW
 }
 
 export default function PlannerView({ weekOffset = 0, onWeekOffsetChange = () => {}, onStartWorkout, desktopMode = false, onViewModeChange }) {
+  // Global card-edit mode (Settings → Edit Layout) suspends planner day-cell
+  // interactions so they can't fire while the app is in layout-edit mode. Safe
+  // default (false) outside the provider. NOTE: the gym planner has no drag —
+  // these cells open a modal on tap — so this guards the tap initiators, the
+  // module's only interaction entry points (see report: no HTML5 chip drag exists).
+  const { editing } = useUIEdit()
   const [planned, setPlanned] = useState(() => storeGet('gym_planned') || [])
   const [weekTpls, setWeekTpls] = useState(() => storeGet('gym_week_tpls') || [])
   const [templates, setTemplates] = useState(() => storeGet('gym_templates') || [])
