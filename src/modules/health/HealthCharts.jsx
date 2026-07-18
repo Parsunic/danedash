@@ -143,7 +143,7 @@ export function SleepTrendChart({ history, fill }) {
 
 // ── 2. HRV Trend — 30-day with baseline band ──
 
-export function HRVTrendChart({ history }) {
+export function HRVTrendChart({ history, fill }) {
   const data = history
     .filter(d => d.hrv != null)
     .slice(-30)
