@@ -657,5 +657,23 @@ export function buildHealthTrendsRegistry(ctxRef) {
       autoPriority: 6,
       autoSize: { 2: 'L', 3: 'L', 4: 'L' },
     },
+    readinesstrend: {
+      title: 'Readiness Trend',
+      icon: ICONS.readiness,
+      component: makeChartWidget(ctxRef, ReadinessTrendChart),
+      sizes: ['M', 'L'],
+      defaultSize: 'M',
+      autoPriority: 7,
+      autoSize: { 2: 'M', 3: 'M', 4: 'M' },
+    },
+    correlation: {
+      title: 'Sleep × Training',
+      icon: ICONS.corr,
+      component: makeCorrelationWidget(ctxRef),
+      sizes: ['L', 'XL'],
+      defaultSize: 'L',
+      autoPriority: 8,
+      autoSize: { 2: 'L', 3: 'L', 4: 'L' },
+    },
   }
 }
