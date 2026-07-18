@@ -4717,13 +4717,9 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
   margin-bottom: 2px;
 }
 .journal-flip-content { transform-origin: center top; }
-.journal-write-face,
-.journal-reflect-face {
+.journal-write-face {
   display: flex;
   flex-direction: column;
-}
-.journal-reflect-list {
-  margin-top: 28px;
 }
 
 /* ── Shared eyebrow label ── */
