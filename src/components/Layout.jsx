@@ -50,6 +50,12 @@ function SettingsModal({ onClose }) {
     }
   }, [])
 
+  // Card-layout mode. Draft is local until Save; persisting goes through the
+  // UIEdit context so provider state and layouts_v1 stay in lockstep (its
+  // setLayoutMode is the layoutStore storeSet — user gesture only).
+  const { layoutMode, setLayoutMode, startEditing } = useUIEdit()
+  const [layoutModeDraft, setLayoutModeDraft] = useState(layoutMode)
+
   const save = useCallback(() => {
     setAnthropicKey(anthropicKey)
     setNotionKey(notionKey)
@@ -60,8 +66,17 @@ function SettingsModal({ onClose }) {
     gymSettings.autoFinish = gymAutoFinish
     gymSettings.weightUnit = weightUnit
     storeSet('gym_settings', gymSettings)
+    // Dirty check — setLayoutMode does a storeSet, so only fire on a real change.
+    if (layoutModeDraft !== layoutMode) setLayoutMode(layoutModeDraft)
     onClose()
-  }, [anthropicKey, notionKey, gcalClientId, gcalClientSecret, audioEnabled, gymAutoFinish, onClose])
+  }, [anthropicKey, notionKey, gcalClientId, gcalClientSecret, audioEnabled, gymAutoFinish, weightUnit, layoutModeDraft, layoutMode, setLayoutMode, onClose])
+
+  const handleEditLayout = useCallback(() => {
+    save() // persist pending settings (also closes the modal)
+    // Editing implies manual — explicit user gesture, storeSet is correct.
+    if (layoutModeDraft !== 'manual') setLayoutMode('manual')
+    startEditing()
+  }, [save, layoutModeDraft, setLayoutMode, startEditing])
 
   const handleDisconnect = useCallback(() => {
     clearTokens()
@@ -137,6 +152,37 @@ function SettingsModal({ onClose }) {
                 onClick={() => setWeightUnit('kg')}
               >kg</button>
             </div>
+          </div>
+          <div className="settings-section-divider" />
+          <p className="settings-section-title">Customize</p>
+          <div className="settings-toggle-row">
+            <div>
+              <span className="settings-label" style={{ margin: 0 }}>Layout</span>
+              <p className="settings-hint" style={{ marginTop: 4 }}>Auto arranges cards to fit your screen. Manual keeps them where you put them.</p>
+            </div>
+            <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+              <button
+                className={layoutModeDraft === 'auto' ? 'btn-primary' : 'btn-secondary'}
+                style={{ fontSize: '0.75rem', padding: '5px 14px' }}
+                onClick={() => setLayoutModeDraft('auto')}
+              >Auto</button>
+              <button
+                className={layoutModeDraft === 'manual' ? 'btn-primary' : 'btn-secondary'}
+                style={{ fontSize: '0.75rem', padding: '5px 14px' }}
+                onClick={() => setLayoutModeDraft('manual')}
+              >Manual</button>
+            </div>
+          </div>
+          <div className="settings-toggle-row" style={{ marginTop: 12 }}>
+            <div>
+              <span className="settings-label" style={{ margin: 0 }}>Edit Layout</span>
+              <p className="settings-hint" style={{ marginTop: 4 }}>Move and resize cards on any page. A Done button follows you.</p>
+            </div>
+            <button
+              className="btn-secondary"
+              style={{ fontSize: '0.75rem', padding: '5px 16px', flexShrink: 0 }}
+              onClick={handleEditLayout}
+            >Edit Layout</button>
           </div>
           <div className="settings-section-divider" />
           <label className="settings-label">Anthropic API Key</label>
