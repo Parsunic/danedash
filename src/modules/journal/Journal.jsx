@@ -213,6 +213,7 @@ export default function Journal() {
   const [entries, setEntries] = useState(() => storeGet(JOURNAL_KEY) || [])
   const [text, setText] = useState('')
   const [selectedTags, setSelectedTags] = useState([])
+  const [mood, setMood] = useState(null)
   const [aiPrompt, setAiPrompt] = useState(null)
   const [generatingPrompt, setGeneratingPrompt] = useState(false)
   const [isFreestyle, setIsFreestyle] = useState(false)
