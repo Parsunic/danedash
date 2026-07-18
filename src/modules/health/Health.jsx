@@ -7,6 +7,12 @@ import { SleepTrendChart, HRVTrendChart, RestingHRChart, SleepStagesChart } from
 import { storeGet } from '../../lib/storage.js'
 import { getAnthropicKey } from '../../lib/api/anthropic.js'
 import { renderMarkdown } from '../../lib/renderMarkdown.jsx'
+import CardGrid from '../../components/cards/CardGrid.jsx'
+import { useUIEdit } from '../../contexts/UIEditContext.jsx'
+import {
+  buildHealthOverviewRegistry, HEALTH_OVERVIEW_ORDER,
+  buildHealthTrendsRegistry, HEALTH_TRENDS_ORDER,
+} from './healthCardRegistries.jsx'
 
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages'
 const ANALYSIS_MODEL = 'claude-haiku-4-5-20251001'
