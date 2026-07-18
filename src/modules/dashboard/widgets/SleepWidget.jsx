@@ -64,8 +64,8 @@ function MiniStat({ label, value }) {
 }
 
 export default function SleepWidget({ size, bp }) {
-  const [rows, setRows] = useState(() => healthCache.rows || null)
-  const [loaded, setLoaded] = useState(() => !!healthCache.rows)
+  const [rows, setRows] = useState(() => peekHealthRows() || null)
+  const [loaded, setLoaded] = useState(() => !!peekHealthRows())
 
   useEffect(() => {
     let alive = true
@@ -74,14 +74,15 @@ export default function SleepWidget({ size, bp }) {
     // A fresh sync should refresh us — invalidate cache then refetch.
     const onSync = (e) => {
       if (e?.detail?.status !== 'synced') return
-      healthCache.ts = 0
+      invalidateHealthCache()
       getHealthRows().then(r => { if (alive) { setRows(r); setLoaded(true) } })
     }
     window.addEventListener('gfit-sync-status', onSync)
     return () => { alive = false; window.removeEventListener('gfit-sync-status', onSync) }
   }, [])
 
-  const scored = (rows || []).filter(r => r.sleep_score != null)
+  const winStart = weekWindowStart()
+  const scored = (rows || []).filter(r => r.date >= winStart && r.sleep_score != null)
   const last = scored[scored.length - 1] || null
   const avg = scored.length ? scored.reduce((s, r) => s + r.sleep_score, 0) / scored.length : null
   const delta = last && avg != null ? Math.round(last.sleep_score - avg) : null
