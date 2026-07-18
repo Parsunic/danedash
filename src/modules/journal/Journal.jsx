@@ -490,54 +490,15 @@ Keep the total response under 220 words. Be direct. Skip affirmations and filler
             </div>
           </div>
         ) : (
-          /* ── REFLECT FACE ── */
-          <div className="journal-reflect-face">
-            <div className="journal-cal-section">
-              <div className="journal-cal-section-header">
-                <span className="journal-eyebrow" style={{ marginBottom: 0 }}>ENTRIES</span>
-              </div>
-              <MonthCalendar
-                entries={entries}
-                month={calMonth}
-                onMonthChange={setCalMonth}
-                onDayClick={setSelectedDay}
-                todayStr={todayStr}
-              />
-            </div>
-
-            <div className="journal-reflect-list">
-              <div className="journal-eyebrow">PAST REFLECTIONS</div>
-              {allSortedEntries.length === 0 ? (
-                <div className="journal-day-panel-empty">No reflections yet — flip back and write your first.</div>
-              ) : (
-                <div className="journal-past-list">
-                  {(() => {
-                    let lastDate = null
-                    let todayCardShown = false
-                    return allSortedEntries.map(entry => {
-                      const isNewDate = entry.date !== lastDate
-                      lastDate = entry.date
-                      const dateLabel = entry.date === todayStr ? 'Today' : formatDate(entry.date)
-                      const isLatestToday = entry.date === todayStr && !todayCardShown
-                      if (isLatestToday) todayCardShown = true
-                      return (
-                        <div key={`${entry.id}-${lockTick}`}>
-                          {isNewDate && <div className="journal-past-date-label">{dateLabel}</div>}
-                          <EntryCard
-                            entry={entry}
-                            onAnalyze={analyzeEntry}
-                            analysis={analyses[entry.id]}
-                            isAnalyzing={analyzing[entry.id]}
-                            isLatestToday={isLatestToday}
-                          />
-                        </div>
-                      )
-                    })
-                  })()}
-                </div>
-              )}
-            </div>
-          </div>
+          /* ── REFLECT FACE (dynamic card grid — area 'journal_reflect') ── */
+          <CardGrid
+            area="journal_reflect"
+            registry={reflectRegistry}
+            defaultOrder={JOURNAL_REFLECT_ORDER}
+            editing={editing}
+            mode={layoutMode}
+            onAdoptAuto={() => setLayoutMode('manual')}
+          />
         )}
       </div>
 
