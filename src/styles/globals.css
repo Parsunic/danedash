@@ -7953,3 +7953,26 @@ body.dc-editing .bottom-tabbar { border-top-color: rgba(232,160,32,0.3); }
 .dc-journal-cell .journal-cal-count { font-size: 15px; }
 .dc-journal-cell .journal-cal-date { top: 4px; left: 5px; }
 /* ==== END JOURNAL REFLECT CARDS (dc-journal-) ==== */
+
+/* ==== OVERLOAD COACH (gym-target-) ==== */
+.gym-target-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  margin-left: 8px; margin-right: auto;
+  background: rgba(232,160,32,0.12);
+  border: 1px solid rgba(232,160,32,0.35);
+  color: var(--accent);
+  font-family: var(--font-mono); font-size: 11px; font-weight: 600;
+  line-height: 1.4; border-radius: 7px; padding: 2px 8px;
+  cursor: pointer; white-space: nowrap;
+  transition: background 0.2s;
+}
+.gym-target-chip:hover { background: rgba(232,160,32,0.2); }
+.gym-progression-note {
+  font-size: 12px; color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+  margin: 2px 0 10px;
+}
+.gym-progression-note .gym-progression-target {
+  font-family: var(--font-mono); color: var(--accent); font-weight: 600;
+}
+/* ==== END OVERLOAD COACH (gym-target-) ==== */
