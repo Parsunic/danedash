@@ -214,7 +214,7 @@ export function HRVTrendChart({ history, fill }) {
 
 // ── 3. Resting Heart Rate — 30-day, lower is better ──
 
-export function RestingHRChart({ history }) {
+export function RestingHRChart({ history, fill }) {
   const data = history
     .filter(d => d.resting_hr != null)
     .slice(-30)
