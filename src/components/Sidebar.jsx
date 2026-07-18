@@ -15,7 +15,7 @@ export default function Sidebar() {
         </span>
       </div>
       <nav className="sidebar-nav">
-        {modules.map(({ path, label, icon }) => (
+        {ordered.map(({ path, label, icon }) => (
           <NavLink
             key={path}
             to={path}
