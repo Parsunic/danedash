@@ -388,7 +388,7 @@ export default function TimeGrid({
       el.removeEventListener('touchmove',  onTouchMove)
       el.removeEventListener('touchend',   onTouchEnd)
     }
-  }, []) // uses refs only
+  }, [editing]) // refs + editing (rebinds touch listeners when edit mode toggles)
 
   const nowStr = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
 
