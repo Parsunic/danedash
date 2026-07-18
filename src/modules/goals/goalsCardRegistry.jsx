@@ -1,6 +1,7 @@
 import AIInsightsCard from './components/AIInsightsCard.jsx'
 import HabitsSection from './HabitsSection.jsx'
 import GoalsProjectsSection from './GoalsProjectsSection.jsx'
+import HabitStatsCard from './HabitStatsCard.jsx'
 
 // Goals-face card registry (area 'goals').
 //
