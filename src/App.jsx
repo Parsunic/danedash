@@ -126,18 +126,22 @@ export const modules = [
   },
 ]
 
+import { UIEditProvider } from './contexts/UIEditContext.jsx'
+
 export default function App() {
   return (
     <SyncProvider>
-      <OAuthCallbackHandler />
-      <Layout>
-        <Routes>
-          {modules.map(({ path, component: Component }) => (
-            <Route key={path} path={path} element={<Component />} />
-          ))}
-          <Route path="/todo" element={<Navigate to="/goals" replace />} />
-        </Routes>
-      </Layout>
+      <UIEditProvider>
+        <OAuthCallbackHandler />
+        <Layout>
+          <Routes>
+            {modules.map(({ path, component: Component }) => (
+              <Route key={path} path={path} element={<Component />} />
+            ))}
+            <Route path="/todo" element={<Navigate to="/goals" replace />} />
+          </Routes>
+        </Layout>
+      </UIEditProvider>
     </SyncProvider>
   )
 }
