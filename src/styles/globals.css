@@ -7379,3 +7379,215 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
 .md-list { margin: 4px 0 5px; padding-left: 16px; }
 .md-list li { margin: 2px 0; line-height: 1.45; }
 .md-code { font-family: var(--font-mono); font-size: 0.85em; background: rgba(255,255,255,0.08); padding: 1px 5px; border-radius: 3px; }
+
+/* ==== DYNAMIC CARDS (dc-) ==== */
+/* Apple-widgets-style card grid engine. All selectors dc- prefixed.
+   Inert until the card system mounts a .dc-grid. */
+
+.dc-grid {
+  position: relative; /* item offsetLeft/Top resolve against the grid — drag hit-testing */
+  display: grid;
+  grid-template-columns: repeat(var(--dc-cols, 2), minmax(0, 1fr));
+  grid-auto-rows: var(--dc-row, 132px);
+  grid-auto-flow: row dense;
+  gap: 14px;
+}
+
+.dc-item {
+  position: relative; /* reserved for FLIP transforms — no transform at rest */
+  min-width: 0;
+  min-height: 0;
+}
+.dc-item[data-size="S"]  { grid-column: span 1; grid-row: span 1; }
+.dc-item[data-size="M"]  { grid-column: span 2; grid-row: span 1; }
+.dc-item[data-size="L"]  { grid-column: span 2; grid-row: span 2; }
+.dc-item[data-size="XL"] { grid-column: 1 / -1; grid-row: span 2; }
+.dc-grid[data-cols="2"] .dc-item[data-size="XL"] { grid-row: span 3; }
+
+.dc-jiggle {
+  position: relative;
+  height: 100%;
+}
+
+/* Card chrome restated from the card recipe. NO transform/filter/backdrop-filter
+   at rest — wrappers must never become containing blocks for position:fixed
+   overlays (RestTimer, modals) living inside widget content. */
+.dc-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--card-bg);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: var(--card-radius);
+  padding: 16px 18px;
+  margin-bottom: 0;
+}
+.dc-content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.dc-card .dc-content { flex: 1; height: auto; }
+
+.dc-grid .dash-widget { margin-bottom: 0; height: 100%; }
+
+/* ── edit mode ── */
+.dc-grid[data-editing] .dc-content { pointer-events: none; }
+.dc-grid[data-editing] .card-interactive { transform: none; }
+.dc-grid[data-editing] .dc-item {
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+@keyframes dc-jiggle-a {
+  from { transform: rotate(-0.6deg); }
+  to   { transform: rotate(0.7deg); }
+}
+@keyframes dc-jiggle-b {
+  from { transform: rotate(0.8deg); }
+  to   { transform: rotate(-0.7deg); }
+}
+.dc-grid[data-editing] .dc-jiggle {
+  animation: dc-jiggle-a 330ms ease-in-out infinite alternate;
+}
+.dc-grid[data-editing] .dc-item:nth-child(2n) .dc-jiggle {
+  animation-name: dc-jiggle-b;
+  animation-delay: -165ms;
+}
+
+.dc-item--ghost { opacity: 0.3; }
+.dc-item--ghost .dc-jiggle {
+  outline: 1.5px dashed rgba(232,160,32,0.4);
+  outline-offset: -1.5px;
+  border-radius: var(--card-radius);
+  animation: none;
+}
+
+.dc-drag-clone {
+  position: fixed;
+  z-index: 500;
+  pointer-events: none;
+  margin: 0;
+  transform: scale(1.05);
+  box-shadow: 0 18px 44px rgba(0,0,0,0.55);
+  border-radius: var(--card-radius);
+  will-change: transform;
+}
+.dc-drag-clone .dc-jiggle { animation: none; }
+
+.dc-hide-btn {
+  position: absolute;
+  top: -7px;
+  left: -7px;
+  z-index: 5;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(22,22,25,0.92);
+  border: 1px solid rgba(255,255,255,0.18);
+  color: rgba(255,255,255,0.85);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+}
+.dc-hide-btn:hover { border-color: rgba(255,255,255,0.35); color: white; }
+
+.dc-size-btn {
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+  z-index: 5;
+  min-width: 26px;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 11px;
+  background: rgba(0,0,0,0.55);
+  border: 1px solid rgba(255,255,255,0.14);
+  color: rgba(255,255,255,0.8);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+}
+.dc-size-btn:hover { border-color: rgba(232,160,32,0.45); color: white; }
+
+/* ── hidden-widget tray ── */
+.dc-tray {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+.dc-tray-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  background: var(--card-bg);
+  border: 1px dashed rgba(255,255,255,0.14);
+  border-radius: 999px;
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 12px;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.dc-tray-chip:hover { border-color: rgba(232,160,32,0.4); color: var(--text-primary); }
+.dc-tray-chip-icon { display: inline-flex; align-items: center; }
+.dc-tray-chip-plus { color: var(--accent); font-weight: 600; }
+
+/* ── done pill (rendered by Layout.jsx) ── */
+.dc-done-pill {
+  position: fixed;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  z-index: 450; /* above tabbar (100), below settings backdrop (500) */
+  padding: 10px 24px;
+  border-radius: 999px;
+  background: rgba(10,10,12,0.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(232,160,32,0.35);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+@media (max-width: 600px) {
+  .dc-done-pill { bottom: calc(var(--tabbar-h) + 14px + env(safe-area-inset-bottom, 0px)); }
+}
+
+.dc-auto-hint {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  border: 1px dashed rgba(232,160,32,0.25);
+  border-radius: 10px;
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+body.dc-editing .bottom-tabbar { border-top-color: rgba(232,160,32,0.3); }
+
+@media (prefers-reduced-motion: reduce) {
+  .dc-grid[data-editing] .dc-jiggle,
+  .dc-grid[data-editing] .dc-item:nth-child(2n) .dc-jiggle { animation: none; }
+  .dc-item { transition: none !important; }
+  .dc-drag-clone { transition: none !important; }
+}
+/* ==== END DYNAMIC CARDS (dc-) ==== */
