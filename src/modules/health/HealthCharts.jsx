@@ -337,19 +337,21 @@ export function SleepStagesChart({ history, fill, hideKey }) {
           <Bar dataKey="awake" stackId="s" fill={STAGE_COLORS.awake} radius={[4, 4, 0, 0]} isAnimationActive animationBegin={240} animationDuration={600} />
         </BarChart>
       </ResponsiveContainer>
-      <div className="sleep-stages-key">
-        {[
-          ['deep',  'Deep'],
-          ['rem',   'REM'],
-          ['light', 'Light'],
-          ['awake', 'Awake'],
-        ].map(([k, label]) => (
-          <span key={k} className="sleep-stages-key-item">
-            <span className="sleep-stages-key-dot" style={{ background: STAGE_COLORS[k] }} />
-            {label}
-          </span>
-        ))}
-      </div>
+      {!hideKey && (
+        <div className="sleep-stages-key">
+          {[
+            ['deep',  'Deep'],
+            ['rem',   'REM'],
+            ['light', 'Light'],
+            ['awake', 'Awake'],
+          ].map(([k, label]) => (
+            <span key={k} className="sleep-stages-key-item">
+              <span className="sleep-stages-key-dot" style={{ background: STAGE_COLORS[k] }} />
+              {label}
+            </span>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
