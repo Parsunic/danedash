@@ -278,6 +278,12 @@ function SummarySection({ logs, hist }) {
   )
 }
 
+// ── OVERLOAD COACH (F3) ────────────────────────────────────────────────────
+// Top-level imports (hoisted per ESM spec); kept here so the whole
+// integration ships as one atomic edit.
+import { progressionNote, suggestNextTarget } from '../overloadUtils.js'
+import { getWeightUnit } from '../gymUtils.js'
+
 // ── EXERCISE STAT CARD ─────────────────────────────────────────────────────
 
 function ExerciseStatCard({ name, data, volData }) {
@@ -285,6 +291,17 @@ function ExerciseStatCard({ name, data, volData }) {
   const pr = data?.allTimePR
   const last = sessions[sessions.length - 1]
   const gid = name.replace(/[^a-z0-9]/gi, '-')
+
+  // Overload Coach: trend note + next-session target (null-safe → renders nothing)
+  const note = useMemo(() => progressionNote(data), [data])
+  const target = useMemo(() => {
+    let repRange
+    for (const t of storeGet('gym_templates') || []) {
+      const match = (t.exercises || []).find(e => e.name === name)
+      if (match?.repRange) { repRange = match.repRange; break }
+    }
+    return suggestNextTarget(name, data, { weightUnit: getWeightUnit(), repRange })
+  }, [name, data])
 
   const e1rmChartData = useMemo(() =>
     sessions.slice(-30).map(s => ({
