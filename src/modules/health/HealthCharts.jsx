@@ -77,7 +77,7 @@ export function SleepTrendChart({ history, fill }) {
         <span className="health-card-label">Sleep Trend</span>
         <span className="health-chart-meta">14 days</span>
       </div>
-      <ResponsiveContainer width="100%" height={160}>
+      <ResponsiveContainer width="100%" height={fill ? '100%' : 160}>
         <ComposedChart data={data} margin={{ top: 8, right: 4, bottom: 0, left: -20 }}>
           <defs>
             <linearGradient id="sleepHoursFill" x1="0" y1="0" x2="0" y2="1">
@@ -163,7 +163,7 @@ export function HRVTrendChart({ history, fill }) {
         <span className="health-card-label">HRV</span>
         <span className="health-chart-meta">30 days · baseline ±1 SD</span>
       </div>
-      <ResponsiveContainer width="100%" height={160}>
+      <ResponsiveContainer width="100%" height={fill ? '100%' : 160}>
         <AreaChart data={data} margin={{ top: 8, right: 4, bottom: 0, left: -20 }}>
           <defs>
             <linearGradient id="hrvTrendFill" x1="0" y1="0" x2="0" y2="1">
@@ -230,7 +230,7 @@ export function RestingHRChart({ history, fill }) {
         <span className="health-card-label">Resting Heart Rate</span>
         <span className="health-chart-meta">30 days · lower is better</span>
       </div>
-      <ResponsiveContainer width="100%" height={160}>
+      <ResponsiveContainer width="100%" height={fill ? '100%' : 160}>
         <AreaChart data={data} margin={{ top: 8, right: 4, bottom: 0, left: -20 }}>
           <defs>
             <linearGradient id="hrTrendFill" x1="0" y1="0" x2="0" y2="1">
@@ -304,7 +304,7 @@ export function SleepStagesChart({ history, fill, hideKey }) {
         <span className="health-card-label">Sleep Stages</span>
         <span className="health-chart-meta">7 days</span>
       </div>
-      <ResponsiveContainer width="100%" height={160}>
+      <ResponsiveContainer width="100%" height={fill ? '100%' : 160}>
         <BarChart data={data} margin={{ top: 8, right: 4, bottom: 0, left: -20 }}>
           <CartesianGrid {...GRID_PROPS} />
           <XAxis dataKey="date" {...AXIS_PROPS} />
@@ -370,7 +370,7 @@ export function WeeklyActivityChart({ history, fill }) {
         <span className="health-card-label">Weekly Steps</span>
         <span className="health-chart-meta">Goal 10,000</span>
       </div>
-      <ResponsiveContainer width="100%" height={160}>
+      <ResponsiveContainer width="100%" height={fill ? '100%' : 160}>
         <BarChart data={data} margin={{ top: 8, right: 4, bottom: 0, left: -10 }}>
           <defs>
             <linearGradient id="stepsBarFill" x1="0" y1="0" x2="0" y2="1">
