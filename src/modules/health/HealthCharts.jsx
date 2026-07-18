@@ -286,7 +286,7 @@ export function RestingHRChart({ history, fill }) {
 
 // ── 4. Sleep Stages — 7-day stacked bar ──
 
-export function SleepStagesChart({ history }) {
+export function SleepStagesChart({ history, fill, hideKey }) {
   const data = history.slice(-7).map(d => {
     const s = d.sleep_stages
     return {
