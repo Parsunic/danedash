@@ -52,13 +52,61 @@ All tables have RLS enabled. App uses the anon/publishable key only — no servi
 ### Currently synced keys:
 - `goals:*` (all date-keyed task lists), `goal_streak_v1`, `goals_projects`, `general_tasks`, `recurring_tasks`
 - `habits`, `habits_log:*` (weekly completion logs)
-- `gym_templates`, `gym_planned`, `gym_week_tpls`, `gym_workout_logs`, `gym_exercise_history`
+- `gym_templates`, `gym_planned`, `gym_week_tpls`, `gym_workout_logs`, `gym_exercise_history`, `custom_exercises`, `gym_settings`
 - `calendar_events`, `journal_entries`
+- `layouts_v1`, `nav_order_v1` (card-grid layouts + nav order — see Dynamic Card System)
 
 ### Events dispatched after remote sync applies:
 - `goals-changed` — Todo, Goals, Dashboard ticker
 - `gym-changed` — Gym module
-- `sync-applied` — HabitsSection, GoalsProjectsSection (and any new component added per the pattern above)
+- `sync-applied` — HabitsSection, GoalsProjectsSection, every dc- card grid, UIEditContext, useNavModules (and any new component added per the pattern above)
+
+## Dynamic Card System (dc-)
+Apple-widgets-style rearrangeable card grid: sizes S/M/L/XL, iOS-style edit mode (drag + resize on mobile **and** desktop), Manual/Auto layout modes. Adopted by **Dashboard, Health (both faces), Goals face, Journal Reflect**. **Gym, Calendar, Journal Write, and Todo Tasks are exempt by design** (bespoke drag systems / single-purpose layouts). All new classes are `dc-` (grid/cards) or `setnav-` (nav settings UI) prefixed. No new deps — hand-rolled.
+
+### Engine files
+- `src/hooks/useViewport.js` — ResizeObserver on the **grid container** (not window) → `{cols:2|3|4, bp, rowUnit, vhTier}`, debounced 150ms. cols by container width (<560→2, <980→3, else 4); rowUnit 132/142/150px; vhTier short/normal/tall by window height. Grid-scoped — do NOT retrofit modules' frozen matchMedia constants.
+- `src/lib/cards/layoutStore.js` — load/sanitize/save `layouts_v1`; `SIZE_ORDER`, `clampSize`, `bpBucket(cols)` (2→`mobile`, 3|4→`desktop`), `buildDefaultLayout`, `sanitizeLayout`. Every `storeSet` path (`saveAreaLayout`, `setLayoutMode`) is **USER-GESTURE-ONLY**.
+- `src/lib/cards/autoLayout.js` — pure `computeAutoLayout(registry, visibleIds, cols, vhTier) → {order, sizes}`. Deterministic (no Date/random/DOM): per-widget `autoSize[cols]` → vhTier demote(short)/promote-top-2(tall) → priority shelf-pack with bounded lookahead + lonely-S tail polish. Result is in-memory only, **NEVER persisted**.
+- `src/contexts/UIEditContext.jsx` — `UIEditProvider` (mounted in App.jsx under SyncProvider) + `useUIEdit()` → `{editing, startEditing, stopEditing, layoutMode, setLayoutMode}`. `editing` = plain React state, never persisted/synced, survives route changes, auto-exits on Escape + tab-hidden; sets `body.dc-editing` + `window.__uiEditing`. `layoutMode` mirrors `layouts_v1.mode`; re-reads on `sync-applied`.
+- `src/components/cards/` — `CardGrid.jsx` (renderer + orchestration), `CardShell.jsx` (per-card chrome: `.dc-item` > `.dc-jiggle` > `.dc-content`; hide − / size badge render as siblings so the widget never remounts on enter/exit edit), `WidgetTray.jsx` (hidden-widget re-add chips), `useCardDrag.js` (pointer/touch drag), `useFlipReflow.js` (FLIP glide on order/size/cols change).
+
+### `layouts_v1` schema (STATIC_SYNC_KEY)
+```js
+{ v:1, mode:'manual'|'auto',
+  <area>: { mobile:{order:[], sizes:{id:size}, hidden:[]}, desktop:{…} } }
+```
+Areas today: `dashboard`, `health_overview`, `health_trends`, `goals`, `journal_reflect`. Per-breakpoint buckets (mobile = 2-col; desktop = 3/4-col) so phone edits never scramble desktop through sync. Rules:
+- **Absent area/bucket → in-memory defaults (`buildDefaultLayout`), NEVER written at boot.** First write is the first user edit only.
+- `storeSet` fires **once per completed gesture** — one write per drop / size-cycle / hide / show / mode-flip. Never per drag frame.
+- **Auto-mode arrangements are computed in memory and NEVER persisted** — only `mode` syncs. Edit-mode "Customize" (adopt-auto) copies the computed arrangement into the manual bucket, then flips `mode → manual` (a gesture).
+- `sanitizeLayout` is tolerant: drops unknown ids, clamps sizes to each widget's allowed list, **appends never-seen registry ids visible at the end at defaultSize** (no migration needed); malformed input → full defaults. CardGrid reloads the bucket on breakpoint flip and on `sync-applied` (deferred if a drag is mid-flight).
+
+### `nav_order_v1` + nav customization (STATIC_SYNC_KEY)
+`{ order:[paths], hidden:[paths] }` — one shared order for sidebar + bottom tabs + swipe. `src/lib/navOrder.js`: `resolveNavOrder(stored, modules)` (pure, tolerant, **never writes** — drops unknown paths, appends missing, `/` unhideable, ≥2 visible on mobile), `saveNavOrder` (storeSet + `nav-changed`), `useNavModules()` → `{ ordered (sidebar — all modules), mobileVisible (tabs+swipe — minus hidden) }`, re-resolves on `nav-changed` + `sync-applied`. Routes in App.jsx never change (hidden modules stay routable). **Settings applies nav + layout mode on Save**, while the modal still covers the bar — the nav never shifts under the user's thumb.
+
+### Edit mode
+- Entered **ONLY** via Settings → **Edit Layout** (`handleEditLayout`: save() → force mode `manual` → `startEditing()` → close modal). **No long-press, by user mandate.** Global — one `editing` flag across all pages.
+- **Done pill** (`.dc-done-pill`, rendered by Layout.jsx below BottomNav) → `stopEditing()`. Also exits on Esc / tab-hidden. Never persisted or synced.
+- `window.dispatchEvent(new Event('dc-toggle-edit'))` toggles a **dev/test** editing override (OR-ed with context) inside each card page — the hook for entering edit before/without the Settings UI.
+- `window.__swipeDisabled = true` **only during an active drag** (restored on drop/cancel) so swipe-nav stays usable between drags while editing.
+- **Module-internal drags/interactions are suspended in edit mode** via `useUIEdit()` early-return guards (Todo GoalList, Calendar TimeGrid, Gym PlannerView, Calendar AIPlannerPanel). RestTimer/modals live outside card wrappers and stay viewport-fixed.
+
+### Adding a dashboard widget
+1. Write `src/modules/dashboard/widgets/MyWidget.jsx` — a `component({ size, bp })` that is self-contained (own `storeGet` + `sync-applied` listener) and renders meaningfully at **every** declared size.
+2. Add a registry entry in `widgets/registry.jsx`: `{ title, icon, component, sizes:['S','M','L'], defaultSize:'M', chromeless?, autoPriority, autoSize:{2,3,4} }`. `sanitizeLayout` auto-appends the new id to existing stored layouts; add it to `DEFAULT_DASH_ORDER` to control seed position.
+
+### Module adoption patterns
+Each adopting page renders `<CardGrid area registry defaultOrder editing mode onAdoptAuto/>` (editing/mode from `useUIEdit()`, plus the `dc-toggle-edit` dev override). Two registry styles:
+- **Static registry** (Goals — `goalsCardRegistry.jsx`): widgets are self-contained (own reads/listeners/writes). Module-level const → stable identity.
+- **ctxRef builder** (Health — `healthCardRegistries.jsx`; Journal — `journalReflectRegistry.jsx`): widgets close over a `ctxRef` owned by the page (shared state / handlers / fetched data). `build…Registry(ctxRef)` runs **once per mount** (`useMemo []`) so identities stay stable — data changes re-RENDER (read `ctxRef.current`) but never REMOUNT (charts don't replay animations).
+- `chromeless:true` skips the `.dc-card` frame when content already renders its own glass surface (all Goals/Journal cards; some Dashboard).
+
+### CSS conventions
+- One bounded block appended at the **END** of `globals.css` per adopting area (`dc-goals-`, `dc-journal-` … with `END` marker comments). No generic names, no bare element selectors.
+- `.dc-grid`: `grid-template-columns: repeat(var(--dc-cols), minmax(0,1fr))`, `grid-auto-rows: var(--dc-row)`, `grid-auto-flow: row dense`, gap 14px. Spans: S=1×1, M=2×1, L=2×2, XL=full×2 (mobile XL=2×3). Every `.dc-item` gets `min-width/height:0` (recharts grid-blowout guard).
+- `body:has(.dc-grid) #root { width:100% }` — `minmax(0,1fr)` columns offer no intrinsic width, so `#root` must fill or the grid collapses.
+- **Card wrappers carry NO transform/filter/backdrop-filter at rest** — they'd become containing blocks for the ~15 in-tree `position:fixed` overlays (RestTimer, modals) inside widget content. Transforms live only in edit mode (jiggle, where content is inert) or on inner chrome layers.
 
 ## Anthropic API
 AI calls are made directly from the browser (no proxy) across multiple modules. API key stored in `localStorage` as `anthropic_api_key`, entered via Settings modal in `src/components/Layout.jsx`.
