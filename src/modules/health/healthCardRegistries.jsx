@@ -416,6 +416,85 @@ function makeAIWidget(ctxRef) {
   }
 }
 
+// ── Training verdict (F2) — readiness + recent gym volume → train/steady/easy ──
+
+const VERDICT_COLORS = {
+  'Train hard': '#6BE3A4',
+  'Steady':     '#E8A020',
+  'Go easy':    '#7048E8',
+}
+
+function makeVerdictWidget(ctxRef) {
+  return function VerdictWidget({ size }) {
+    const logs = useGymLogs()
+    const readiness = ctxRef.current.readiness
+    const inputs = useMemo(() => verdictInputs(logs), [logs])
+    const { verdict, reason } = trainingVerdict({ todayReadiness: readiness, ...inputs })
+    const color = VERDICT_COLORS[verdict] ?? 'rgba(255,255,255,0.25)'
+    const sub = readiness != null ? `${readiness}% ready` : 'no data yet'
+    const volLine = `${(inputs.yesterdayVolume ?? 0).toLocaleString()} lbs yesterday`
+
+    const header = (
+      <div className="health-card-header" style={{ marginBottom: 4 }}>
+        <span className="health-card-label">Training</span>
+      </div>
+    )
+
+    if (size === 'S') {
+      return (
+        <div className="dc-health-widget">
+          {header}
+          <div className="dc-health-verdict-center">
+            <div className="dc-health-verdict-word" style={{ color }}>{verdict ?? '—'}</div>
+            <div className="dc-health-verdict-sub">{sub}</div>
+          </div>
+        </div>
+      )
+    }
+    return (
+      <div className="dc-health-widget">
+        {header}
+        <div className="dc-health-verdict-row">
+          <div>
+            <div className="dc-health-verdict-word" style={{ color }}>{verdict ?? '—'}</div>
+            <div className="dc-health-verdict-sub">{sub}</div>
+          </div>
+          <div className="dc-health-verdict-info">
+            <p className="health-micro-copy" style={{ margin: 0 }}>{reason}</p>
+            <div className="dc-health-verdict-vol">{volLine}</div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+}
+
+// ── Sleep × Training correlation (F2) — n<5 shows an empty state ──
+
+function makeCorrelationWidget(ctxRef) {
+  return function CorrelationWidget({ size }) {
+    const logs = useGymLogs()
+    const { history } = ctxRef.current
+    const { pairs, r, n } = useMemo(() => sleepPerformancePairs(history, logs), [history, logs])
+
+    if (n < 5) {
+      return (
+        <div className="dc-health-widget">
+          <div className="health-card-header">
+            <span className="health-card-label">Sleep × Training</span>
+            <span className="health-chart-meta">needs 5+ paired days</span>
+          </div>
+          <div className="health-empty" style={{ margin: 'auto 0' }}>
+            Not enough paired data yet — {n} day{n === 1 ? '' : 's'} with both sleep
+            and a logged workout. Keep training.
+          </div>
+        </div>
+      )
+    }
+    return <SleepPerformanceChart key={size} pairs={pairs} r={r} fill />
+  }
+}
+
 // ── Overview registry (area 'health_overview') ──
 
 export const HEALTH_OVERVIEW_ORDER = ['readiness', 'sleepring', 'stress', 'stages', 'hrv', 'rhr']
