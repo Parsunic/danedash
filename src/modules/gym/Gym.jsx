@@ -133,6 +133,7 @@ export default function Gym() {
         const next = prev.remaining - 1
         if (next <= 0) {
           clearInterval(restIntervalRef.current)
+          notifyRestDone() // backgrounded push; in-app overlay covers foreground
           if (navigator.vibrate) navigator.vibrate([200, 100, 200])
           try {
             const ac = new (window.AudioContext || window.webkitAudioContext)()
