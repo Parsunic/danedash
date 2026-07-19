@@ -8247,3 +8247,42 @@ body.dc-editing .tbx-shelf { display: none; }
   .tbx-chip:active { cursor: grabbing; }
 }
 /* ==== END TIMEBOX (tbx-) ==== */
+
+/* ==== MOBILE WEEK (calw-) ==== */
+@media (max-width: 600px) {
+  /* Positioning context for the absolutely-placed window chevrons. Applied via
+     the .calw-headers class, which is only present at mobile week — desktop and
+     day-view header rows are untouched. */
+  .calw-headers { position: relative; }
+
+  /* Quiet ghost chevrons that nudge the 3-day window ±1 day. Absolute so they
+     never disturb day-cell / column alignment: the left one sits over the empty
+     time-gutter zone, the right hugs the far edge. */
+  .calw-chevron {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: var(--text-tertiary);
+    font-family: var(--font-body);
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+    z-index: 6;
+    -webkit-tap-highlight-color: transparent;
+    transition: color 0.15s, opacity 0.15s;
+  }
+  .calw-chevron:hover { color: var(--text-primary); }
+  .calw-chevron:active { color: var(--accent); }
+  .calw-chevron:disabled { opacity: 0.2; cursor: default; }
+  .calw-chevron-left  { left: 0; }
+  .calw-chevron-right { right: 2px; }
+}
+/* ==== END MOBILE WEEK (calw-) ==== */
