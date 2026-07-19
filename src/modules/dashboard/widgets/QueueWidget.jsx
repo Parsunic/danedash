@@ -1,12 +1,14 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
-import { storeGet } from '../../../lib/storage.js'
+import { storeGet, storeSet } from '../../../lib/storage.js'
 import { getActiveDateString } from '../../../lib/dateHelpers.js'
 
 // Queue widget — copied from Dashboard.jsx TopTasksWidget.
 // S: big remaining-count + "left today" + top task one-liner.
 // M: today's 2 chips (queued-first, exactly today's behavior).
 // L: up to 5 chips + done/total progress line + micro-copy.
+// Each chip's leading circle is a tap target — mark that goal done (mirrors
+// Todo.jsx handleCheck: { ...goal, done: true, doneAt: Date.now() } via storeSet).
 
 const ROOT_STYLE = { height: '100%', display: 'flex', flexDirection: 'column', minHeight: 0 }
 const ONE_LINE = { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }
@@ -18,8 +20,33 @@ function microCopy(done, total) {
   return "One down. Don't stop now."
 }
 
+// Ordinal of `t` among id-less goals in `list` (reference match). -1 if not found.
+function idlessOrdinal(list, t) {
+  let ord = -1
+  for (const g of list) {
+    if (g.id == null) { ord++; if (g === t) return ord }
+  }
+  return -1
+}
+
+// Leading check control — the chip's circle/bolt, now tappable to mark done.
+function TaskCheck({ queued, done, onClick }) {
+  return (
+    <button
+      type="button"
+      className={`dash-task-bullet dash-task-check${queued ? ' is-queued' : ''}${done ? ' is-done' : ''}`}
+      aria-label={done ? 'Task completed' : 'Mark done'}
+      onClick={onClick}
+    >
+      {done ? '✓' : (queued ? '⚡' : '○')}
+    </button>
+  )
+}
+
 export default function QueueWidget({ size, bp }) {
   const [goals, setGoals] = useState([])
+  // Chips mid-completion: show the done state + slide-out before the re-read drops them.
+  const [completing, setCompleting] = useState(() => new Set())
 
   const load = useCallback(() => {
     setGoals(storeGet('goals:' + getActiveDateString()) || [])
@@ -35,6 +62,45 @@ export default function QueueWidget({ size, bp }) {
     }
   }, [load])
 
+  // Stable per-task key: by id when present, else (ordinal-among-id-less + text).
+  const chipKeyFor = (t) =>
+    t.id != null ? 'id:' + t.id : 'legacy:' + idlessOrdinal(goals, t) + ':' + t.text
+
+  // One gesture → one write. Show the completing state, then (after the ~300ms
+  // animation) read fresh, locate the exact row, set done, and storeSet — which
+  // stamps _lastLocalChange, dispatches goals-changed, and schedules a sync push.
+  function completeTask(t) {
+    const cKey = chipKeyFor(t)
+    if (completing.has(cKey)) return
+    const dayKey = 'goals:' + getActiveDateString()
+    const matchKey = t.id != null
+      ? { id: t.id }
+      : { text: t.text, idlessIdx: idlessOrdinal(goals, t) }
+    setCompleting(prev => { const s = new Set(prev); s.add(cKey); return s })
+    setTimeout(() => {
+      const fresh = storeGet(dayKey) || []
+      let i = -1
+      if (matchKey.id != null) {
+        i = fresh.findIndex(g => g.id === matchKey.id)
+      } else {
+        // Legacy id-less: nth id-less row AND matching text — never the wrong row.
+        let ord = -1
+        for (let k = 0; k < fresh.length; k++) {
+          if (fresh[k].id == null) {
+            ord++
+            if (ord === matchKey.idlessIdx && fresh[k].text === matchKey.text) { i = k; break }
+          }
+        }
+      }
+      if (i >= 0 && !fresh[i].done) {
+        const next = [...fresh]
+        next[i] = { ...next[i], done: true, doneAt: Date.now() }
+        storeSet(dayKey, next)
+      }
+      setCompleting(prev => { const s = new Set(prev); s.delete(cKey); return s })
+    }, 320)
+  }
+
   const total = goals.length
   const done = goals.filter(g => g.done).length
   const remaining = total - done
@@ -45,6 +111,7 @@ export default function QueueWidget({ size, bp }) {
   // ── S: hero count + top task ──
   if (size === 'S') {
     const top = pendingList[0] || null
+    const topDone = top ? completing.has(chipKeyFor(top)) : false
     return (
       <div style={ROOT_STYLE}>
         <div style={{ fontFamily: 'var(--font-display)', fontWeight: 500, fontSize: 34, lineHeight: 1, color: 'var(--text-primary)' }}>
@@ -52,8 +119,12 @@ export default function QueueWidget({ size, bp }) {
         </div>
         <div className="dash-widget-label" style={{ marginTop: 5 }}>left today</div>
         {top ? (
-          <div className="dash-task-text" style={{ ...ONE_LINE, marginTop: 'auto' }}>
-            {top.queued ? '⚡ ' : ''}{top.text}
+          <div
+            className={`dash-s-task${topDone ? ' dash-task-completing' : ''}`}
+            style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 'auto' }}
+          >
+            <TaskCheck queued={top.queued} done={topDone} onClick={() => completeTask(top)} />
+            <span className="dash-task-text" style={ONE_LINE}>{top.text}</span>
           </div>
         ) : (
           <div className="dash-widget-empty" style={{ marginTop: 'auto', padding: 0 }}>All clear</div>
@@ -74,16 +145,20 @@ export default function QueueWidget({ size, bp }) {
       {chips.length === 0 ? (
         <div className="dash-widget-empty">All clear — nothing queued</div>
       ) : (
-        chips.map((t, i) => (
-          <div
-            key={i}
-            className={`dash-task-chip${t.queued ? ' is-queued' : ''}`}
-            style={{ padding: '6px 10px', marginBottom: 6 }}
-          >
-            <span className="dash-task-bullet">{t.queued ? '⚡' : '○'}</span>
-            <span className="dash-task-text" style={ONE_LINE}>{t.text}</span>
-          </div>
-        ))
+        chips.map((t) => {
+          const cKey = chipKeyFor(t)
+          const isCompleting = completing.has(cKey)
+          return (
+            <div
+              key={cKey}
+              className={`dash-task-chip${t.queued ? ' is-queued' : ''}${isCompleting ? ' dash-task-completing' : ''}`}
+              style={{ padding: '6px 10px', marginBottom: 6 }}
+            >
+              <TaskCheck queued={t.queued} done={isCompleting} onClick={() => completeTask(t)} />
+              <span className="dash-task-text" style={ONE_LINE}>{t.text}</span>
+            </div>
+          )
+        })
       )}
       {size === 'L' && (
         <div style={{ marginTop: 'auto', paddingTop: 8 }}>
