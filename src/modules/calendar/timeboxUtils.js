@@ -20,14 +20,20 @@ const snapDown15 = (m) => Math.floor(m / 15) * 15
 // unique per day, so cross-day placements also count as "scheduled").
 export function getUnscheduledTasks(calEvents) {
   const events = calEvents || storeGet('calendar_events') || []
-  const goals = storeGet(`goals:${getActiveDateString()}`) || []
+  const date = getActiveDateString()
+  const goals = storeGet(`goals:${date}`) || []
 
   const boxed = new Set()
   for (const ev of events) {
     if (ev && ev.source_goal_id) boxed.add(ev.source_goal_id)
   }
 
-  const open = goals.filter(g => g && !g.done && !boxed.has(g.id))
+  // Rollover/recurring-injected goals often lack ids — synthesize a stable
+  // per-day identity so chips key uniquely and scheduled tasks leave the shelf.
+  const open = goals
+    .filter(g => g && !g.done)
+    .map(g => (g.id ? g : { ...g, id: `tbx:${date}#${g.text}` }))
+    .filter(g => !boxed.has(g.id))
   return [...open.filter(g => g.queued), ...open.filter(g => !g.queued)]
 }
 
