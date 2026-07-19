@@ -540,7 +540,15 @@ export default function TimeGrid({
       )}
 
       {/* Day header row */}
-      <div className="cal-day-headers">
+      <div className={`cal-day-headers${windowed ? ' calw-headers' : ''}`}>
+        {windowed && (
+          <button
+            className="calw-chevron calw-chevron-left"
+            onClick={() => shiftWindow(-1)}
+            disabled={weekWindowStart <= 0}
+            aria-label="Earlier days"
+          >‹</button>
+        )}
         <div className="cal-gutter-label" />
         {days.map((day, di) => {
           const isToday   = isSameDay(day, today)
