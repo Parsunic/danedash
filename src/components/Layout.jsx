@@ -134,18 +134,6 @@ function SettingsModal({ onClose }) {
     window.dispatchEvent(new Event('gfit-disconnected'))
   }, [])
 
-  // Notifications draft — local until Save (persisted via save() with a dirty check).
-  // The master toggle-ON is the ONE gesture allowed to request permission; if the
-  // browser denies, we keep master off and surface an inline blocked hint.
-  const [notifPrefs, setNotifPrefs] = useState(() => getNotifPrefs())
-  const [notifBlocked, setNotifBlocked] = useState(false)
-  const handleToggleMaster = useCallback(async () => {
-    if (notifPrefs.master) { setNotifPrefs(p => ({ ...p, master: false })); setNotifBlocked(false); return }
-    const res = await requestPermission()
-    if (res === 'granted') { setNotifPrefs(p => ({ ...p, master: true })); setNotifBlocked(false) }
-    else { setNotifPrefs(p => ({ ...p, master: false })); setNotifBlocked(true) }
-  }, [notifPrefs.master])
-
   // Data backup & restore. Note is a { ok, msg } object shown inline under the buttons.
   const restoreInputRef = useRef(null)
   const [dataNote, setDataNote] = useState(null)
