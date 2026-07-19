@@ -23,6 +23,8 @@ const STATIC_SYNC_KEYS = [
   'weekly_reviews_v1',
   // Finances (per-category monthly budgets)
   'finance_budgets',
+  // Notifications & reminders (per-type prefs; permission + dedupe marks stay device-local)
+  'notif_prefs_v1',
   // Layout customization (card grids + nav order)
   'layouts_v1', 'nav_order_v1',
 ]
