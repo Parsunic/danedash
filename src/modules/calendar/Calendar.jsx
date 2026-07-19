@@ -291,6 +291,8 @@ export default function Calendar() {
               onEventClick={handleEventClick}
               onEventUpdate={handleEventUpdate}
               onSkipGymWorkout={handleSkipGymWorkout}
+              timeboxArmed={armedTask}
+              onTimeboxPlace={handleTimeboxPlace}
             />
           )}
           {showDayReview && view === 'day' && (
