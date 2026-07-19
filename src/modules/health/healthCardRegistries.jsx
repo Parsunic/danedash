@@ -95,6 +95,19 @@ const ICONS = {
       <circle cx="19" cy="6" r="1.4" />
     </svg>
   ),
+  weight: (
+    <svg {...ICON_PROPS}>
+      <rect x="3" y="3" width="18" height="18" rx="4" opacity="0.4" />
+      <path d="M12 8l2.5 3.5" />
+      <circle cx="12" cy="12" r="0.6" />
+    </svg>
+  ),
+  weighttrend: (
+    <svg {...ICON_PROPS}>
+      <path d="M3 17l5-5 4 3 6-7" />
+      <path d="M14 8h4v4" opacity="0.5" />
+    </svg>
+  ),
 }
 
 // ── Gym logs (verdict + correlation cards derive volume at render time) ──
