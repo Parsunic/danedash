@@ -72,7 +72,33 @@ export default function TimeGrid({
   // outside the provider.
   const { editing } = useUIEdit()
 
-  const days = view === 'week' ? getWeekDays(currentDate) : [currentDate]
+  // ── B4: mobile week 3-day sliding window ─────────────────────────────────
+  // Reactive phone-width flag (≤600px) — swaps between the 3-day window and the
+  // full 7-column week live on resize / rotate, no reload.
+  const [isMobile, setIsMobile] = useState(() => window.matchMedia('(max-width: 600px)').matches)
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 600px)')
+    const onChange = (e) => setIsMobile(e.matches)
+    mq.addEventListener('change', onChange)
+    return () => mq.removeEventListener('change', onChange)
+  }, [])
+
+  // Window = 3 consecutive days, start clamped 0..4 so every window is exactly
+  // 3 columns; moved ±1 day per swipe / chevron.
+  const [weekWindowStart, setWeekWindowStart] = useState(() => clampWindowStart(currentDate.getDay() - 1))
+  const shiftWindow = (dir) => setWeekWindowStart(s => clampWindowStart(s + dir))
+
+  // Reposition the window to include the anchor day whenever currentDate's day
+  // changes (first open anchors on today; also Today button, week nav, day tap).
+  // Swipes change only weekWindowStart, so a swiped position persists.
+  const anchorKey = `${currentDate.getFullYear()}-${currentDate.getMonth()}-${currentDate.getDate()}`
+  useEffect(() => {
+    setWeekWindowStart(clampWindowStart(currentDate.getDay() - 1))
+  }, [anchorKey]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const allDays = view === 'week' ? getWeekDays(currentDate) : [currentDate]
+  const windowed = view === 'week' && isMobile          // 3-day window active
+  const days = windowed ? allDays.slice(weekWindowStart, weekWindowStart + WINDOW_SIZE) : allDays
   const scrollRef = useRef(null)
   const colsWrapRef = useRef(null)
   const [now, setNow] = useState(new Date())
