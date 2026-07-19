@@ -522,6 +522,9 @@ export default function Layout({ children }) {
     return () => window.removeEventListener('open-settings', handler)
   }, [])
 
+  // Surface the "Update ready" pill when a new service worker is waiting.
+  useEffect(() => subscribeUpdate(setUpdateReady), [])
+
   // Ctrl/Cmd+K toggles the command palette. Ignore the chord while typing in a
   // text field so it never hijacks in-page editing (per spec).
   useEffect(() => {
