@@ -14,7 +14,7 @@
 //   - DEDUPE MARKS (`notif_mark:*`) → device-local. Written with raw localStorage
 //                                  .setItem so they NEVER sync and NEVER stamp
 //                                  _lastLocalChange. Pruned to a 7-day window.
-import { storeGet } from './storage.js'
+import { storeGet, storeSet } from './storage.js'
 import { getActiveDateString, getActiveWeekKey } from './dateHelpers.js'
 import { getDayEvents } from '../modules/calendar/calendarUtils.js'
 import { getJournalDateString } from '../modules/journal/journalUtils.js'
