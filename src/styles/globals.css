@@ -8829,3 +8829,59 @@ body.dc-editing .tbx-shelf { display: none; }
   .cmdp-fab { display: none; } /* desktop uses Ctrl/Cmd+K */
 }
 /* ==== END COMMAND PALETTE (cmdp-) ==== */
+
+/* ==== PWA UPDATE (pwa-) ==== */
+/* "Update ready" pill — same glass language as .dc-done-pill, parked just
+   above it (both can show at once: editing + a fresh SW). z above Done pill
+   (450), below settings backdrop (500). */
+.pwa-update-pill {
+  position: fixed;
+  left: 50%;
+  bottom: 74px;
+  transform: translateX(-50%);
+  z-index: 460;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px 8px 18px;
+  border-radius: 999px;
+  background: rgba(10,10,12,0.9);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(232,160,32,0.35);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 13px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  animation: pwa-pill-in 0.25s ease-out;
+}
+.pwa-update-pill .pwa-update-label {
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.pwa-update-pill .btn-primary {
+  padding: 5px 14px;
+  font-size: 12px;
+  border-radius: 999px;
+}
+.pwa-update-dismiss {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: rgba(255,255,255,0.45);
+  font-size: 17px;
+  line-height: 1;
+  padding: 2px 6px;
+  display: flex;
+  align-items: center;
+}
+.pwa-update-dismiss:hover { color: var(--text-primary); }
+@keyframes pwa-pill-in {
+  from { opacity: 0; transform: translate(-50%, 12px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
+@media (max-width: 600px) {
+  .pwa-update-pill { bottom: calc(var(--tabbar-h) + 70px + env(safe-area-inset-bottom, 0px)); }
+}
+/* ==== END PWA UPDATE (pwa-) ==== */
