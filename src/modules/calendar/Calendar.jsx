@@ -275,6 +275,19 @@ export default function Calendar() {
         </div>
       </div>
 
+      {/* F5: Unscheduled tasks shelf (day + week; renders nothing when empty) */}
+      {(view === 'day' || view === 'week') && (
+        <UnscheduledShelf
+          events={events}
+          gymPlanned={gymPlanned}
+          view={view}
+          viewDate={currentDate}
+          armedTask={armedTask}
+          onArmTask={setArmedTask}
+          onEventsAdd={handleAIEventsAdd}
+        />
+      )}
+
       {/* Body */}
       <div className="cal-body-wrap stagger-2">
         <div className={`cal-main${showDayReview && view === 'day' ? ' cal-main--reviewing' : ''}`}>
