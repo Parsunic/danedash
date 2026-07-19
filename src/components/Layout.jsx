@@ -500,6 +500,10 @@ export default function Layout({ children }) {
   const { editing, stopEditing } = useUIEdit()
   const [showSettings, setShowSettings] = useState(false)
   const [cmdpOpen, setCmdpOpen] = useState(false)
+  // PWA update pill: shown when a new service worker is waiting. Dismiss hides
+  // it for the rest of the session (state resets on the next reload).
+  const [updateReady, setUpdateReady] = useState(false)
+  const [updateDismissed, setUpdateDismissed] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
   const mainRef = useRef(null)
