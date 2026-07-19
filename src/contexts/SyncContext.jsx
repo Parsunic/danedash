@@ -19,6 +19,8 @@ const STATIC_SYNC_KEYS = [
   'journal_entries',
   // Body metrics (weigh-in log)
   'body_metrics_v1',
+  // Weekly review ritual (marks a week reviewed)
+  'weekly_reviews_v1',
   // Layout customization (card grids + nav order)
   'layouts_v1', 'nav_order_v1',
 ]
