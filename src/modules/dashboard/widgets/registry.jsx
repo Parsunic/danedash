@@ -81,6 +81,13 @@ const ICONS = {
       <path d="M12 3c1.2 3 4 4 4 8a4 4 0 1 1-8 0c0-1.8 1-3 2-4 0 1.2.6 2 1.6 2C12.4 8 11 5 12 3z" />
     </svg>
   ),
+  weight: (
+    <svg {...ICON_PROPS}>
+      <rect x="3" y="3" width="18" height="18" rx="4" opacity="0.4" />
+      <path d="M12 8l2.5 3.5" />
+      <circle cx="12" cy="12" r="0.6" />
+    </svg>
+  ),
 }
 
 export const DASH_WIDGETS = {
