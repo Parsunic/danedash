@@ -217,6 +217,10 @@ src/
                              # SleepStages, WeeklyActivity)
       googleFitSync.js       # Google Fit OAuth + data fetching
       fitbitSync.js          # Fitbit sync (exists, unused)
+    finances/
+      Finances.jsx           # FlipTitle Log ⇄ Budgets: month nav, quick-add, tx list, budgets + category chart
+      financeUtils.js        # finance:YYYY-MM tx + finance_budgets; getMonthTx/addTx/deleteTx/monthSummary/getBudgets
+      index.jsx              # re-export
 ```
 
 ## Key Data Shapes
