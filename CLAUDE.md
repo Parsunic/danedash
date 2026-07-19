@@ -55,6 +55,7 @@ All tables have RLS enabled. App uses the anon/publishable key only — no servi
 - `gym_templates`, `gym_planned`, `gym_week_tpls`, `gym_workout_logs`, `gym_exercise_history`, `custom_exercises`, `gym_settings`
 - `calendar_events`, `journal_entries`
 - `body_metrics_v1` (weigh-in log — `src/lib/bodyMetrics.js`; Health Body Weight card + dashboard `weight` widget + Weight Trend)
+- `finance:*` (one transaction array per month, `finance:YYYY-MM`), `finance_budgets` (per-category monthly budgets — Finances module + dashboard `spend` widget)
 - `layouts_v1`, `nav_order_v1` (card-grid layouts + nav order — see Dynamic Card System)
 
 ### Events dispatched after remote sync applies:
