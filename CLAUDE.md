@@ -113,6 +113,13 @@ Each adopting page renders `<CardGrid area registry defaultOrder editing mode on
 ## Anthropic API
 AI calls are made directly from the browser (no proxy) across multiple modules. API key stored in `localStorage` as `anthropic_api_key`, entered via Settings modal in `src/components/Layout.jsx`.
 
+## PWA / Offline (service worker)
+`vite-plugin-pwa` (generateSW) makes the app installable + offline-capable. Config in `vite.config.js`; manual registration in `src/lib/pwa.js` (called from `main.jsx` only under `import.meta.env.PROD` — **dev stays SW-free**).
+- **`registerType: 'prompt'`** — a freshly deployed SW *waits*; it never auto-reloads mid-session (the auto-deploy hook ships many builds; a surprise reload would lose in-progress edits). Layout.jsx shows a quiet "Update ready" pill (`.pwa-update-pill`, `dc-done-pill` visual language) → **Refresh** calls `applyUpdate()` (skipWaiting + reload). Dismiss hides it for the session.
+- **Bumping the SW: nothing manual.** Every build regenerates `dist/sw.js` with a new precache revision hash, so the next deploy automatically triggers the update pill on clients. No version file to edit.
+- **Precache**: built app shell (`js/css/html/png/svg/woff/woff2`) + SPA `navigateFallback` to `index.html` (denylist = anything with a file extension). `manifest: false` keeps the hand-written `public/manifest.json`.
+- **API hosts are NEVER cached.** Only Google Fonts (`fonts.googleapis.com` / `fonts.gstatic.com`) are runtime-cached (StaleWhileRevalidate). supabase.co, api.anthropic.com, `*.googleapis.com` (Fit/Calendar), and google.com OAuth are unmatched → they pass straight to the network. **Do not add API hosts to `runtimeCaching`.**
+
 ## Desktop Layout Pattern
 - Breakpoint: `window.matchMedia('(min-width: 1024px)').matches` — computed once at module scope (not reactive)
 - CSS: `@media (min-width: 1024px)` blocks in `globals.css`
