@@ -7820,6 +7820,78 @@ body.dc-editing .bottom-tabbar { border-top-color: rgba(232,160,32,0.3); }
   color: rgba(255, 255, 255, 0.35);
   margin: 3px 0 0;
 }
+
+/* B3 Body metrics — weigh-in card (Body Weight) */
+.dc-health-weight-hero {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-top: 2px;
+}
+.dc-health-weight-num {
+  font-family: var(--font-display);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+.dc-health-weight-unit {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.dc-health-weight-deltaline {
+  display: flex;
+  gap: 20px;
+  margin-top: 6px;
+}
+.dc-health-weight-delta {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.dc-health-weight-delta-k {
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(250, 250, 250, 0.38);
+}
+.dc-health-weight-delta-v {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+.dc-health-weight-spark { margin-top: 10px; }
+.dc-health-weight-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: auto;
+  padding-top: 10px;
+}
+.dc-health-weight-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.dc-health-weight-input {
+  flex: 1;
+  min-width: 0;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  padding: 9px 12px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.dc-health-weight-input:focus { border-color: var(--accent); }
+.dc-health-weight-btn { flex-shrink: 0; padding: 9px 16px; }
 /* ==== END HEALTH CARDS (dc-health-) ==== */
 
 /* ==== GOALS CARDS (dc-goals-) ==== */
