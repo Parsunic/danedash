@@ -549,7 +549,7 @@ function WeightTrendWidget({ size }) {
 
 // ── Overview registry (area 'health_overview') ──
 
-export const HEALTH_OVERVIEW_ORDER = ['readiness', 'sleepring', 'stress', 'verdict', 'stages', 'hrv', 'rhr']
+export const HEALTH_OVERVIEW_ORDER = ['readiness', 'sleepring', 'stress', 'verdict', 'stages', 'hrv', 'rhr', 'bodyweight']
 
 export function buildHealthOverviewRegistry(ctxRef) {
   return {
