@@ -128,6 +128,37 @@ function SettingsModal({ onClose }) {
     window.dispatchEvent(new Event('gfit-disconnected'))
   }, [])
 
+  // Data backup & restore. Note is a { ok, msg } object shown inline under the buttons.
+  const restoreInputRef = useRef(null)
+  const [dataNote, setDataNote] = useState(null)
+
+  const handleDownloadBackup = useCallback(() => {
+    try {
+      downloadBackup()
+      setDataNote({ ok: true, msg: 'Backup downloaded.' })
+    } catch {
+      setDataNote({ ok: false, msg: 'Could not create backup.' })
+    }
+  }, [])
+
+  const handleRestoreClick = useCallback(() => {
+    restoreInputRef.current?.click()
+  }, [])
+
+  const handleRestoreFile = useCallback(async (e) => {
+    const file = e.target.files?.[0]
+    e.target.value = '' // let the same file be re-picked later
+    if (!file) return
+    if (!window.confirm('Replace all app data on this device with the backup? This cannot be undone.')) return
+    try {
+      const text = await file.text()
+      const { count } = restoreBackup(text) // reloads on success
+      setDataNote({ ok: true, msg: `Restored ${count} items. Reloading…` })
+    } catch (err) {
+      setDataNote({ ok: false, msg: err?.message || 'Restore failed.' })
+    }
+  }, [])
+
   return (
     <div className="settings-backdrop" onClick={onClose}>
       <div className="settings-modal" onClick={e => e.stopPropagation()}>
