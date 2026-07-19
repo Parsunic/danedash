@@ -94,6 +94,12 @@ export default function TimeGrid({
   useEffect(() => { eventsRef.current    = events }, [events])
   useEffect(() => { daysRef.current      = days }, [days])
 
+  // F5 timebox refs — read inside stable listeners (touch effect, drop handlers)
+  const timeboxArmedRef   = useRef(timeboxArmed)
+  const onTimeboxPlaceRef = useRef(onTimeboxPlace)
+  useEffect(() => { timeboxArmedRef.current   = timeboxArmed }, [timeboxArmed])
+  useEffect(() => { onTimeboxPlaceRef.current = onTimeboxPlace }, [onTimeboxPlace])
+
   // Scroll to current time on mount / view change
   useEffect(() => {
     if (scrollRef.current) {
