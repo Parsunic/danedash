@@ -2625,6 +2625,38 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
 .dash-task-text { font-size: 13px; color: var(--text-primary); line-height: 1.35; }
 .dash-task-chip.is-queued .dash-task-text { color: #FFE2A8; }
 
+/* ── Queue widget inline check-off (B1) ── */
+.dash-task-check {
+  -webkit-appearance: none;
+  appearance: none;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 120ms ease, background 120ms ease, transform 100ms ease;
+}
+.dash-task-check.is-queued { color: var(--accent); }
+.dash-task-check:hover { color: var(--accent); background: rgba(232,160,32,0.14); }
+.dash-task-check:active { transform: scale(0.85); }
+.dash-task-check.is-done { color: var(--accent); background: rgba(232,160,32,0.14); }
+.dash-task-completing {
+  animation: dashTaskComplete 300ms ease forwards;
+  pointer-events: none;
+}
+@keyframes dashTaskComplete {
+  0%   { opacity: 1; }
+  100% { opacity: 0; transform: translateX(10px); }
+}
+
 /* ── CALENDAR NOW WIDGET ── */
 @keyframes greenFlicker {
   0%   { box-shadow: 0 0 10px rgba(107,227,164,0.25), 0 0 20px rgba(107,227,164,0.10); }
