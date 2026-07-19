@@ -517,6 +517,22 @@ export default function Layout({ children }) {
     return () => window.removeEventListener('open-settings', handler)
   }, [])
 
+  // Ctrl/Cmd+K toggles the command palette. Ignore the chord while typing in a
+  // text field so it never hijacks in-page editing (per spec).
+  useEffect(() => {
+    const isEditable = (el) =>
+      !!el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable)
+    const onKey = (e) => {
+      if ((e.metaKey || e.ctrlKey) && (e.key === 'k' || e.key === 'K')) {
+        if (isEditable(e.target)) return
+        e.preventDefault()
+        setCmdpOpen(v => !v)
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
+
   useEffect(() => {
     const el = mainRef.current
     if (!el) return
