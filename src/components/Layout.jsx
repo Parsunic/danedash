@@ -18,6 +18,7 @@ import { initiateGoogleOAuth } from '../modules/calendar/googleSync.js'
 import { initiateGoogleFitOAuth } from '../modules/health/googleFitSync.js'
 import { downloadBackup, restoreBackup } from '../lib/backup.js'
 import CommandPalette from './CommandPalette.jsx'
+import { subscribeUpdate, applyUpdate } from '../lib/pwa.js'
 
 function SettingsModal({ onClose }) {
   const [anthropicKey, setAnthropicKeyState] = useState(() => getAnthropicKey())
