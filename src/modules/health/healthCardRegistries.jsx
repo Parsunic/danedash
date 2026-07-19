@@ -510,6 +510,43 @@ function makeCorrelationWidget(ctxRef) {
   }
 }
 
+// ── Weight trend (B3) — 90-day body-weight area; n<5 shows an empty state ──
+// Self-contained (reads body_metrics_v1, re-reads on 'sync-applied') — the body
+// metrics log lives outside Health's ctxRef, so it manages its own state.
+
+function useBodyEntries() {
+  const [entries, setEntries] = useState(() => getBodyEntries())
+  useEffect(() => {
+    const reload = () => setEntries(prev => {
+      const next = getBodyEntries()
+      return JSON.stringify(prev) === JSON.stringify(next) ? prev : next
+    })
+    window.addEventListener('sync-applied', reload)
+    return () => window.removeEventListener('sync-applied', reload)
+  }, [])
+  return entries
+}
+
+function WeightTrendWidget({ size }) {
+  const entries = useBodyEntries()
+  const unit = currentUnit()
+  if (entries.length < 5) {
+    return (
+      <div className="dc-health-widget">
+        <div className="health-card-header">
+          <span className="health-card-label">Weight</span>
+          <span className="health-chart-meta">needs 5+ weigh-ins</span>
+        </div>
+        <div className="health-empty" style={{ margin: 'auto 0' }}>
+          Log at least 5 weigh-ins to chart your 90-day trend — you have {entries.length}.
+          Add them from the Body Weight card.
+        </div>
+      </div>
+    )
+  }
+  return <WeightTrendChart key={size} entries={entries} unit={unit} fill />
+}
+
 // ── Overview registry (area 'health_overview') ──
 
 export const HEALTH_OVERVIEW_ORDER = ['readiness', 'sleepring', 'stress', 'verdict', 'stages', 'hrv', 'rhr']
