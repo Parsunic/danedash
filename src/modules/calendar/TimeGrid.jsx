@@ -149,8 +149,34 @@ export default function TimeGrid({
     setZoomLevel(newZoom)
   }
 
+  // ── TIMEBOX (F5): desktop chip drag-and-drop onto a day column ──
+  const handleTimeboxDragOver = (e) => {
+    if (editing) return
+    if (e.dataTransfer && Array.from(e.dataTransfer.types || []).includes('application/x-timebox')) {
+      e.preventDefault()
+    }
+  }
+  const handleTimeboxDrop = (di, e) => {
+    if (editing) return
+    const raw = e.dataTransfer ? e.dataTransfer.getData('application/x-timebox') : ''
+    if (!raw) return
+    e.preventDefault()
+    e.stopPropagation()
+    let task
+    try { task = JSON.parse(raw) } catch { return }
+    if (!task || !task.goalId) return
+    onTimeboxPlaceRef.current?.(daysRef.current[di], clientYToSnapped(e.clientY), task)
+  }
+
+  // ── TIMEBOX (F5): placement mode — armed chip + plain tap on a slot places ──
+  const handleTimeboxTap = (di, e) => {
+    if (!timeboxArmedRef.current || editing) return
+    onTimeboxPlaceRef.current?.(daysRef.current[di], clientYToSnapped(e.clientY), timeboxArmedRef.current)
+  }
+
   // ── DESKTOP: column mouse-down → drag-to-create ──
   const handleColumnMouseDown = (di, e) => {
+    if (timeboxArmed) return // placement mode: the click places instead
     if (editing) return
     if (!isDesktop || e.button !== 0) return
     e.preventDefault()
