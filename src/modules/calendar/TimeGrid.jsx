@@ -340,6 +340,10 @@ export default function TimeGrid({
         return
       }
 
+      // Timebox placement mode: a plain tap places (via the column click
+      // handler) — suppress long-press-to-create entirely while armed.
+      if (timeboxArmedRef.current) return
+
       // Global card-edit mode suspends long-press-to-create (pinch-zoom stays).
       if (editing) return
 
