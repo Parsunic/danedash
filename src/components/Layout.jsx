@@ -17,6 +17,7 @@ import { isGfitConnected, clearGfitTokens, getGfitLastSync } from '../lib/api/go
 import { initiateGoogleOAuth } from '../modules/calendar/googleSync.js'
 import { initiateGoogleFitOAuth } from '../modules/health/googleFitSync.js'
 import { downloadBackup, restoreBackup } from '../lib/backup.js'
+import CommandPalette from './CommandPalette.jsx'
 
 function SettingsModal({ onClose }) {
   const [anthropicKey, setAnthropicKeyState] = useState(() => getAnthropicKey())
