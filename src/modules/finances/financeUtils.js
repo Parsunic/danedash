@@ -71,7 +71,10 @@ export function fmtMoney(n, currency = '$') {
   const num = Number(n) || 0
   const neg = num < 0
   const abs = Math.abs(num)
-  const s = abs.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })
+  const s = abs.toLocaleString('en-US', {
+    minimumFractionDigits: Number.isInteger(abs) ? 0 : 2,
+    maximumFractionDigits: 2,
+  })
   return `${neg ? '-' : ''}${currency}${s}`
 }
 
