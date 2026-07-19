@@ -138,4 +138,18 @@ export const GOALS_REGISTRY = {
     autoPriority: 4,
     autoSize: { 2: 'L', 3: 'XL', 4: 'XL' },
   },
+  // Weekly Review — chromeless like its siblings, appended (not in GOALS_ORDER)
+  // so sanitizeLayout surfaces it visible at the end for existing users, no
+  // migration needed. M shows last week's headline pct + review state; L adds
+  // per-day bars + habit adherence.
+  weeklyreview: {
+    title: 'Weekly Review',
+    icon: ICONS.weeklyreview,
+    component: WeeklyReviewCard,
+    chromeless: true,
+    sizes: ['M', 'L'],
+    defaultSize: 'M',
+    autoPriority: 5,
+    autoSize: { 2: 'M', 3: 'M', 4: 'L' },
+  },
 }
