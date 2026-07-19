@@ -5,6 +5,7 @@ import App from './App.jsx'
 import './styles/globals.css'
 import { doRollover, injectRecurringTasks } from './lib/init.js'
 import { registerPwa } from './lib/pwa.js'
+import { startNotificationLoop } from './lib/notifications.js'
 
 doRollover()
 injectRecurringTasks()
@@ -20,3 +21,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     </BrowserRouter>
   </React.StrictMode>,
 )
+
+// Local reminders loop (B9). Safe/write-free to start unconditionally — it no-ops
+// until the user enables notifications in Settings and grants permission. Module-
+// scope guarded against StrictMode double-invocation.
+startNotificationLoop()
