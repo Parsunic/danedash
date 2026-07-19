@@ -157,6 +157,38 @@ export default function Calendar() {
     deduped.forEach(ev => syncEventCreate(ev))
   }, [saveEvents])
 
+  // ── F5 Timeboxing: armed shelf chip (mobile tap-tap placement mode) ──
+  const [armedTask, setArmedTask] = useState(null)
+
+  useEffect(() => {
+    if (!armedTask) return
+    const onKey = (e) => { if (e.key === 'Escape') setArmedTask(null) }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [armedTask])
+
+  // Called from TimeGrid (chip drop or armed tap) — creates a 45-min task
+  // event at the snapped slot through the normal creation path (sync included).
+  const handleTimeboxPlace = useCallback((date, startMin, task) => {
+    if (!date || !task || !task.goalId) return
+    const m = Math.max(0, Math.min(24 * 60 - 45, startMin))
+    const start = new Date(date.getFullYear(), date.getMonth(), date.getDate(), Math.floor(m / 60), m % 60)
+    const end = new Date(start.getTime() + 45 * 60000)
+    handleAIEventsAdd([{
+      id: crypto.randomUUID(),
+      user_id: 'dane',
+      title: task.title,
+      description: '',
+      start_time: start.toISOString(),
+      end_time: end.toISOString(),
+      is_all_day: false,
+      module_tag: 'task',
+      source_goal_id: task.goalId,
+      created_at: new Date().toISOString(),
+    }])
+    setArmedTask(null)
+  }, [handleAIEventsAdd])
+
   // Called from TimeGrid move/resize drag — direct time update, no sidebar
   const handleEventUpdate = useCallback((eventId, startIso, endIso) => {
     const current = eventsRef.current
