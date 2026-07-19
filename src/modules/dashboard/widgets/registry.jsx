@@ -208,6 +208,15 @@ export const DASH_WIDGETS = {
     autoPriority: 12,
     autoSize: { 2: 'S', 3: 'S', 4: 'S' },
   },
+  spend: {
+    title: 'Spend',
+    icon: ICONS.spend,
+    component: SpendWidget,
+    sizes: ['S', 'M'],
+    defaultSize: 'S',
+    autoPriority: 13,
+    autoSize: { 2: 'S', 3: 'S', 4: 'S' },
+  },
 }
 
 // Seed order mirrors today's dashboard, then the five new widgets appended,
