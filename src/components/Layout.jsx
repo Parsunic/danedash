@@ -291,6 +291,33 @@ function SettingsModal({ onClose }) {
             onClick={navReset}
           >Reset to default</button>
           <div className="settings-section-divider" />
+          <p className="settings-section-title">Data</p>
+          <p className="settings-hint" style={{ marginTop: 0 }}>Your data, in your hands. API keys and tokens are not included.</p>
+          <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
+            <button
+              className="btn-secondary"
+              style={{ fontSize: '0.75rem', padding: '6px 16px' }}
+              onClick={handleDownloadBackup}
+            >Download backup</button>
+            <button
+              className="btn-ghost"
+              style={{ fontSize: '0.75rem', padding: '6px 16px' }}
+              onClick={handleRestoreClick}
+            >Restore…</button>
+          </div>
+          {dataNote && (
+            <p className="settings-hint" style={{ marginTop: 8, color: dataNote.ok ? undefined : '#F0A0A0' }}>
+              {dataNote.msg}
+            </p>
+          )}
+          <input
+            ref={restoreInputRef}
+            type="file"
+            accept="application/json"
+            style={{ display: 'none' }}
+            onChange={handleRestoreFile}
+          />
+          <div className="settings-section-divider" />
           <label className="settings-label">Anthropic API Key</label>
           <div className="settings-input-row">
             <input
