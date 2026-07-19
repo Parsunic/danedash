@@ -98,8 +98,11 @@ function SettingsModal({ onClose }) {
     // actually differs from the reconciled stored value (compare canonical forms).
     const storedNav = resolveNavOrder(storeGet(NAV_ORDER_KEY), modules)
     if (JSON.stringify(storedNav) !== JSON.stringify(navDraft)) saveNavOrder(navDraft)
+    // Notification prefs — dirty-checked single storeSet (synced key). No boot write:
+    // getNotifPrefs only reads, so an untouched section never writes on Save.
+    if (JSON.stringify(getNotifPrefs()) !== JSON.stringify(notifPrefs)) saveNotifPrefs(notifPrefs)
     onClose()
-  }, [anthropicKey, notionKey, gcalClientId, gcalClientSecret, audioEnabled, gymAutoFinish, weightUnit, layoutModeDraft, layoutMode, setLayoutMode, navDraft, onClose])
+  }, [anthropicKey, notionKey, gcalClientId, gcalClientSecret, audioEnabled, gymAutoFinish, weightUnit, layoutModeDraft, layoutMode, setLayoutMode, navDraft, notifPrefs, onClose])
 
   const handleEditLayout = useCallback(() => {
     save() // persist pending settings (also closes the modal)
