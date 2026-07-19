@@ -204,4 +204,4 @@ export const DASH_WIDGETS = {
 
 // Seed order mirrors today's dashboard, then the five new widgets appended,
 // then readiness (F2) — appended so existing stored layouts sanitize-append it.
-export const DEFAULT_DASH_ORDER = ['dayring', 'schedule', 'queue', 'pulse', 'overseer', 'gymnext', 'sleep', 'habits', 'journal', 'streak', 'readiness']
+export const DEFAULT_DASH_ORDER = ['dayring', 'schedule', 'queue', 'pulse', 'overseer', 'gymnext', 'sleep', 'habits', 'journal', 'streak', 'readiness', 'weight']
