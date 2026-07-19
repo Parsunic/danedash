@@ -459,6 +459,58 @@ export default function TimeGrid({
     }
   }, [editing]) // refs + editing (rebinds touch listeners when edit mode toggles)
 
+  // ── B4: horizontal swipe on the grid → move the 3-day window (mobile week) ──
+  // Owns the gesture: sets window.__swipeDisabled on touchstart so Layout's
+  // page-swipe never fires, restores on end/cancel (same contract as card drags).
+  useEffect(() => {
+    const el = colsWrapRef.current
+    if (!el || !windowed) return
+
+    let sx = 0, sy = 0, tracking = false, decided = false, horizontal = false
+
+    const onStart = (e) => {
+      if (!e.touches || e.touches.length !== 1) return
+      window.__swipeDisabled = true       // claim gesture: block Layout page-swipe
+      sx = e.touches[0].clientX
+      sy = e.touches[0].clientY
+      tracking = true; decided = false; horizontal = false
+    }
+    const onMove = (e) => {
+      if (!tracking || e.touches.length !== 1) return
+      const dx = e.touches[0].clientX - sx
+      const dy = e.touches[0].clientY - sy
+      if (!decided && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) {
+        decided = true
+        horizontal = Math.abs(dx) > Math.abs(dy)
+      }
+      if (decided && horizontal) e.preventDefault() // keep it a window-swipe, not a scroll
+    }
+    const onEnd = (e) => {
+      if (!tracking) return
+      tracking = false
+      const t = e.changedTouches && e.changedTouches[0]
+      const dx = (t ? t.clientX : sx) - sx
+      const dy = (t ? t.clientY : sy) - sy
+      if (horizontal && Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) {
+        setWeekWindowStart(s => clampWindowStart(s + (dx < 0 ? 1 : -1))) // swipe left → forward a day
+      }
+      window.__swipeDisabled = false
+    }
+    const onCancel = () => { tracking = false; window.__swipeDisabled = false }
+
+    el.addEventListener('touchstart', onStart, { passive: true })
+    el.addEventListener('touchmove', onMove, { passive: false })
+    el.addEventListener('touchend', onEnd)
+    el.addEventListener('touchcancel', onCancel)
+    return () => {
+      el.removeEventListener('touchstart', onStart)
+      el.removeEventListener('touchmove', onMove)
+      el.removeEventListener('touchend', onEnd)
+      el.removeEventListener('touchcancel', onCancel)
+      window.__swipeDisabled = false
+    }
+  }, [windowed])
+
   const nowStr = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
 
   return (
