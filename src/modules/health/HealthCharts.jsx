@@ -5,6 +5,7 @@ import {
   ReferenceLine, ReferenceArea, ResponsiveContainer,
 } from 'recharts'
 import { readinessSeries } from './readinessUtils.js'
+import { convertWeight } from '../../lib/bodyMetrics.js'
 
 // ── Stage colors ──
 
