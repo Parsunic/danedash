@@ -47,7 +47,6 @@ export default function WeeklyReviewCard({ size, bp }) {
   const { goals, habits } = data
   const isL = size === 'L'
   const wide = bp !== 'mobile'
-  const maxDay = Math.max(1, ...goals.byDay.map(b => b.total))
 
   return (
     <div className="dc-goals-cell">
