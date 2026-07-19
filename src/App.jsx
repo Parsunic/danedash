@@ -113,6 +113,18 @@ export const modules = [
     component: Health,
   },
   {
+    path: '/finances',
+    label: 'Finances',
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <circle cx="9" cy="9" r="7" stroke="currentColor" strokeWidth="1.5" />
+        <path d="M11 6.2c-.5-.8-1.3-1.1-2-1.1-1.1 0-2 .7-2 1.7 0 2.4 4.2 1.2 4.2 3.6 0 1-.9 1.8-2.2 1.8-.9 0-1.7-.4-2.2-1.1" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+        <path d="M9 3.6v10.8" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+      </svg>
+    ),
+    component: Finances,
+  },
+  {
     path: '/overseer',
     label: 'Overseer',
     icon: (
