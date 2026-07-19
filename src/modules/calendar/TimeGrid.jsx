@@ -59,6 +59,8 @@ export default function TimeGrid({
   onEventClick,
   onEventUpdate,
   onSkipGymWorkout,
+  timeboxArmed,     // F5: armed shelf chip { goalId, title } | null
+  onTimeboxPlace,   // F5: (date, startMin, task) → create 45-min task event
 }) {
   // Global card-edit mode (Settings → Edit Layout) suspends TimeGrid's own drag
   // create/move/resize so it can't fight the card system. Safe default (false)
