@@ -82,6 +82,19 @@ function SettingsModal({ onClose }) {
   const navOrdered = navDraft.order.map(p => modules.find(m => m.path === p)).filter(Boolean)
   const navVisible = navOrdered.filter(m => !navHiddenSet.has(m.path))
 
+  // Notifications draft — local until Save (persisted via save() with a dirty check).
+  // The master toggle-ON is the ONE gesture allowed to request permission; if the
+  // browser denies, we keep master off and surface an inline blocked hint.
+  // Declared ABOVE save() — its deps array reads notifPrefs during render (TDZ).
+  const [notifPrefs, setNotifPrefs] = useState(() => getNotifPrefs())
+  const [notifBlocked, setNotifBlocked] = useState(false)
+  const handleToggleMaster = useCallback(async () => {
+    if (notifPrefs.master) { setNotifPrefs(p => ({ ...p, master: false })); setNotifBlocked(false); return }
+    const res = await requestPermission()
+    if (res === 'granted') { setNotifPrefs(p => ({ ...p, master: true })); setNotifBlocked(false) }
+    else { setNotifPrefs(p => ({ ...p, master: false })); setNotifBlocked(true) }
+  }, [notifPrefs.master])
+
   const save = useCallback(() => {
     setAnthropicKey(anthropicKey)
     setNotionKey(notionKey)
