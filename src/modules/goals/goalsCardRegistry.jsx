@@ -50,6 +50,13 @@ const ICONS = {
       <rect x="16" y="4" width="3" height="14" rx="0.6" />
     </svg>
   ),
+  weeklyreview: (
+    <svg {...ICON_PROPS}>
+      <rect x="3" y="4" width="18" height="17" rx="2" opacity="0.4" />
+      <path d="M3 9h18M8 3v3M16 3v3" opacity="0.7" />
+      <path d="M8.5 15l2 2 4-4.5" />
+    </svg>
+  ),
 }
 
 // ── Static widgets (each wraps a self-contained section) ──
