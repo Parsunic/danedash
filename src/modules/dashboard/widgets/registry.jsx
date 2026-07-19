@@ -191,6 +191,15 @@ export const DASH_WIDGETS = {
     autoPriority: 11,
     autoSize: { 2: 'S', 3: 'S', 4: 'S' },
   },
+  weight: {
+    title: 'Weight',
+    icon: ICONS.weight,
+    component: WeightWidget,
+    sizes: ['S', 'M'],
+    defaultSize: 'S',
+    autoPriority: 12,
+    autoSize: { 2: 'S', 3: 'S', 4: 'S' },
+  },
 }
 
 // Seed order mirrors today's dashboard, then the five new widgets appended,
