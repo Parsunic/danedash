@@ -660,7 +660,7 @@ export function buildHealthOverviewRegistry(ctxRef) {
 
 // ── Trends registry (area 'health_trends') ──
 
-export const HEALTH_TRENDS_ORDER = ['sleeptrend', 'sleepstages', 'hrvtrend', 'restinghr', 'weeklysteps', 'ai', 'readinesstrend', 'correlation']
+export const HEALTH_TRENDS_ORDER = ['sleeptrend', 'sleepstages', 'hrvtrend', 'restinghr', 'weeklysteps', 'ai', 'readinesstrend', 'correlation', 'weighttrend']
 
 export function buildHealthTrendsRegistry(ctxRef) {
   return {
