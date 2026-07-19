@@ -15,7 +15,7 @@ export function doRollover() {
       const existingTexts = new Set(todayGoals.map(g => g.text))
       undone.forEach(g => {
         if (!existingTexts.has(g.text)) {
-          todayGoals.push({ text: g.text, done: false })
+          todayGoals.push({ id: crypto.randomUUID(), text: g.text, done: false })
           existingTexts.add(g.text)
         }
       })
