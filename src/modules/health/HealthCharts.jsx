@@ -34,6 +34,17 @@ function fmtMin(v) {
   return h > 0 ? `${h}h ${m}m` : `${m}m`
 }
 
+function daysAgoStr(n) {
+  const d = new Date()
+  d.setDate(d.getDate() - n)
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
+function fmtWeightTick(v) {
+  const r = Math.round(v * 10) / 10
+  return Number.isInteger(r) ? String(r) : r.toFixed(1)
+}
+
 // ── Shared chart config ──
 
 const TICK_STYLE = { fill: 'rgba(255,255,255,0.28)', fontSize: 10, fontFamily: 'Geist Mono, monospace' }
