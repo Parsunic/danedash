@@ -43,7 +43,7 @@ export function injectRecurringTasks() {
     else if (task.freq === 'weekly') applies = (task.days || []).includes(dayOfWeek)
     else if (task.freq === 'monthly') applies = (task.days || []).includes(dayOfMonth)
     if (applies) {
-      todayGoals.push({ text: task.text, done: false })
+      todayGoals.push({ id: crypto.randomUUID(), text: task.text, done: false })
       existingTexts.add(task.text)
       changed = true
     }
