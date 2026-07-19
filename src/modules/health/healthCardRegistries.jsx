@@ -646,6 +646,15 @@ export function buildHealthOverviewRegistry(ctxRef) {
       autoPriority: 7,
       autoSize: { 2: 'S', 3: 'S', 4: 'S' },
     },
+    bodyweight: {
+      title: 'Body Weight',
+      icon: ICONS.weight,
+      component: BodyMetricsCard,
+      sizes: ['M', 'L'],
+      defaultSize: 'M',
+      autoPriority: 8,
+      autoSize: { 2: 'M', 3: 'M', 4: 'M' },
+    },
   }
 }
 
