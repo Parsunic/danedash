@@ -569,6 +569,14 @@ export default function TimeGrid({
             </div>
           )
         })}
+        {windowed && (
+          <button
+            className="calw-chevron calw-chevron-right"
+            onClick={() => shiftWindow(1)}
+            disabled={weekWindowStart >= MAX_WINDOW_START}
+            aria-label="Later days"
+          >›</button>
+        )}
       </div>
 
       {/* Scrollable grid */}
