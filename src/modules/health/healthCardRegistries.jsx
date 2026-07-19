@@ -736,5 +736,14 @@ export function buildHealthTrendsRegistry(ctxRef) {
       autoPriority: 8,
       autoSize: { 2: 'L', 3: 'L', 4: 'L' },
     },
+    weighttrend: {
+      title: 'Weight Trend',
+      icon: ICONS.weighttrend,
+      component: WeightTrendWidget,
+      sizes: ['M', 'L'],
+      defaultSize: 'M',
+      autoPriority: 9,
+      autoSize: { 2: 'M', 3: 'M', 4: 'M' },
+    },
   }
 }
