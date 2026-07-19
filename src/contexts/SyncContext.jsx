@@ -17,6 +17,8 @@ const STATIC_SYNC_KEYS = [
   'calendar_events',
   // Journal
   'journal_entries',
+  // Body metrics (weigh-in log)
+  'body_metrics_v1',
   // Layout customization (card grids + nav order)
   'layouts_v1', 'nav_order_v1',
 ]
