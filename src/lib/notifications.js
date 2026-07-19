@@ -48,11 +48,7 @@ export function getNotifPrefs() {
 // Persist prefs. Called ONLY from Settings save() (a user gesture) — goes through
 // storeSet (stamps _lastLocalChange + schedules a sync push) since this is synced.
 export function saveNotifPrefs(prefs) {
-  // Imported lazily to keep this module dependency-light; storeSet is the synced path.
-  // (Static import avoided so notify()/loop callers don't pull the sync stamp in.)
-  localStorage.setItem(NOTIF_PREFS_KEY, JSON.stringify(prefs))
-  localStorage.setItem('_lastLocalChange', String(Date.now()))
-  window.dispatchEvent(new CustomEvent('schedule-sync'))
+  storeSet(NOTIF_PREFS_KEY, prefs)
 }
 
 // ── Permission ────────────────────────────────────────────────────────────────
