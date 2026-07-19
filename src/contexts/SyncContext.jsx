@@ -33,6 +33,7 @@ const DYNAMIC_SYNC_PREFIXES = [
   'habits_log:',   // one key per calendar week
   'daily_focus:',  // today's thematic focus (one per date)
   'journal_synthesis:', // one cached AI synthesis per month (F4)
+  'finance:',      // one transaction array per month (finance:YYYY-MM)
 ]
 
 const SYNC_ROW_ID = 'dane'
