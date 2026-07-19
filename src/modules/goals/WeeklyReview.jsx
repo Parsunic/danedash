@@ -50,7 +50,6 @@ export default function WeeklyReview({ onClose }) {
   const [reviewed, setReviewed] = useState(!!reviews[bounds.key])
 
   const { goals, habits, gym, journal, calendar } = data
-  const maxDay = Math.max(1, ...goals.byDay.map(b => b.total))
 
   // ── Part 2 gestures (all single storeSet writes) ──
   const pushToMonday = useCallback(() => {
