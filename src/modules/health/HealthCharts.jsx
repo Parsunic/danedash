@@ -567,3 +567,53 @@ export function SleepPerformanceChart({ pairs, r, fill }) {
     </div>
   )
 }
+
+// ── 8. Weight Trend — last 90 days of weigh-ins, normalized to current unit ──
+
+export function WeightTrendChart({ entries, unit, fill }) {
+  const displayUnit = unit || 'lbs'
+  const cutoff = daysAgoStr(90)
+  const data = (entries ?? [])
+    .filter(e => e.date >= cutoff)
+    .map(e => ({ date: fmtMonthDay(e.date), weight: +convertWeight(e.weight, e.unit, displayUnit).toFixed(1) }))
+
+  return (
+    <div className={fill ? 'dc-health-chart' : 'health-chart-card'}>
+      <div className="health-chart-header">
+        <span className="health-card-label">Weight</span>
+        <span className="health-chart-meta">90 days · {displayUnit}</span>
+      </div>
+      <ResponsiveContainer width="100%" height={fill ? '100%' : 160}>
+        <AreaChart data={data} margin={{ top: 8, right: 4, bottom: 0, left: -20 }}>
+          <defs>
+            <linearGradient id="weightTrendFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%"   stopColor="#E8A020" stopOpacity={0.7} />
+              <stop offset="100%" stopColor="#E8A020" stopOpacity={0} />
+            </linearGradient>
+          </defs>
+          <CartesianGrid {...GRID_PROPS} />
+          <XAxis dataKey="date" {...AXIS_PROPS} interval="preserveStartEnd" />
+          <YAxis {...AXIS_PROPS} domain={['dataMin - 1', 'dataMax + 1']} tickFormatter={fmtWeightTick} />
+          <Tooltip
+            cursor={{ stroke: 'rgba(255,255,255,0.08)', strokeWidth: 1 }}
+            content={
+              <GlassTooltip renderContent={pl => (
+                <div className="chart-tooltip-row">
+                  <span className="chart-tooltip-name" style={{ color: '#E8A020' }}>Weight</span>
+                  <span className="chart-tooltip-value">{pl[0]?.value} {displayUnit}</span>
+                </div>
+              )} />
+            }
+          />
+          <Area
+            type="monotone" dataKey="weight" name="Weight"
+            stroke="#E8A020" strokeWidth={2}
+            fill="url(#weightTrendFill)"
+            dot={false} activeDot={{ r: 4, fill: '#E8A020', strokeWidth: 0 }}
+            isAnimationActive animationDuration={900} animationEasing="ease-out"
+          />
+        </AreaChart>
+      </ResponsiveContainer>
+    </div>
+  )
+}
