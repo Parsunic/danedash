@@ -601,6 +601,17 @@ export default function Layout({ children }) {
       {editing && (
         <button className="dc-done-pill" onClick={stopEditing}>Done</button>
       )}
+      {updateReady && !updateDismissed && (
+        <div className="pwa-update-pill" role="status">
+          <span className="pwa-update-label">Update ready</span>
+          <button className="btn-primary" onClick={applyUpdate}>Refresh</button>
+          <button
+            className="pwa-update-dismiss"
+            onClick={() => setUpdateDismissed(true)}
+            aria-label="Dismiss update"
+          >×</button>
+        </div>
+      )}
       {!editing && (
         <button
           className="cmdp-fab"
