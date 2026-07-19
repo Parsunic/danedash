@@ -8679,3 +8679,153 @@ body.dc-editing .tbx-shelf { display: none; }
   .fin-budget-list { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 }
 /* ==== END FINANCES (fin-) ==== */
+
+/* ==== COMMAND PALETTE (cmdp-) ==== */
+.cmdp-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 520; /* above settings backdrop (500), done pill (450), tabbar (100); below rest timer (700) */
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 12vh 18px 20px;
+  animation: fade-in 0.18s ease both;
+}
+.cmdp-panel {
+  background: #18171C;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 14px;
+  width: 100%;
+  max-width: 560px;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+  animation: modal-enter 0.28s cubic-bezier(0.22,1,0.36,1) both;
+  overflow: hidden;
+}
+.cmdp-input-wrap {
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+.cmdp-input {
+  width: 100%;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 15px;
+  padding: 12px 14px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.cmdp-input::placeholder { color: var(--text-tertiary); }
+.cmdp-input:focus { border-color: var(--accent); }
+.cmdp-results {
+  max-height: 54dvh;
+  overflow-y: auto;
+  padding: 6px;
+}
+.cmdp-group { margin-bottom: 2px; }
+.cmdp-group-label {
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.4);
+  padding: 9px 12px 5px;
+}
+.cmdp-row {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 9px 12px;
+  border-radius: 9px;
+  cursor: pointer;
+  border-left: 2px solid transparent;
+  transition: background 0.12s;
+}
+.cmdp-row:hover { background: rgba(255,255,255,0.04); }
+.cmdp-row.is-selected {
+  background: rgba(232,160,32,0.10);
+  border-left-color: var(--accent);
+}
+.cmdp-row-icon {
+  width: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}
+.cmdp-row.is-selected .cmdp-row-icon { color: var(--accent); }
+.cmdp-row-text {
+  flex: 1;
+  min-width: 0;
+  font-size: 14px;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cmdp-row.is-done .cmdp-row-text {
+  color: var(--text-tertiary);
+  text-decoration: line-through;
+}
+.cmdp-row-hint {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.02em;
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}
+.cmdp-preview-row.is-disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+.cmdp-preview-row.is-disabled:hover { background: transparent; }
+.cmdp-flash {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 6px 8px;
+  padding: 10px 13px;
+  border-radius: 9px;
+  background: rgba(107,227,164,0.10);
+  border: 1px solid rgba(107,227,164,0.28);
+  color: var(--success);
+  font-size: 13px;
+  font-weight: 500;
+  animation: fade-in 0.18s ease both;
+}
+.cmdp-empty {
+  padding: 22px 14px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-tertiary);
+}
+/* Floating mobile launcher — quiet dark pill, bottom-left (avoids Done pill at
+   bottom-center and RestTimer at bottom-right z700). Hidden while editing (JSX). */
+.cmdp-fab {
+  position: fixed;
+  left: 16px;
+  bottom: calc(var(--tabbar-h) + 14px + env(safe-area-inset-bottom, 0px));
+  z-index: 440;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: rgba(10,10,12,0.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: var(--text-secondary);
+  cursor: pointer;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  transition: border-color 0.15s, color 0.15s;
+}
+.cmdp-fab:hover { border-color: rgba(232,160,32,0.4); color: var(--text-primary); }
+@media (min-width: 1024px) {
+  .cmdp-fab { display: none; } /* desktop uses Ctrl/Cmd+K */
+}
+/* ==== END COMMAND PALETTE (cmdp-) ==== */
