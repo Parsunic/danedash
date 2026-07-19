@@ -89,6 +89,13 @@ const ICONS = {
       <circle cx="12" cy="12" r="0.6" />
     </svg>
   ),
+  spend: (
+    <svg {...ICON_PROPS}>
+      <circle cx="12" cy="12" r="9" opacity="0.4" />
+      <path d="M15 9.2c-.7-1-1.8-1.5-3-1.5-1.6 0-2.8 1-2.8 2.3 0 3.2 6 1.6 6 4.8 0 1.4-1.3 2.4-3.2 2.4-1.3 0-2.5-.6-3.2-1.6" />
+      <path d="M12 5.5v13" />
+    </svg>
+  ),
 }
 
 export const DASH_WIDGETS = {
