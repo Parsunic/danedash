@@ -335,6 +335,109 @@ function SettingsModal({ onClose }) {
             style={{ display: 'none' }}
             onChange={handleRestoreFile}
           />
+
+          <div className="settings-section-divider" />
+          <p className="settings-section-title">Notifications</p>
+          <div className="settings-toggle-row">
+            <div>
+              <span className="settings-label" style={{ margin: 0 }}>Enable notifications</span>
+              <p className="settings-hint" style={{ marginTop: 4 }}>Reminders fire while the app is open or recently backgrounded.</p>
+            </div>
+            <button
+              className={notifPrefs.master ? 'btn-primary' : 'btn-secondary'}
+              style={{ fontSize: '0.75rem', padding: '5px 16px', flexShrink: 0 }}
+              onClick={handleToggleMaster}
+            >{notifPrefs.master ? 'On' : 'Off'}</button>
+          </div>
+          {notifBlocked && (
+            <p className="settings-hint" style={{ marginTop: 6, color: '#F0A0A0' }}>
+              Notifications are blocked in your browser settings.
+            </p>
+          )}
+          <div style={{ opacity: notifPrefs.master ? 1 : 0.4, pointerEvents: notifPrefs.master ? 'auto' : 'none', transition: 'opacity 0.2s' }}>
+            <div className="settings-toggle-row" style={{ marginTop: 12 }}>
+              <div>
+                <span className="settings-label" style={{ margin: 0 }}>Rest timer</span>
+                <p className="settings-hint" style={{ marginTop: 4 }}>Buzz when a gym rest timer finishes.</p>
+              </div>
+              <button
+                className={notifPrefs.restTimer ? 'btn-primary' : 'btn-secondary'}
+                style={{ fontSize: '0.75rem', padding: '5px 16px', flexShrink: 0 }}
+                onClick={() => setNotifPrefs(p => ({ ...p, restTimer: !p.restTimer }))}
+              >{notifPrefs.restTimer ? 'On' : 'Off'}</button>
+            </div>
+            <div className="settings-toggle-row" style={{ marginTop: 12 }}>
+              <div>
+                <span className="settings-label" style={{ margin: 0 }}>Event alerts</span>
+                <p className="settings-hint" style={{ marginTop: 4 }}>A heads-up before calendar events start.</p>
+              </div>
+              <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexShrink: 0 }}>
+                <input
+                  className="settings-input"
+                  type="number"
+                  min={1}
+                  max={60}
+                  value={notifPrefs.eventStart.minBefore}
+                  onChange={e => {
+                    const n = Math.max(1, Math.min(60, parseInt(e.target.value) || 1))
+                    setNotifPrefs(p => ({ ...p, eventStart: { ...p.eventStart, minBefore: n } }))
+                  }}
+                  style={{ width: 54, textAlign: 'center' }}
+                  aria-label="Minutes before event"
+                />
+                <span className="settings-hint" style={{ margin: 0 }}>min</span>
+                <button
+                  className={notifPrefs.eventStart.enabled ? 'btn-primary' : 'btn-secondary'}
+                  style={{ fontSize: '0.75rem', padding: '5px 16px' }}
+                  onClick={() => setNotifPrefs(p => ({ ...p, eventStart: { ...p.eventStart, enabled: !p.eventStart.enabled } }))}
+                >{notifPrefs.eventStart.enabled ? 'On' : 'Off'}</button>
+              </div>
+            </div>
+            <div className="settings-toggle-row" style={{ marginTop: 12 }}>
+              <div>
+                <span className="settings-label" style={{ margin: 0 }}>Journal nudge</span>
+                <p className="settings-hint" style={{ marginTop: 4 }}>An evening reminder if you haven't written yet.</p>
+              </div>
+              <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexShrink: 0 }}>
+                <input
+                  className="settings-input"
+                  type="time"
+                  value={notifPrefs.journalEvening.time}
+                  onChange={e => setNotifPrefs(p => ({ ...p, journalEvening: { ...p.journalEvening, time: e.target.value || '21:00' } }))}
+                  style={{ width: 108 }}
+                  aria-label="Journal nudge time"
+                />
+                <button
+                  className={notifPrefs.journalEvening.enabled ? 'btn-primary' : 'btn-secondary'}
+                  style={{ fontSize: '0.75rem', padding: '5px 16px' }}
+                  onClick={() => setNotifPrefs(p => ({ ...p, journalEvening: { ...p.journalEvening, enabled: !p.journalEvening.enabled } }))}
+                >{notifPrefs.journalEvening.enabled ? 'On' : 'Off'}</button>
+              </div>
+            </div>
+            <div className="settings-toggle-row" style={{ marginTop: 12 }}>
+              <div>
+                <span className="settings-label" style={{ margin: 0 }}>Habit summary</span>
+                <p className="settings-hint" style={{ marginTop: 4 }}>A morning note of habits still open today.</p>
+              </div>
+              <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexShrink: 0 }}>
+                <input
+                  className="settings-input"
+                  type="time"
+                  value={notifPrefs.habitMorning.time}
+                  onChange={e => setNotifPrefs(p => ({ ...p, habitMorning: { ...p.habitMorning, time: e.target.value || '09:00' } }))}
+                  style={{ width: 108 }}
+                  aria-label="Habit summary time"
+                />
+                <button
+                  className={notifPrefs.habitMorning.enabled ? 'btn-primary' : 'btn-secondary'}
+                  style={{ fontSize: '0.75rem', padding: '5px 16px' }}
+                  onClick={() => setNotifPrefs(p => ({ ...p, habitMorning: { ...p.habitMorning, enabled: !p.habitMorning.enabled } }))}
+                >{notifPrefs.habitMorning.enabled ? 'On' : 'Off'}</button>
+              </div>
+            </div>
+          </div>
+          <p className="settings-hint" style={{ marginTop: 10 }}>On iPhone, install the app to your home screen for notifications.</p>
+
           <div className="settings-section-divider" />
           <label className="settings-label">Anthropic API Key</label>
           <div className="settings-input-row">
