@@ -9,6 +9,7 @@ import ReadinessWidget from './ReadinessWidget.jsx'
 import HabitsWeekWidget from './HabitsWeekWidget.jsx'
 import JournalWidget from './JournalWidget.jsx'
 import StreakWidget from './StreakWidget.jsx'
+import WeightWidget from './WeightWidget.jsx'
 
 // Dashboard widget registry. Entry contract:
 // { title, icon, component({size,bp}), sizes[], defaultSize, chromeless?,
