@@ -21,6 +21,8 @@ const STATIC_SYNC_KEYS = [
   'body_metrics_v1',
   // Weekly review ritual (marks a week reviewed)
   'weekly_reviews_v1',
+  // Finances (per-category monthly budgets)
+  'finance_budgets',
   // Layout customization (card grids + nav order)
   'layouts_v1', 'nav_order_v1',
 ]
