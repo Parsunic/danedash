@@ -10,6 +10,11 @@ import {
 
 const isDesktop = window.matchMedia('(min-width: 1024px)').matches
 
+// B4: mobile week 3-day window sizing
+const WINDOW_SIZE = 3
+const MAX_WINDOW_START = 7 - WINDOW_SIZE // 4 → windows start at 0..4
+function clampWindowStart(s) { return Math.max(0, Math.min(MAX_WINDOW_START, s)) }
+
 // Assign non-overlapping columns to concurrent events (Google Calendar style)
 function computeEventLayout(dayEvs) {
   if (!dayEvs.length) return []
