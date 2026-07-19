@@ -1,11 +1,13 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import {
   SleepTrendChart, SleepStagesChart, HRVTrendChart, RestingHRChart, WeeklyActivityChart,
-  ReadinessTrendChart, SleepPerformanceChart,
+  ReadinessTrendChart, SleepPerformanceChart, WeightTrendChart,
 } from './HealthCharts.jsx'
 import { renderMarkdown } from '../../lib/renderMarkdown.jsx'
 import { storeGet } from '../../lib/storage.js'
 import { trainingVerdict, verdictInputs, sleepPerformancePairs } from './readinessUtils.js'
+import BodyMetricsCard from './BodyMetricsCard.jsx'
+import { getEntries as getBodyEntries, currentUnit } from '../../lib/bodyMetrics.js'
 
 // Health module card registries (areas 'health_overview' + 'health_trends').
 //
