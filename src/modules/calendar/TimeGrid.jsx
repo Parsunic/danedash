@@ -504,6 +504,9 @@ export default function TimeGrid({
                   key={di}
                   className={`cal-day-col${isWeekend ? ' weekend' : ''}${isToday ? ' today' : ''}`}
                   onMouseDown={e => handleColumnMouseDown(di, e)}
+                  onClick={e => handleTimeboxTap(di, e)}
+                  onDragOver={handleTimeboxDragOver}
+                  onDrop={e => handleTimeboxDrop(di, e)}
                 >
                   {/* Hour rows — visual grid lines */}
                   {HOURS.map(h => (
