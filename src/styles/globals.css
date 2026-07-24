@@ -7366,9 +7366,11 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
    Inert until the card system mounts a .dc-grid. */
 
 /* body{display:flex} makes #root shrink-wrap to its content's intrinsic width,
-   and .dc-grid (minmax(0,1fr) columns) has no intrinsic width to offer — the
-   app column would collapse. Stretch root only while a card grid is mounted. */
-body:has(.dc-grid) #root { width: 100%; }
+   so any page whose content has no intrinsic width — a .dc-grid (minmax(0,1fr)
+   columns) — or that relies on margin:auto centering collapses or pins LEFT.
+   Stretch root unconditionally: centering must not depend on a mounted card
+   grid, and min-width:0 lets flex children shrink instead of overflowing. */
+#root { width: 100%; min-width: 0; }
 
 .dc-grid {
   position: relative; /* item offsetLeft/Top resolve against the grid — drag hit-testing */
