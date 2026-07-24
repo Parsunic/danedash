@@ -392,9 +392,9 @@ export default function OverseerTerminal() {
   }, [appendItems, updateItem, getStaticPrompt, flashVerdict])
 
   const handleSubmit = useCallback(async () => {
+    if (boot.active) finishBoot()
     const text = input.trim()
     if (!text || streaming) return
-    if (boot.active) finishBoot()
     setInput('')
     const isCmd = text.startsWith('/')
     appendItems([{ kind: 'prompt', text, cmd: isCmd }])
