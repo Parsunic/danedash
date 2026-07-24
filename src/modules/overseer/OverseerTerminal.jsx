@@ -493,7 +493,7 @@ export default function OverseerTerminal() {
         <span className="ovt-status-sep">·</span>
         <span className="ovt-status-item">mode {config.mode}</span>
         <span className="ovt-status-sprite">
-          {!boot.active && <OvtSprite skin={config.skin} state={spriteState} scale={0.3} />}
+          {!boot.active && !hero && <OvtSprite skin={config.skin} state={spriteState} scale={0.3} />}
         </span>
       </div>
 
