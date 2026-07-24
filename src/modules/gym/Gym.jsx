@@ -499,6 +499,12 @@ export default function Gym() {
       <BackgroundBlob page="gym" />
 
       <div className="gym-page-content stagger-1" ref={gymContainerRef}>
+        {/* Voice line for the front (Gym) face. Lives OUTSIDE the 3D flipper so
+            it never rotates, and is gated on !flipped so the Stats back face is
+            unaffected. */}
+        {!flipped && (
+          <p className="page-subtitle gym-page-subtitle">Show up. The rest follows.</p>
+        )}
         <div className="gym-flip-container">
           <div ref={flipperRef} className={`gym-flipper${flipped ? ' is-flipped' : ''}`}>
 
