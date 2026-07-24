@@ -453,8 +453,9 @@ export default function OverseerTerminal() {
       </div>
 
       <div className="ovt-screen" ref={screenRef} onClick={onScreenClick}>
-        {items.map(renderItem)}
-        {boot.active && (
+        {/* Boot scene sits ABOVE the transcript and persists as the resting hero
+            (full bar + big sprite) until the first chat is sent. */}
+        {(boot.active || hero) && (
           <div className="ovt-boot">
             <PromptLine text="overseer --boot" />
             {boot.step >= 1 && (
@@ -465,12 +466,13 @@ export default function OverseerTerminal() {
             )}
             {boot.step >= 2 && (
               <div className="ovt-boot-stage">
-                <OvtSprite skin={config.skin} state="idle" scale={1.25} />
+                <OvtSprite skin={config.skin} state={boot.active ? 'idle' : spriteState} scale={1.25} />
               </div>
             )}
             {boot.step >= 3 && <div className="ovt-online">▪ companion online.</div>}
           </div>
         )}
+        {items.map(renderItem)}
       </div>
 
       <div className="ovt-chips">
