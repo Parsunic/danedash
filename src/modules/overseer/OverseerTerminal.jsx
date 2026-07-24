@@ -168,7 +168,7 @@ export default function OverseerTerminal() {
     }
     at(520, () => setBoot(b => ({ ...b, step: Math.max(b.step, 2) })))
     at(980, () => setBoot(b => ({ ...b, step: Math.max(b.step, 3) })))
-    at(1260, () => { setBoot({ active: false, step: 3, bar: BAR_SLOTS }); appendIntro() })
+    at(1260, () => { setBoot({ active: false, step: 3, bar: BAR_SLOTS }); setHero(true); appendIntro() })
   }, [clearBootTimers, appendIntro])
 
   // Attach the boot-skip listener on the NEXT task: when /clear starts a fresh
