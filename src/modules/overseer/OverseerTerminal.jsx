@@ -165,11 +165,15 @@ export default function OverseerTerminal() {
     at(1260, () => { setBoot({ active: false, step: 3, bar: BAR_SLOTS }); appendIntro() })
   }, [clearBootTimers, appendIntro])
 
+  // Attach the boot-skip listener on the NEXT task: when /clear starts a fresh
+  // boot, the Enter keydown that submitted it is still bubbling toward window —
+  // a synchronously-attached listener would catch that same event and skip the
+  // boot it just started.
   useEffect(() => {
     if (!boot.active) return
     const onKey = () => finishBoot()
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
+    const id = setTimeout(() => window.addEventListener('keydown', onKey), 0)
+    return () => { clearTimeout(id); window.removeEventListener('keydown', onKey) }
   }, [boot.active, finishBoot])
 
   // ── System prompt + context size ──
