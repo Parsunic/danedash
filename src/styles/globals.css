@@ -7669,6 +7669,24 @@ body.dc-editing .bottom-tabbar { border-top-color: rgba(232,160,32,0.3); }
    NO transform/filter on layout wrappers (containing-block rule); the only
    transform is a centering translateX on a small text overlay. */
 
+/* Neutral loading spacer held while the first health-history fetch settles.
+   Reserves the column's vertical rhythm (~340px) so the card grid mounts into a
+   stable, already-centered column — no width jump, no flash of the legacy
+   narrow no-data layout. Pulse is very subtle; disabled under reduced-motion. */
+.health-loading {
+  min-height: 340px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.02);
+  animation: health-loading-pulse 1.8s ease-in-out infinite;
+}
+@keyframes health-loading-pulse {
+  0%, 100% { opacity: 0.45; }
+  50%      { opacity: 0.8; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .health-loading { animation: none; opacity: 0.6; }
+}
+
 .dc-health-widget {
   flex: 1;
   min-height: 0;
