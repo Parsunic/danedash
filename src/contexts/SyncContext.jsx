@@ -27,6 +27,8 @@ const STATIC_SYNC_KEYS = [
   'notif_prefs_v1',
   // Layout customization (card grids + nav order)
   'layouts_v1', 'nav_order_v1',
+  // Overseer terminal (context budgets, prompt override, model/mode/skin)
+  'overseer_config_v1',
 ]
 
 // Key prefixes whose instances are enumerated at push time (one key per date/week).
