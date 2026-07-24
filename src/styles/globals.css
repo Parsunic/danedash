@@ -5590,10 +5590,12 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
 
 .health-page { padding-top: 8px; position: relative; }
 
-/* Center the health column on wide screens so content isn't left-anchored. */
+/* Center the health column on wide screens so content isn't left-anchored.
+   Capped at 1080px so the container-measured card grid lands in the 4-col tier
+   (matches the legacy layout's side-by-side charts). */
 @media (min-width: 1024px) {
   .health-page {
-    max-width: 880px;
+    max-width: 1080px;
     margin-left: auto;
     margin-right: auto;
   }
