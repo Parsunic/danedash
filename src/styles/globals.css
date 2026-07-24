@@ -7669,13 +7669,6 @@ body.dc-editing .bottom-tabbar { border-top-color: rgba(232,160,32,0.3); }
    NO transform/filter on layout wrappers (containing-block rule); the only
    transform is a centering translateX on a small text overlay. */
 
-/* Health column is capped at 880px which lands the container-measured grid in
-   the 3-col tier; widen only while a card grid is mounted so desktop gets the
-   4-col tier and M charts pair up side by side like the legacy layout. */
-@media (min-width: 1024px) {
-  .health-page:has(.dc-grid) { max-width: 1080px; }
-}
-
 .dc-health-widget {
   flex: 1;
   min-height: 0;
