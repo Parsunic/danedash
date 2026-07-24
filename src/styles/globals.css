@@ -8905,3 +8905,356 @@ body.dc-editing .tbx-shelf { display: none; }
   .pwa-update-pill { bottom: calc(var(--tabbar-h) + 70px + env(safe-area-inset-bottom, 0px)); }
 }
 /* ==== END PWA UPDATE (pwa-) ==== */
+
+/* ==== OVERSEER TERMINAL (ovt-) ==== */
+/* Phosphor CRT terminal — mono everywhere, amber phosphor + mint accents.
+   Scoped vars on .ovt-root; sprites are CSS box-shadow pixel maps (8px unit)
+   with idle / thinking / verdict states; prefers-reduced-motion → static. */
+
+.ovt-root {
+  --ovt-amber: #E8A020;
+  --ovt-amber-dim: rgba(232,160,32,0.55);
+  --ovt-mint: #6BE3A4;
+  --ovt-dark: #0a0a0c;
+  --ovt-white: #FAFAFA;
+  --ovt-red: #FF6B5E;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: calc(100dvh - var(--tabbar-h) - 30px - env(safe-area-inset-bottom, 0px));
+  background: #070707;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px;
+  overflow: hidden;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--ovt-amber);
+}
+@media (min-width: 1024px) {
+  .ovt-root { height: calc(100dvh - 68px); max-width: 900px; margin: 0 auto; }
+  /* desktop: status bar sits at the very bottom, below the input */
+  .ovt-status { order: 10; }
+}
+
+/* CRT overlays */
+.ovt-glow {
+  position: absolute; inset: 0; pointer-events: none; z-index: 0;
+  background: radial-gradient(ellipse 70% 42% at 50% 0%, rgba(232,160,32,0.09), transparent 70%);
+  animation: ovtFlicker 7s ease-in-out infinite;
+}
+.ovt-scan {
+  position: absolute; inset: 0; pointer-events: none; z-index: 6;
+  background: repeating-linear-gradient(0deg, rgba(255,255,255,0.025) 0 1px, transparent 1px 3px);
+  mix-blend-mode: overlay;
+}
+@keyframes ovtFlicker {
+  0%, 100% { opacity: 1; }
+  46% { opacity: 0.82; }
+  48% { opacity: 0.96; }
+  73% { opacity: 0.88; }
+}
+
+/* Header — eyebrow only */
+.ovt-head { padding: 14px 18px 6px; flex-shrink: 0; position: relative; z-index: 1; }
+.ovt-eyebrow { font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.24em; color: var(--ovt-amber-dim); }
+
+/* Transcript screen */
+.ovt-screen {
+  position: relative; z-index: 1;
+  flex: 1; min-height: 0;
+  overflow-y: auto;
+  padding: 6px 18px 14px;
+  cursor: text;
+  scroll-behavior: smooth;
+}
+.ovt-screen::-webkit-scrollbar { width: 4px; }
+.ovt-screen::-webkit-scrollbar-track { background: transparent; }
+.ovt-screen::-webkit-scrollbar-thumb { background: rgba(232,160,32,0.18); border-radius: 2px; }
+
+/* Prompt echo lines */
+.ovt-prompt { margin-top: 12px; word-break: break-word; }
+.ovt-prompt:first-child { margin-top: 0; }
+.ovt-ps { color: var(--ovt-mint); }
+.ovt-ps-dim { color: rgba(255,255,255,0.35); }
+.ovt-cmd { color: var(--ovt-amber); text-shadow: 0 0 10px rgba(232,160,32,0.35); }
+
+/* Streamed responses — amber phosphor */
+.ovt-resp { margin-top: 8px; color: var(--ovt-amber); text-shadow: 0 0 9px rgba(232,160,32,0.3); word-break: break-word; }
+.ovt-line { min-height: 1em; }
+.ovt-gap { height: 0.6em; }
+.ovt-h { color: #F5C169; letter-spacing: 0.06em; margin: 6px 0 2px; text-shadow: 0 0 12px rgba(232,160,32,0.45); }
+.ovt-li { display: flex; gap: 8px; }
+.ovt-li-dot { color: var(--ovt-amber-dim); flex: 0 0 auto; }
+.ovt-resp strong { color: #FFD98A; font-weight: 700; }
+.ovt-resp em { font-style: italic; opacity: 0.85; }
+.ovt-code {
+  background: rgba(232,160,32,0.1);
+  border: 1px solid rgba(232,160,32,0.22);
+  border-radius: 4px;
+  padding: 0 5px;
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+}
+
+/* Verdict lines — boxed glow */
+.ovt-verdict {
+  display: block;
+  margin: 10px 0;
+  padding: 9px 14px;
+  border: 1px solid rgba(232,160,32,0.5);
+  border-radius: 6px;
+  color: #FFD98A;
+  text-shadow: 0 0 12px rgba(232,160,32,0.55);
+  box-shadow: 0 0 18px rgba(232,160,32,0.18), inset 0 0 14px rgba(232,160,32,0.07);
+}
+
+/* Command output */
+.ovt-sys { margin-top: 8px; color: var(--ovt-amber-dim); white-space: pre-wrap; word-break: break-word; }
+.ovt-tblwrap { margin-top: 8px; overflow-x: auto; }
+.ovt-tbl {
+  margin: 0; font-family: var(--font-mono); font-size: 0.95em;
+  color: var(--ovt-amber-dim); white-space: pre; line-height: 1.7;
+}
+.ovt-err { margin-top: 8px; color: var(--ovt-red); text-shadow: 0 0 9px rgba(255,107,94,0.35); white-space: pre-wrap; word-break: break-word; }
+.ovt-dimline { margin-top: 8px; color: rgba(232,160,32,0.35); font-style: italic; }
+
+/* Export block (inline, replaces the old modal) */
+.ovt-export { margin-top: 10px; border: 1px solid rgba(232,160,32,0.28); border-radius: 8px; overflow: hidden; }
+.ovt-export-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 7px 12px; border-bottom: 1px solid rgba(232,160,32,0.18);
+  color: var(--ovt-amber-dim); font-size: 0.92em;
+}
+.ovt-export-body {
+  max-height: 42vh; overflow-y: auto; padding: 10px 12px;
+  white-space: pre-wrap; word-break: break-word;
+  color: var(--ovt-amber-dim); font-size: 0.95em;
+}
+
+/* Block caret */
+.ovt-caret {
+  display: inline-block; width: 7px; height: 14px;
+  background: var(--ovt-amber);
+  box-shadow: 0 0 8px rgba(232,160,32,0.7);
+  margin-left: 3px; vertical-align: -2px;
+  animation: ovtCaretBlink 1.05s step-end infinite;
+}
+@keyframes ovtCaretBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+/* Boot sequence */
+.ovt-boot { margin-top: 12px; }
+.ovt-boot-bar { margin-top: 6px; color: var(--ovt-amber); text-shadow: 0 0 12px rgba(232,160,32,0.4); white-space: pre-wrap; }
+.ovt-boot-stage { display: flex; justify-content: center; padding: 22px 0 10px; }
+.ovt-online { margin-top: 8px; color: var(--ovt-mint); text-shadow: 0 0 10px rgba(107,227,164,0.4); }
+
+/* Command chips (mobile only) */
+.ovt-chips {
+  display: none;
+  flex-shrink: 0;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 8px 14px 2px;
+  position: relative; z-index: 1;
+  scrollbar-width: none;
+}
+.ovt-chips::-webkit-scrollbar { display: none; }
+.ovt-chip {
+  flex: 0 0 auto;
+  background: rgba(232,160,32,0.07);
+  border: 1px solid rgba(232,160,32,0.3);
+  border-radius: 999px;
+  color: var(--ovt-amber-dim);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 4px 11px;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+.ovt-chip:hover { color: var(--ovt-amber); border-color: rgba(232,160,32,0.55); }
+
+/* Status bar: model · ctx · mode · [sprite] */
+.ovt-status {
+  display: flex; align-items: center; gap: 8px;
+  flex-shrink: 0;
+  padding: 7px 18px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  color: rgba(232,160,32,0.45);
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  position: relative; z-index: 1;
+  min-height: 34px;
+}
+.ovt-status-sep { opacity: 0.5; }
+.ovt-status-sprite { margin-left: auto; display: inline-flex; align-items: center; }
+.ovt-status .ovt-sprite { animation: ovtDockIn 0.35s ease; }
+@keyframes ovtDockIn { from { opacity: 0; transform: scale(0.6); } to { opacity: 1; transform: scale(1); } }
+
+/* Input row — bare terminal prompt */
+.ovt-inputrow {
+  display: flex; align-items: center; gap: 8px;
+  flex-shrink: 0;
+  padding: 10px 18px 14px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  position: relative; z-index: 1;
+}
+.ovt-inputrow .ovt-ps { flex: 0 0 auto; white-space: nowrap; }
+.ovt-input {
+  flex: 1; min-width: 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--ovt-amber);
+  caret-color: var(--ovt-amber);
+  font-family: var(--font-mono);
+  font-size: inherit;
+  text-shadow: 0 0 9px rgba(232,160,32,0.3);
+  padding: 2px 0;
+}
+
+/* Prompt-override editor takeover */
+.ovt-editor-wrap { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+.ovt-editor {
+  width: 100%;
+  min-height: 32vh;
+  resize: vertical;
+  background: rgba(232,160,32,0.045);
+  border: 1px dashed rgba(232,160,32,0.35);
+  border-radius: 8px;
+  color: var(--ovt-amber);
+  caret-color: var(--ovt-amber);
+  font-family: var(--font-mono);
+  font-size: inherit;
+  line-height: 1.6;
+  padding: 10px 12px;
+  outline: none;
+}
+.ovt-editor:focus { border-color: rgba(232,160,32,0.6); }
+.ovt-editor-hint { color: rgba(232,160,32,0.4); font-size: 10.5px; letter-spacing: 0.06em; }
+
+/* ── Sprites: CSS box-shadow pixel maps, 8px unit ──
+   .ovt-sprite (size box × --ovt-ss scale) > .ovt-anim (state transforms)
+   > .ovt-px (scaled; ::before = shadow map) or .ovt-stax (3 bars). */
+.ovt-sprite {
+  display: inline-block; position: relative;
+  width: calc(var(--ovt-w) * var(--ovt-ss, 1));
+  height: calc(var(--ovt-h) * var(--ovt-ss, 1));
+}
+.ovt-sprite--blip    { --ovt-w: 80px; --ovt-h: 72px; }
+.ovt-sprite--specter { --ovt-w: 72px; --ovt-h: 48px; }
+.ovt-sprite--mochi   { --ovt-w: 96px; --ovt-h: 48px; }
+.ovt-sprite--stax    { --ovt-w: 68px; --ovt-h: 56px; }
+.ovt-sprite--sprout  { --ovt-w: 80px; --ovt-h: 56px; }
+.ovt-anim { position: absolute; inset: 0; display: block; }
+.ovt-px {
+  position: absolute; top: 0; left: 0;
+  width: 8px; height: 8px;
+  transform: scale(var(--ovt-ss, 1));
+  transform-origin: top left;
+}
+.ovt-px::before { content: ""; position: absolute; width: 8px; height: 8px; }
+
+/* 1 · BLIP — cursor-born blob (default) */
+.ovt-sprite--blip .ovt-px::before { box-shadow:
+  72px 0 var(--ovt-mint), 64px 8px var(--ovt-amber),
+  32px 16px var(--ovt-amber), 40px 16px var(--ovt-amber), 48px 16px var(--ovt-amber), 56px 16px var(--ovt-amber),
+  24px 24px var(--ovt-amber), 32px 24px var(--ovt-amber), 40px 24px var(--ovt-amber), 48px 24px var(--ovt-amber), 56px 24px var(--ovt-amber), 64px 24px var(--ovt-amber),
+  16px 32px var(--ovt-amber), 24px 32px var(--ovt-amber), 32px 32px var(--ovt-dark), 40px 32px var(--ovt-amber), 48px 32px var(--ovt-amber), 56px 32px var(--ovt-dark), 64px 32px var(--ovt-amber), 72px 32px var(--ovt-amber),
+  16px 40px var(--ovt-amber), 24px 40px var(--ovt-mint), 32px 40px var(--ovt-amber), 40px 40px var(--ovt-amber), 48px 40px var(--ovt-amber), 56px 40px var(--ovt-amber), 64px 40px var(--ovt-mint), 72px 40px var(--ovt-amber),
+  16px 48px var(--ovt-amber), 24px 48px var(--ovt-amber), 32px 48px var(--ovt-amber), 40px 48px var(--ovt-dark), 48px 48px var(--ovt-dark), 56px 48px var(--ovt-amber), 64px 48px var(--ovt-amber), 72px 48px var(--ovt-amber),
+  24px 56px var(--ovt-amber), 32px 56px var(--ovt-amber), 40px 56px var(--ovt-amber), 48px 56px var(--ovt-amber), 56px 56px var(--ovt-amber), 64px 56px var(--ovt-amber),
+  24px 64px var(--ovt-amber), 32px 64px var(--ovt-amber), 56px 64px var(--ovt-amber), 64px 64px var(--ovt-amber); }
+.ovt-sprite--blip .ovt-px::after {
+  content: ""; position: absolute; width: 8px; height: 8px; opacity: 0;
+  box-shadow: 32px 32px var(--ovt-amber), 56px 32px var(--ovt-amber);
+  animation: ovtLids 3.6s step-end infinite;
+}
+.ovt-sprite--blip .ovt-anim { animation: ovtBob 2.4s ease-in-out infinite; }
+
+/* 2 · SPECTER — arcade ghost */
+.ovt-sprite--specter .ovt-px::before { box-shadow:
+  24px 0 var(--ovt-amber), 32px 0 var(--ovt-amber), 40px 0 var(--ovt-amber), 48px 0 var(--ovt-amber),
+  16px 8px var(--ovt-amber), 24px 8px var(--ovt-amber), 32px 8px var(--ovt-amber), 40px 8px var(--ovt-amber), 48px 8px var(--ovt-amber), 56px 8px var(--ovt-amber),
+  8px 16px var(--ovt-amber), 16px 16px var(--ovt-amber), 24px 16px var(--ovt-dark), 32px 16px var(--ovt-amber), 40px 16px var(--ovt-amber), 48px 16px var(--ovt-dark), 56px 16px var(--ovt-amber), 64px 16px var(--ovt-amber),
+  8px 24px var(--ovt-amber), 16px 24px var(--ovt-mint), 24px 24px var(--ovt-amber), 32px 24px var(--ovt-amber), 40px 24px var(--ovt-amber), 48px 24px var(--ovt-amber), 56px 24px var(--ovt-mint), 64px 24px var(--ovt-amber),
+  8px 32px var(--ovt-amber), 16px 32px var(--ovt-amber), 24px 32px var(--ovt-amber), 32px 32px var(--ovt-amber), 40px 32px var(--ovt-amber), 48px 32px var(--ovt-amber), 56px 32px var(--ovt-amber), 64px 32px var(--ovt-amber),
+  8px 40px var(--ovt-amber), 16px 40px var(--ovt-amber), 32px 40px var(--ovt-amber), 40px 40px var(--ovt-amber), 56px 40px var(--ovt-amber), 64px 40px var(--ovt-amber); }
+.ovt-sprite--specter .ovt-anim { animation: ovtDrift 3s ease-in-out infinite; }
+
+/* 3 · MOCHI — terminal cat */
+.ovt-sprite--mochi .ovt-px::before { box-shadow:
+  16px 0 var(--ovt-amber), 24px 0 var(--ovt-amber), 64px 0 var(--ovt-amber), 72px 0 var(--ovt-amber),
+  16px 8px var(--ovt-amber), 24px 8px var(--ovt-amber), 32px 8px var(--ovt-amber), 40px 8px var(--ovt-amber), 48px 8px var(--ovt-amber), 56px 8px var(--ovt-amber), 64px 8px var(--ovt-amber), 72px 8px var(--ovt-amber),
+  8px 16px var(--ovt-amber), 16px 16px var(--ovt-amber), 24px 16px var(--ovt-mint), 32px 16px var(--ovt-amber), 40px 16px var(--ovt-amber), 48px 16px var(--ovt-amber), 56px 16px var(--ovt-mint), 64px 16px var(--ovt-amber), 72px 16px var(--ovt-amber), 80px 16px var(--ovt-amber),
+  0 24px var(--ovt-white), 8px 24px var(--ovt-amber), 16px 24px var(--ovt-amber), 24px 24px var(--ovt-amber), 32px 24px var(--ovt-amber), 40px 24px var(--ovt-dark), 48px 24px var(--ovt-amber), 56px 24px var(--ovt-amber), 64px 24px var(--ovt-amber), 72px 24px var(--ovt-amber), 88px 24px var(--ovt-white),
+  8px 32px var(--ovt-amber), 16px 32px var(--ovt-amber), 24px 32px var(--ovt-amber), 32px 32px var(--ovt-amber), 40px 32px var(--ovt-amber), 48px 32px var(--ovt-amber), 56px 32px var(--ovt-amber), 64px 32px var(--ovt-amber), 72px 32px var(--ovt-amber),
+  16px 40px var(--ovt-amber), 24px 40px var(--ovt-amber), 56px 40px var(--ovt-amber), 64px 40px var(--ovt-amber); }
+.ovt-sprite--mochi .ovt-anim { animation: ovtEar 4s step-end infinite; }
+
+/* 4 · STAX — loading-bar creature */
+.ovt-stax {
+  position: absolute; top: 0; left: 0;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  width: 68px;
+  transform: scale(var(--ovt-ss, 1));
+  transform-origin: top left;
+}
+.ovt-stax i {
+  display: block; width: 56px; height: 16px;
+  background: var(--ovt-amber); border-radius: 2px; position: relative;
+  animation: ovtHop 1.6s ease-in-out infinite;
+}
+.ovt-stax i:nth-child(1) { width: 40px; }
+.ovt-stax i:nth-child(1)::before, .ovt-stax i:nth-child(1)::after {
+  content: ""; position: absolute; top: 4px; width: 6px; height: 6px; background: var(--ovt-dark);
+}
+.ovt-stax i:nth-child(1)::before { left: 9px; }
+.ovt-stax i:nth-child(1)::after { right: 9px; }
+.ovt-stax i:nth-child(2) { animation-delay: 0.12s; }
+.ovt-stax i:nth-child(3) { width: 68px; animation-delay: 0.24s; background: linear-gradient(90deg, var(--ovt-amber) 82%, var(--ovt-mint) 82%); }
+
+/* 5 · SPROUT — sleepy blob */
+.ovt-sprite--sprout .ovt-px::before { box-shadow:
+  40px 0 var(--ovt-mint), 48px 0 var(--ovt-mint),
+  40px 8px var(--ovt-mint),
+  24px 16px var(--ovt-amber), 32px 16px var(--ovt-amber), 40px 16px var(--ovt-amber), 48px 16px var(--ovt-amber), 56px 16px var(--ovt-amber),
+  16px 24px var(--ovt-amber), 24px 24px var(--ovt-amber), 32px 24px var(--ovt-amber), 40px 24px var(--ovt-amber), 48px 24px var(--ovt-amber), 56px 24px var(--ovt-amber), 64px 24px var(--ovt-amber),
+  8px 32px var(--ovt-amber), 16px 32px var(--ovt-amber), 24px 32px var(--ovt-dark), 32px 32px var(--ovt-dark), 40px 32px var(--ovt-amber), 48px 32px var(--ovt-dark), 56px 32px var(--ovt-dark), 64px 32px var(--ovt-amber), 72px 32px var(--ovt-amber),
+  8px 40px var(--ovt-amber), 16px 40px var(--ovt-amber), 24px 40px var(--ovt-amber), 32px 40px var(--ovt-amber), 40px 40px var(--ovt-amber), 48px 40px var(--ovt-amber), 56px 40px var(--ovt-amber), 64px 40px var(--ovt-amber), 72px 40px var(--ovt-amber),
+  16px 48px var(--ovt-amber), 24px 48px var(--ovt-amber), 32px 48px var(--ovt-amber), 40px 48px var(--ovt-amber), 48px 48px var(--ovt-amber), 56px 48px var(--ovt-amber), 64px 48px var(--ovt-amber); }
+.ovt-sprite--sprout .ovt-anim { animation: ovtBreathe 3.2s ease-in-out infinite; transform-origin: 50% 100%; }
+
+/* Sprite states */
+.ovt-sprite.is-thinking .ovt-anim { animation: ovtBob 0.55s ease-in-out infinite; }
+.ovt-sprite.is-thinking .ovt-stax i { animation-duration: 0.7s; }
+.ovt-sprite.is-verdict .ovt-anim {
+  animation: ovtVerdictPulse 0.9s ease;
+  filter: drop-shadow(0 0 6px var(--ovt-mint));
+}
+
+/* Sprite keyframes */
+@keyframes ovtBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+@keyframes ovtLids { 0%, 88%, 100% { opacity: 0; } 92%, 96% { opacity: 1; } }
+@keyframes ovtDrift { 0%, 100% { transform: translate(0,0); } 33% { transform: translate(3px,-4px); } 66% { transform: translate(-3px,-2px); } }
+@keyframes ovtEar { 0%, 90%, 100% { transform: rotate(0deg); } 93%, 96% { transform: rotate(-2deg); } }
+@keyframes ovtHop { 0%, 100% { transform: translateY(0); } 30% { transform: translateY(-6px); } 55% { transform: translateY(0); } }
+@keyframes ovtBreathe { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(1.045); } }
+@keyframes ovtVerdictPulse { 0% { transform: scale(1); } 35% { transform: scale(1.14); } 100% { transform: scale(1); } }
+
+/* Mobile (≤600px): 12.5px mono, chip row visible, tighter padding.
+   DOM order already puts the status bar ABOVE the input row. */
+@media (max-width: 600px) {
+  .ovt-root { font-size: 12.5px; }
+  .ovt-chips { display: flex; }
+  .ovt-head { padding: 12px 14px 4px; }
+  .ovt-screen { padding: 6px 14px 12px; }
+  .ovt-status { padding: 6px 14px; min-height: 30px; }
+  .ovt-inputrow { padding: 8px 14px 12px; }
+}
+
+/* Reduced motion: static sprites, no flicker, solid caret */
+@media (prefers-reduced-motion: reduce) {
+  .ovt-glow, .ovt-anim, .ovt-px::after, .ovt-stax i,
+  .ovt-caret, .ovt-status .ovt-sprite { animation: none !important; }
+}
+/* ==== END OVERSEER TERMINAL (ovt-) ==== */
