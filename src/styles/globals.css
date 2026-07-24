@@ -7046,8 +7046,11 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
+  margin-bottom: 16px;
 }
+/* Voice line beneath the Goals/Tasks flip title — matches the Finances
+   title→subtitle rhythm (subtitle directly under the title block). */
+.goals-page-header .page-subtitle { margin-top: 5px; }
 
 /* ══ UNIVERSAL FLIP SWITCH ══
    Shared across Goals, Gym, Health, Journal. One understated tappable title
