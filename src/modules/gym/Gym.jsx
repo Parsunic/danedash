@@ -513,6 +513,9 @@ export default function Gym() {
                   title="Switch to Stats"
                 />
               </div>
+              {/* Static text inside the rotating face — safe (no fixed/transform
+                  content); sits under the title per the shared header idiom. */}
+              <p className="page-subtitle gym-page-subtitle">Show up. The rest follows.</p>
               <PlannerView
                 weekOffset={plannerWeekOffset}
                 onWeekOffsetChange={setPlannerWeekOffset}
