@@ -318,6 +318,7 @@ export default function Health() {
   const [syncError,  setSyncError]  = useState(() => localStorage.getItem('health_sync_error'))
   const [analysis,   setAnalysis]   = useState(null)
   const [aiLoading,  setAiLoading]  = useState(false)
+  const [loaded,     setLoaded]     = useState(false)
 
   const today     = history.find(d => d.date === todayStr()) ?? null
   const readiness = computeReadiness(today, history)
