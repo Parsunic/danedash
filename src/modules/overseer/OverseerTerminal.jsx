@@ -405,6 +405,7 @@ export default function OverseerTerminal() {
   const onInputKey = useCallback((e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
+      e.stopPropagation() // consumed by the input — must not reach the boot-skip listener
       handleSubmit()
     }
   }, [handleSubmit])
