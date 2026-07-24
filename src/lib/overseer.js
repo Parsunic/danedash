@@ -128,8 +128,8 @@ export async function buildDynamicContext(mode) {
   return lines.join('')
 }
 
-export async function callOverseer({ apiKey, systemPrompt, messages, model, onChunk, onDone }) {
-  const recent = messages.slice(-8)
+export async function callOverseer({ apiKey, systemPrompt, messages, model, onChunk, onDone, historyWindow = 8 }) {
+  const recent = messages.slice(-historyWindow)
   const res = await fetch(ANTHROPIC_URL, {
     method: 'POST',
     headers: {
