@@ -88,6 +88,9 @@ export default function OverseerTerminal() {
   const [streaming, setStreaming]     = useState(false)
   const [config, setConfig]           = useState(loadOverseerConfig)
   const [boot, setBoot]               = useState({ active: true, step: 0, bar: 0 })
+  // After boot, the completed scene (bar + big sprite + "companion online")
+  // stays as the resting hero until the first CHAT is sent (commands keep it).
+  const [hero, setHero]               = useState(false)
   const [promptEdit, setPromptEdit]   = useState(null)
   const [verdictFlash, setVerdictFlash] = useState(false)
   const [ctxChars, setCtxChars]       = useState(null)
