@@ -146,6 +146,7 @@ export default function OverseerTerminal() {
   const finishBoot = useCallback(() => {
     clearBootTimers()
     setBoot({ active: false, step: 3, bar: BAR_SLOTS })
+    setHero(true)
     appendIntro()
   }, [clearBootTimers, appendIntro])
 
@@ -153,9 +154,11 @@ export default function OverseerTerminal() {
     clearBootTimers()
     if (REDUCED) {
       setBoot({ active: false, step: 3, bar: BAR_SLOTS })
+      setHero(true)
       appendIntro()
       return
     }
+    setHero(false)
     setBoot({ active: true, step: 0, bar: 0 })
     const S = fast ? 0.4 : 1
     const at = (ms, fn) => bootTimersRef.current.push(setTimeout(fn, Math.round(ms * S)))
