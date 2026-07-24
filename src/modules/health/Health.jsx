@@ -577,6 +577,8 @@ export default function Health() {
               mode={layoutMode}
               onAdoptAuto={() => setLayoutMode('manual')}
             />
+          ) : !loaded ? (
+            <div className="health-loading" />
           ) : (
           <>
             <div className="health-section-label stagger-1">Sleep</div>
