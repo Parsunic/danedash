@@ -9241,6 +9241,12 @@ body.dc-editing .tbx-shelf { display: none; }
 @keyframes ovtBreathe { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(1.045); } }
 @keyframes ovtVerdictPulse { 0% { transform: scale(1); } 35% { transform: scale(1.14); } 100% { transform: scale(1); } }
 
+/* Below desktop: clear the viewport-fixed command-palette FAB (44px circle at
+   left:16 above the tabbar) — it sits exactly over the input row's left edge. */
+@media (max-width: 1023px) {
+  .ovt-inputrow { padding-left: 58px; }
+}
+
 /* Mobile (≤600px): 12.5px mono, chip row visible, tighter padding.
    DOM order already puts the status bar ABOVE the input row. */
 @media (max-width: 600px) {
