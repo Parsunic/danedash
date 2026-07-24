@@ -405,7 +405,7 @@ export default function OverseerTerminal() {
     const isCmd = text.startsWith('/')
     appendItems([{ kind: 'prompt', text, cmd: isCmd }])
     if (isCmd) await handleCommand(text)
-    else await sendChat(text)
+    else { setHero(false); await sendChat(text) }
   }, [input, streaming, boot.active, finishBoot, appendItems, handleCommand, sendChat])
 
   const onInputKey = useCallback((e) => {
