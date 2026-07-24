@@ -324,9 +324,20 @@ export default function Health() {
   const readiness = computeReadiness(today, history)
   const stress    = computeStress(today, history)
 
+  // `finally` marks the first fetch settled on EVERY exit (resolve or throw) so
+  // the render can show a neutral loading spacer until then — never the legacy
+  // narrow no-data layout, which would flash a mobile-looking column before the
+  // grid mounts. On error we keep history empty and fall through to the genuine
+  // no-data / not-connected layout.
   const loadHistory = useCallback(async () => {
-    const data = await fetchHealthHistory(30)
-    setHistory(data)
+    try {
+      const data = await fetchHealthHistory(30)
+      setHistory(data)
+    } catch {
+      /* keep prior history; still mark loaded below */
+    } finally {
+      setLoaded(true)
+    }
   }, [])
 
   useEffect(() => {
