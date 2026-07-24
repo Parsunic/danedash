@@ -3390,6 +3390,8 @@ select.gym-input { cursor:pointer; -webkit-appearance:none; appearance:none; }
   perspective: 1200px;
   width: 100%;
 }
+/* Front-face voice line, sits above the flipper (never rotates). */
+.gym-page-subtitle { margin: 0 0 14px; }
 .gym-flipper {
   display: grid;
   transform-style: preserve-3d;
