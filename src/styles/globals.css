@@ -9255,7 +9255,7 @@ body.dc-editing .tbx-shelf { display: none; }
   .ovt-head { padding: 12px 14px 4px; }
   .ovt-screen { padding: 6px 14px 12px; }
   .ovt-status { padding: 6px 14px; min-height: 30px; }
-  .ovt-inputrow { padding: 8px 14px 12px; }
+  .ovt-inputrow { padding: 8px 14px 12px 58px; } /* left inset clears the cmdp-fab */
 }
 
 /* Reduced motion: static sprites, no flicker, solid caret */
