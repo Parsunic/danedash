@@ -518,6 +518,8 @@ export default function Health() {
               mode={layoutMode}
               onAdoptAuto={() => setLayoutMode('manual')}
             />
+          ) : !loaded ? (
+            <div className="health-loading" />
           ) : (
           <>
             {/* Stress gauge — top of the overview */}
