@@ -47,13 +47,16 @@ export default function Goals() {
     <div className="section">
       <BackgroundBlob page="goals" />
       <div className="goals-page-header">
-        <FlipTitle
-          icon={view === 'goals' ? <GoalsIcon /> : <TasksIcon />}
-          label={view === 'goals' ? 'Goals' : 'Tasks'}
-          isFlipping={isFlipping}
-          onClick={() => flip()}
-          title={view === 'goals' ? 'Switch to Tasks' : 'Switch to Goals'}
-        />
+        <div>
+          <FlipTitle
+            icon={view === 'goals' ? <GoalsIcon /> : <TasksIcon />}
+            label={view === 'goals' ? 'Goals' : 'Tasks'}
+            isFlipping={isFlipping}
+            onClick={() => flip()}
+            title={view === 'goals' ? 'Switch to Tasks' : 'Switch to Goals'}
+          />
+          <p className="page-subtitle">One day at a time.</p>
+        </div>
       </div>
 
       <div className={`flip-content${animState ? ' ' + animState : ''}`}>
