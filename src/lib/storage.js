@@ -24,6 +24,15 @@ export function storeDelete(key) {
   localStorage.removeItem(key)
 }
 
+// Delete without recording a sync tombstone — the key disappears on THIS device only.
+// Use for automated/startup pruning (doRollover retiring past `goals:` keys) and for
+// device-local keys. A tombstoning delete there would propagate the pruning to every
+// device and wipe shared history. Today this is identical to storeDelete; it exists so
+// the two intents are already separated when storeDelete starts tombstoning.
+export function storeDeleteSilent(key) {
+  localStorage.removeItem(key)
+}
+
 export function storeListKeys(prefix) {
   const keys = []
   for (let i = 0; i < localStorage.length; i++) {
