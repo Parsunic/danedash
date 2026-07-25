@@ -89,7 +89,7 @@ function journalSection(journalEntries) {
     .slice(0, journalEntries)
   if (!entries.length) return ''
   const lines = entries.map(e => {
-    const text = String(e.content)
+    const text = String(e.text || e.content)
     return `[${(e.date || (e.created_at || '').slice(0, 10))}] ${text.slice(0, 220)}${text.length > 220 ? '…' : ''}`
   })
   return `\n### Journal (last ${entries.length} unlocked entries)\n` + lines.join('\n')
