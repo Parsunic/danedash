@@ -62,3 +62,56 @@ export function isSyncedKey(key) {
   if (STATIC_SYNC_KEYS.includes(key)) return true
   return DYNAMIC_SYNC_PREFIXES.some(p => key.startsWith(p))
 }
+
+// ---------------------------------------------------------------------------
+// COLLECTIONS — keys holding a list of independently-editable records.
+//
+// These are the keys where "last writer wins the whole key" actually loses work: two
+// devices touching two DIFFERENT tasks, events or workouts a second apart. Listing a key
+// here lets the sync layer merge it record-by-record instead.
+//
+//   idField — the field that identifies a record across devices. It must be stable under
+//             editing: `text` is not an identity, because renaming a task would read as
+//             delete + create and duplicate it.
+//   path    — for keys wrapping their list in an envelope (body_metrics_v1 is
+//             `{v:1, entries:[…]}`), the property holding the array.
+//   ci      — compare ids case-insensitively.
+//
+// Anything NOT listed here is whole-key last-write-wins, which is correct for settings
+// blobs and single-value keys — see the classification note on each.
+// ---------------------------------------------------------------------------
+export const COLLECTIONS = {
+  'goals:':           { idField: 'id' },  // prefix — one list per date
+  'finance:':         { idField: 'id' },  // prefix — one list per month
+  general_tasks:      { idField: 'id' },
+  goals_projects:     { idField: 'id' },  // nested milestones/checkpoints merge with their goal
+  habits:             { idField: 'id' },
+  gym_workout_logs:   { idField: 'id' },
+  gym_templates:      { idField: 'id' },
+  gym_week_tpls:      { idField: 'id' },
+  calendar_events:    { idField: 'id' },
+  journal_entries:    { idField: 'id' },
+  // Planner days are identified by the DAY, not a row id: applying a week template mints
+  // fresh ids for the same dates, so merging by id would show two plans for one day.
+  gym_planned:        { idField: 'date' },
+  // Custom exercises have never carried an id; name is the identity the rest of the app
+  // already uses to look them up.
+  custom_exercises:   { idField: 'name', ci: true },
+  body_metrics_v1:    { idField: 'date', path: 'entries' },
+}
+
+// Whole-key last-write-wins, deliberately:
+//   goal_streak_v1, daily_focus:*, journal_synthesis:*  — single derived/cached values
+//   nav_order_v1, notif_prefs_v1                        — one atomic settings gesture
+//   recurring_tasks                                     — no id field, edited as a unit
+//   gym_settings, weekly_reviews_v1, finance_budgets,
+//   overseer_config_v1, layouts_v1                      — maps; see MERGE_MAPS (step 10)
+
+export function getCollection(key) {
+  if (!key) return null
+  if (Object.prototype.hasOwnProperty.call(COLLECTIONS, key)) return COLLECTIONS[key]
+  for (const [k, desc] of Object.entries(COLLECTIONS)) {
+    if (k.endsWith(':') && key.startsWith(k)) return desc
+  }
+  return null
+}
