@@ -103,12 +103,44 @@ export const COLLECTIONS = {
   body_metrics_v1:    { idField: 'date', path: 'entries' },
 }
 
+// ---------------------------------------------------------------------------
+// MAPS — keys holding an object whose top-level entries are independently owned.
+//
+// Same problem as COLLECTIONS, different shape: two devices ticking two different habits
+// in the same week write the same key, and whole-key resolution throws one away. Merging
+// per entry keeps both.
+//
+//   depth — how far down entries stay independent. `layouts_v1` needs 2 because its
+//           per-breakpoint buckets exist precisely so phone edits never scramble the
+//           desktop arrangement; merging only at the top level would defeat that.
+//   merge — a named special case where the values themselves can be combined.
+//
+// Caveat: an entry deleted on one device is restored by the other, because a plain
+// object cannot say "this used to exist". Only keys where that is harmless belong here.
+// ---------------------------------------------------------------------------
+export const MAP_MERGES = {
+  'habits_log:':        { depth: 1 },  // per habit id, within a week
+  weekly_reviews_v1:    { depth: 1 },  // per week; weeks are only ever added
+  layouts_v1:           { depth: 2 },  // per area, then per breakpoint bucket
+  gym_exercise_history: { merge: 'exerciseHistory' },
+}
+
+export function getMapMerge(key) {
+  if (!key) return null
+  if (Object.prototype.hasOwnProperty.call(MAP_MERGES, key)) return MAP_MERGES[key]
+  for (const [k, desc] of Object.entries(MAP_MERGES)) {
+    if (k.endsWith(':') && key.startsWith(k)) return desc
+  }
+  return null
+}
+
 // Whole-key last-write-wins, deliberately:
 //   goal_streak_v1, daily_focus:*, journal_synthesis:*  — single derived/cached values
-//   nav_order_v1, notif_prefs_v1                        — one atomic settings gesture
+//   nav_order_v1, notif_prefs_v1, gym_settings,
+//   overseer_config_v1, finance_budgets                 — saved as one Settings gesture,
+//                                                         where "the last save wins" is
+//                                                         what a user actually expects
 //   recurring_tasks                                     — no id field, edited as a unit
-//   gym_settings, weekly_reviews_v1, finance_budgets,
-//   overseer_config_v1, layouts_v1                      — maps; see MERGE_MAPS (step 10)
 
 export function getCollection(key) {
   if (!key) return null
