@@ -157,8 +157,10 @@ export function SyncProvider({ children }) {
             // No row exists yet — brand-new user or row was deleted.
             // Only seed Supabase if local actually has content, so an empty/stale device
             // can't create a blank row that wipes data living on another device.
+            // Bookkeeping doesn't count as content — it is present on every device,
+            // including one that has nothing to seed.
             const localData = getLocalPayload()
-            if (Object.keys(localData).length > 0) {
+            if (Object.keys(localData).some(k => k !== META_FIELD)) {
               await pushToSupabase()
             } else {
               setStatus('synced')
