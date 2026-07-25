@@ -171,7 +171,10 @@ src/
   hooks/
     useViewport.js           # Container-measured grid tiers {cols, bp, rowUnit, vhTier}
   lib/
-    storage.js               # storeGet / storeSet / storeDelete / storeListKeys
+    storage.js               # storeGet / storeSet / storeSetSilent / storeDelete / storeDeleteSilent
+    syncKeys.js              # WHICH keys sync + how each merges (COLLECTIONS / MAP_MERGES)
+    syncMeta.js              # per-key + per-record change times, tombstones, ranks, kill switch
+    syncMerge.js             # pure merge: records, maps, tombstones, canonical compare
     dateHelpers.js           # getActiveDateString (rolls at 5 AM), getTomorrowDateString, formatDate
     init.js                  # doRollover / injectRecurringTasks
     supabase.js              # Supabase client init
