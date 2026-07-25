@@ -120,8 +120,11 @@ export function SyncProvider({ children }) {
 
   // Re-pull when the tab regains focus/visibility. Realtime websockets are dropped while a
   // tab is backgrounded (e.g. computer left idle while you work out on your phone), so on
-  // return the local data can be stale. This fetches the server and applies it when it is
-  // newer than our last genuine local edit — the reliable backstop for cross-device sync.
+  // return the local data can be stale. This is the reliable backstop for cross-device sync.
+  //
+  // There is no longer a "who wins" decision here. Merging is symmetric, so the answer is
+  // always "merge, then push if we hold anything the server is missing" — a device can
+  // never talk itself out of accepting remote data, and never has to.
   const revalidate = useCallback(async () => {
     if (!clientRef.current || !initializedRef.current || isSyncingRef.current) return
     try {
@@ -130,21 +133,15 @@ export function SyncProvider({ children }) {
       if (error || !row?.data) return
       const remoteMs = toMs(row.updated_at)
       if (remoteMs === lastPushedMsRef.current) return // our own write echoed back
-      const lastLocalChange = parseInt(localStorage.getItem('_lastLocalChange') || '0')
-      if (remoteMs >= lastLocalChange) {
-        // Server is newer than our last local edit → pull it in.
-        isSyncingRef.current = true
-        writeRemotePayload(row.data)
-        isSyncingRef.current = false
-        setStatus('synced')
-      } else {
-        // We hold genuinely newer local edits (e.g. made while offline) → push them up.
-        schedulePush()
-      }
+      isSyncingRef.current = true
+      const needsPush = applyRemotePayload(row.data, remoteMs)
+      isSyncingRef.current = false
+      setStatus('synced')
+      if (needsPush) schedulePush()
     } catch (e) {
       // Network blip on revalidation — ignore, the next focus/realtime event will retry.
     }
-  }, [])
+  }, [schedulePush])
 
   useEffect(() => {
     const onVisible = () => { if (document.visibilityState === 'visible') revalidate() }
