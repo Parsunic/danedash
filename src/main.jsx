@@ -7,6 +7,9 @@ import { backfillItemIds, doRollover, injectRecurringTasks } from './lib/init.js
 import { registerPwa } from './lib/pwa.js'
 import { startNotificationLoop } from './lib/notifications.js'
 
+// Order matters: every task row needs an `id` before rollover reads and rewrites lists,
+// because item-level sync merge tracks tasks by id.
+backfillItemIds()
 doRollover()
 injectRecurringTasks()
 
