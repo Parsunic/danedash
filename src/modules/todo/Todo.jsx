@@ -731,8 +731,15 @@ export default function Todo({ embedded = false }) {
 
   useEffect(() => {
     reload()
+    // Both events: `goals-changed` covers local edits and `general_tasks` never fires it
+    // (storeSet only dispatches it for `goals:` keys), so without `sync-applied` a synced
+    // change to the General list would leave this component's state stale.
     window.addEventListener('goals-changed', reload)
-    return () => window.removeEventListener('goals-changed', reload)
+    window.addEventListener('sync-applied', reload)
+    return () => {
+      window.removeEventListener('goals-changed', reload)
+      window.removeEventListener('sync-applied', reload)
+    }
   }, [reload])
 
   const todayKey = 'goals:' + activeDateRef.current
