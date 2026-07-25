@@ -1,6 +1,7 @@
 import { createContext, useContext, useRef, useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase.js'
 import { STATIC_SYNC_KEYS, DYNAMIC_SYNC_PREFIXES } from '../lib/syncKeys.js'
+import { META_FIELD, buildSyncMeta, mergeDisabled } from '../lib/syncMeta.js'
 
 const SYNC_ROW_ID = 'dane'
 
