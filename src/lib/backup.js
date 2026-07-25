@@ -35,7 +35,9 @@ const EXCLUDE_EXACT = new Set([
   'gcal_access_token', 'gcal_refresh_token', 'gcal_token_expiry', 'gcal_user_email',
   'gfit_access_token', 'gfit_refresh_token', 'gfit_token_expiry', 'gfit_last_sync',
   'fitbit_client_id', 'fitbit_access_token', 'fitbit_refresh_token', 'fitbit_token_expiry', 'fitbit_last_sync',
-  '_lastLocalChange',    // sync conflict marker — must never travel with the data
+  // Sync bookkeeping — describes THIS device's view of the data, so importing another
+  // device's copy would corrupt conflict resolution.
+  ...SYNC_META_KEYS,
 ])
 
 // Defensive prefix guard — anything token/secret shaped is dropped even if a new key
