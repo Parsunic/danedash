@@ -181,12 +181,16 @@ export default function Gym() {
     return () => clearInterval(interval)
   }, [activeSession])
 
-  // Persist active session so it survives app close/reopen
+  // Persist active session so it survives app close/reopen.
+  // Silent on purpose: gym_active_session is device-local (not a synced key), and this
+  // effect fires on every logged set and on every mount. A stamped write would mark the
+  // device as "just edited" throughout a whole workout — which makes it ignore incoming
+  // remote changes and push its own copy over them, for data it never even syncs.
   useEffect(() => {
     if (activeSession && !activeSession.__done) {
-      storeSet(ACTIVE_SESSION_KEY, activeSession)
+      storeSetSilent(ACTIVE_SESSION_KEY, activeSession)
     } else {
-      storeDelete(ACTIVE_SESSION_KEY)
+      storeDeleteSilent(ACTIVE_SESSION_KEY)
     }
   }, [activeSession])
 
