@@ -1,5 +1,5 @@
 import { storeGet, storeSetSilent, storeDeleteSilent, storeListKeys } from './storage.js'
-import { getActiveDateString, getTomorrowDateString } from './dateHelpers.js'
+import { getActiveDateString } from './dateHelpers.js'
 
 // ---------------------------------------------------------------------------
 // Item identity — DETERMINISTIC, never crypto.randomUUID().
