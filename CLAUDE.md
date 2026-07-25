@@ -262,7 +262,7 @@ src/
 - **Gym log**: `{ id, date, exercises[{name, primary_muscle, sets[{weight, reps, rpe, e1rm, allHitTop}]}] }` — stored at `gym_workout_logs`
 - **Gym history**: keyed by exercise name, `{ allTimePR, sessions[{date, weight, reps, rpe, e1rm, allHitTop}] }` — stored at `gym_exercise_history`
 - **Calendar event**: `{ id, title, start_time, end_time, is_all_day, color?, user_id, created_at, module_tag? }`
-- **Journal entry**: `{ id, date, created_at, content, tags[], analysis?, model_used?, analysis_time? }` — stored at `journal_entries`
+- **Journal entry**: `{ id, date, created_at, text, tags[], prompt?, mood?, analysis? }` — stored at `journal_entries`. The body field is **`text`**, not `content` (this doc previously said `content`, and `terminalContext.js` read that non-existent field, so the Overseer's journal context was always empty).
 - **Recurring task**: `{ text, freq: 'daily'|'weekly'|'monthly', days[] }` — stored at `recurring_tasks`
 
 ## Gym Desktop Layout (3-col)
