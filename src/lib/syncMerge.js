@@ -191,17 +191,11 @@ export function applyRemote(payload, remoteMs, { allowTombstones = true } = {}) 
 
   // Anything we hold that the server has never seen has to go up, or it lives on exactly
   // one device forever.
-  const remoteSet = new Set(remoteKeys)
   if (!needsPush) {
-    for (const key of Object.keys(getKeyTsMapSafe())) {
-      if (!remoteSet.has(key) && localStorage.getItem(key) !== null) { needsPush = true; break }
-    }
+    const remoteSet = new Set(remoteKeys)
+    needsPush = Object.keys(getKeyTsMap())
+      .some(key => !remoteSet.has(key) && localStorage.getItem(key) !== null)
   }
 
   return { applied, needsPush }
-}
-
-// getKeyTs's backing map, tolerant of a corrupt/missing entry.
-function getKeyTsMapSafe() {
-  try { return JSON.parse(localStorage.getItem('_key_ts_v1')) || {} } catch { return {} }
 }
