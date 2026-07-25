@@ -1,44 +1,6 @@
 import { createContext, useContext, useRef, useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase.js'
-
-// Keys that must sync — updated whenever a new feature adds persistent localStorage data.
-// Rule: every storeSet key used by any module must appear here or in the dynamic-key section.
-const STATIC_SYNC_KEYS = [
-  // Goals / Tasks
-  'goal_streak_v1',
-  'goals_projects',
-  'general_tasks',
-  'recurring_tasks',
-  // Habits
-  'habits',
-  // Gym
-  'gym_templates', 'gym_planned', 'gym_week_tpls', 'gym_workout_logs', 'gym_exercise_history', 'custom_exercises', 'gym_settings',
-  // Calendar
-  'calendar_events',
-  // Journal
-  'journal_entries',
-  // Body metrics (weigh-in log)
-  'body_metrics_v1',
-  // Weekly review ritual (marks a week reviewed)
-  'weekly_reviews_v1',
-  // Finances (per-category monthly budgets)
-  'finance_budgets',
-  // Notifications & reminders (per-type prefs; permission + dedupe marks stay device-local)
-  'notif_prefs_v1',
-  // Layout customization (card grids + nav order)
-  'layouts_v1', 'nav_order_v1',
-  // Overseer terminal (context budgets, prompt override, model/mode/skin)
-  'overseer_config_v1',
-]
-
-// Key prefixes whose instances are enumerated at push time (one key per date/week).
-const DYNAMIC_SYNC_PREFIXES = [
-  'goals:',        // today's and all future/past task lists
-  'habits_log:',   // one key per calendar week
-  'daily_focus:',  // today's thematic focus (one per date)
-  'journal_synthesis:', // one cached AI synthesis per month (F4)
-  'finance:',      // one transaction array per month (finance:YYYY-MM)
-]
+import { STATIC_SYNC_KEYS, DYNAMIC_SYNC_PREFIXES } from '../lib/syncKeys.js'
 
 const SYNC_ROW_ID = 'dane'
 
