@@ -109,6 +109,70 @@ const listOf = (value, desc) => {
 const withList = (value, desc, list) =>
   (desc.path ? { ...(value || {}), [desc.path]: list } : list)
 
+const isPlainObject = (v) => v !== null && typeof v === 'object' && !Array.isArray(v)
+
+// ---------------------------------------------------------------------------
+// Merge two versions of a map key, entry by entry.
+//
+// An entry only one side has is kept. An entry both sides have is recursed into while
+// depth remains, then resolved as a whole by which side changed the key more recently.
+// So ticking habit X here and habit Y there keeps both, while ticking the SAME habit in
+// both places settles on the later one — including un-ticking it, which a plain union
+// could never express.
+// ---------------------------------------------------------------------------
+export function mergeMaps(localValue, remoteValue, depth, localTs, remoteTs) {
+  if (!isPlainObject(localValue) || !isPlainObject(remoteValue)) {
+    return remoteTs > localTs ? remoteValue
+      : (localTs > remoteTs ? localValue : breakTie(localValue, remoteValue))
+  }
+  const out = { ...localValue }
+  Object.keys(remoteValue).forEach(field => {
+    const l = localValue[field]
+    const r = remoteValue[field]
+    if (!(field in localValue)) { out[field] = r; return }
+    if (depth > 1 && isPlainObject(l) && isPlainObject(r)) {
+      out[field] = mergeMaps(l, r, depth - 1, localTs, remoteTs)
+      return
+    }
+    if (JSON.stringify(l) === JSON.stringify(r)) return
+    out[field] = remoteTs > localTs ? r : (localTs > remoteTs ? l : breakTie(l, r))
+  })
+  return out
+}
+
+// Exercise history is `{ "Bench Press": { allTimePR, sessions:[…] } }` — facts about
+// workouts that already happened, so the two sides can be combined outright rather than
+// one being chosen. Resolving it by recency would throw away a workout logged on the
+// other device, which is exactly the complaint.
+export function mergeExerciseHistory(localValue, remoteValue) {
+  if (!isPlainObject(localValue) || !isPlainObject(remoteValue)) return remoteValue
+  const out = { ...localValue }
+  Object.keys(remoteValue).forEach(name => {
+    const l = localValue[name]
+    const r = remoteValue[name]
+    if (!l) { out[name] = r; return }
+    if (!r) return
+
+    const seen = new Set()
+    const sessions = []
+    ;[...(l.sessions || []), ...(r.sessions || [])].forEach(s => {
+      // A session edit can change its date, so identity is the whole set of numbers.
+      const sig = `${s.date}|${s.weight}|${s.reps}|${s.rpe}|${s.e1rm}`
+      if (seen.has(sig)) return
+      seen.add(sig)
+      sessions.push(s)
+    })
+    sessions.sort((a, b) => String(a.date).localeCompare(String(b.date)))
+
+    out[name] = {
+      ...l, ...r,
+      allTimePR: Math.max(l.allTimePR || 0, r.allTimePR || 0),
+      sessions: sessions.slice(-20), // same cap the writer applies
+    }
+  })
+  return out
+}
+
 // Record-level merging is only safe when every record can be named. An older build still
 // running elsewhere can write rows with no id at any time, so this is checked rather than
 // assumed — when it fails the key falls back to whole-key resolution, which is exactly
