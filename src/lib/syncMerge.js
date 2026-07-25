@@ -20,6 +20,17 @@ import { META_FIELD, itemId, getKeyTs, setKeyTs, getKeyTsMap, getKeyTombs, getIt
 // stamping existed.
 const recordTs = (item, fallback) => (item && item._ts) || fallback
 
+// Two edits can land in the same millisecond, and two devices can hold copies that are
+// equally old. "Keep whatever is local" looks harmless but leaves each device preferring
+// its own copy forever — they would never agree. Breaking the tie by comparing the values
+// themselves is arbitrary, but it is the SAME arbitrary answer on both devices, which is
+// the only property that matters.
+function breakTie(a, b) {
+  const sa = JSON.stringify(a) ?? ''
+  const sb = JSON.stringify(b) ?? ''
+  return sa >= sb ? a : b
+}
+
 // ---------------------------------------------------------------------------
 // Merge two versions of a list key.
 //
