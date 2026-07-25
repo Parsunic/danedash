@@ -281,7 +281,7 @@ export function applyRemote(payload, remoteMs, { allowTombstones = true } = {}) 
       : {}
 
     const next = mergeValue(key, localValue, remoteValue, localTs, remoteTs, tombsForKey)
-    if (next !== NO_CHANGE && JSON.stringify(next) !== JSON.stringify(localValue)) {
+    if (next !== NO_CHANGE && canonical(next) !== canonical(localValue)) {
       localStorage.setItem(key, JSON.stringify(next))
       applied = true
     }
