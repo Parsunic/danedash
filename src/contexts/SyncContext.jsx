@@ -53,7 +53,10 @@ function getLocalPayload() {
 // edit and does NOT trigger a push back to the server.
 function writeRemotePayload(payload) {
   if (!payload) return
-  Object.entries(payload).forEach(([k, v]) => localStorage.setItem(k, JSON.stringify(v)))
+  Object.entries(payload).forEach(([k, v]) => {
+    if (k === META_FIELD) return // bookkeeping, not app data — never a localStorage key
+    localStorage.setItem(k, JSON.stringify(v))
+  })
   window.dispatchEvent(new CustomEvent('goals-changed'))
   window.dispatchEvent(new CustomEvent('gym-changed'))
   window.dispatchEvent(new CustomEvent('sync-applied'))
