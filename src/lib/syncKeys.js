@@ -80,10 +80,13 @@ export function isSyncedKey(key) {
 // Anything NOT listed here is whole-key last-write-wins, which is correct for settings
 // blobs and single-value keys — see the classification note on each.
 // ---------------------------------------------------------------------------
+//   ordered — the array's order is a user decision (drag-to-reorder), so it has to
+//             survive merging. These keys carry a per-record rank; everything else keeps
+//             whatever order it is given, because its views sort by date anyway.
 export const COLLECTIONS = {
-  'goals:':           { idField: 'id' },  // prefix — one list per date
-  'finance:':         { idField: 'id' },  // prefix — one list per month
-  general_tasks:      { idField: 'id' },
+  'goals:':           { idField: 'id', ordered: true },  // prefix — one list per date
+  'finance:':         { idField: 'id' },                 // prefix — one list per month
+  general_tasks:      { idField: 'id', ordered: true },
   goals_projects:     { idField: 'id' },  // nested milestones/checkpoints merge with their goal
   habits:             { idField: 'id' },
   gym_workout_logs:   { idField: 'id' },
