@@ -378,7 +378,7 @@ export default function Gym() {
       if (pi >= 0) { planned[pi].status = 'completed'; storeSet('gym_planned', planned) }
     }
 
-    storeDelete(ACTIVE_SESSION_KEY)
+    storeDeleteSilent(ACTIVE_SESSION_KEY)
     setActiveSession(null)
     setActiveSession({ __done: true, name: sessionToFinish.name })
     setTimeout(() => {
@@ -436,7 +436,7 @@ export default function Gym() {
 
     const sName = activeSession.name
     const hadExpandOverlay = !!expandOverlay
-    storeDelete(ACTIVE_SESSION_KEY)
+    storeDeleteSilent(ACTIVE_SESSION_KEY)
     setActiveSession(null)
     setActiveSession({ __done: true, name: sName })
     setTimeout(() => {
@@ -451,7 +451,7 @@ export default function Gym() {
   }, [activeSession, expandOverlay])
 
   const handleCancelWorkout = useCallback(() => {
-    storeDelete(ACTIVE_SESSION_KEY)
+    storeDeleteSilent(ACTIVE_SESSION_KEY)
     setActiveSession(null)
     if (expandOverlay) {
       setExpandOverlay(prev => prev ? { ...prev, phase: 'collapsing' } : prev)
