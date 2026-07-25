@@ -272,7 +272,9 @@ export default function AIInsightsCard() {
     try {
       const text = await callAPI(apiKey, DAILY_SYSTEM, assembleDailyContext())
       const result = { assessment: text, generated_at: new Date().toISOString() }
-      storeSet(dailyCacheKey, result)
+      // Silent: goals_ai_* are device-local response caches, not synced keys. A stamped
+      // write would mark the device "just edited" for data that never leaves it.
+      storeSetSilent(dailyCacheKey, result)
       setDailyData(result)
     } catch {
       setDailyError(true)
