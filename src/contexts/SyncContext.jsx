@@ -89,17 +89,75 @@ export function SyncProvider({ children }) {
   // write can be ignored instead of re-applied.
   const lastPushedMsRef = useRef(0)
 
-  const pushToSupabase = useCallback(async () => {
-    if (!clientRef.current || isSyncingRef.current) return
+  // Push with a compare-and-swap guard.
+  //
+  // The old push read nothing and overwrote the row unconditionally. Two devices woken by
+  // the same realtime event would both write within a few hundred milliseconds and the
+  // second one silently erased the first. Here the update only applies if the row is
+  // still exactly as we last saw it; if another device got in first we re-read, merge
+  // their work into ours, and try again. Merging makes the retry cheap and near-order-
+  // independent, so two attempts cover any realistic collision.
+  //
+  // `upsert` cannot express the guard — it compiles to INSERT … ON CONFLICT DO UPDATE
+  // with no WHERE — so the insert and update paths are separate.
+  const pushToSupabase = useCallback(async (attempt = 0) => {
+    const client = clientRef.current
+    if (!client || isSyncingRef.current) return
     setStatus('syncing')
-    const data = getLocalPayload()
-    const updatedAt = new Date().toISOString()
-    lastPushedMsRef.current = toMs(updatedAt)
-    const { error } = await clientRef.current
+
+    const { data: row, error: readErr } = await client
+      .from('app_state').select('data, updated_at').eq('key', SYNC_ROW_ID).single()
+
+    // No row yet — create it. A racing device may create it first; that surfaces as a
+    // duplicate-key error, which just means "someone beat us", so retry as an update.
+    if (readErr?.code === 'PGRST116') {
+      const updatedAt = new Date().toISOString()
+      lastPushedMsRef.current = toMs(updatedAt)
+      const { error } = await client
+        .from('app_state').insert({ key: SYNC_ROW_ID, data: getLocalPayload(), updated_at: updatedAt })
+      if (error && attempt < 2) return pushToSupabase(attempt + 1)
+      setStatus(error ? 'error' : 'synced')
+      if (error) console.warn('Sync insert failed:', error)
+      return
+    }
+    if (readErr) {
+      console.warn('Sync push read failed:', readErr)
+      setStatus('error')
+      return
+    }
+
+    // Fold whatever the server gained since we last looked into our own state, so the
+    // push adds to the other device's work instead of replacing it.
+    const priorIso = new Date(row.updated_at).toISOString()
+    if (row.data && toMs(row.updated_at) !== lastPushedMsRef.current) {
+      isSyncingRef.current = true
+      applyRemotePayload(row.data, toMs(row.updated_at))
+      isSyncingRef.current = false
+    }
+
+    // Always advance the timestamp, even if this device's clock lags the other's —
+    // otherwise the guard value never moves and a concurrent writer could match it twice.
+    const nextIso = new Date(Math.max(Date.now(), Date.parse(priorIso) + 1)).toISOString()
+    lastPushedMsRef.current = toMs(nextIso)
+    const { data: updated, error } = await client
       .from('app_state')
-      .upsert({ key: SYNC_ROW_ID, data, updated_at: updatedAt })
-    setStatus(error ? 'error' : 'synced')
-    if (error) console.warn('Sync push failed:', error)
+      .update({ data: getLocalPayload(), updated_at: nextIso })
+      .eq('key', SYNC_ROW_ID)
+      .eq('updated_at', priorIso)   // ← applies only if nobody wrote in between
+      .select('updated_at')
+
+    if (error) {
+      console.warn('Sync push failed:', error)
+      setStatus('error')
+      return
+    }
+    if (!updated?.length) {
+      // Someone wrote first. Re-read, re-merge, retry.
+      if (attempt < 2) return pushToSupabase(attempt + 1)
+      setStatus('synced') // their write will reach us over realtime; nothing is lost
+      return
+    }
+    setStatus('synced')
   }, [])
 
   const schedulePush = useCallback(() => {
