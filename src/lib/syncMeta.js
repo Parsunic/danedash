@@ -198,7 +198,8 @@ export function stampWrite(key, value, { bumpKeyTs = true, now = Date.now() } = 
   })
 
   const seen = new Set()
-  const stamped = nextList.map(item => {
+  const ranked = desc.ordered ? assignRanks(nextList) : nextList
+  const stamped = ranked.map(item => {
     const id = itemId(item, desc)
     seen.add(id)
     const prev = prevById.get(id)
