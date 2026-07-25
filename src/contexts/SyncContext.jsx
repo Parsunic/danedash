@@ -6,16 +6,11 @@ import { applyRemote } from '../lib/syncMerge.js'
 
 const SYNC_ROW_ID = 'dane'
 
-// Snapshot of the last genuine local edit AT PAGE LOAD, captured before any startup
-// writes (migrations, rollovers, on-mount normalizations) run. This is the linchpin of
-// the conflict resolution: the initial remote pull is decided against THIS value, not the
-// live _lastLocalChange. Automated writes during the async pull window bump the live marker
-// to "now," which previously made a fresh reload look like it held newer edits than the
-// server — causing the pull to be skipped and stale local data to be pushed over good
-// remote data (e.g. a workout logged on another device got reverted). By comparing the
-// server against this boot-time snapshot, post-boot automated writes can no longer hijack
-// the decision. See storeSetSilent in storage.js for the companion guard.
-const BOOT_LOCAL_CHANGE = parseInt(localStorage.getItem('_lastLocalChange') || '0')
+// How long to wait after an edit before pushing, and the longest a push can be deferred
+// by continuous editing. Without the ceiling, a steady stream of edits (logging set after
+// set) resets the timer forever and nothing reaches the server until you stop.
+const PUSH_DEBOUNCE_MS = 1200
+const PUSH_MAX_WAIT_MS = 5000
 
 const SyncContext = createContext({ status: 'offline', isOffline: false })
 
