@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import App from './App.jsx'
 import './styles/globals.css'
-import { doRollover, injectRecurringTasks } from './lib/init.js'
+import { backfillItemIds, doRollover, injectRecurringTasks } from './lib/init.js'
 import { registerPwa } from './lib/pwa.js'
 import { startNotificationLoop } from './lib/notifications.js'
 
