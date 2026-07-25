@@ -121,7 +121,14 @@ function computeStreak() {
     count = goals.every(g => g.done) ? count + 1 : 0
     lastProcessedDate = dateStr
   }
-  storeSet('goal_streak_v1', { count, lastProcessedDate })
+  // Write ONLY when the value actually moved. This runs on mount and on every
+  // `goals-changed` — including the one dispatched when a remote sync applies — so an
+  // unconditional storeSet would stamp "the user just edited" immediately after pulling,
+  // making this device look newer than the data it just received and pushing stale state
+  // back up on the next revalidate.
+  if (count !== streakData.count || lastProcessedDate !== streakData.lastProcessedDate) {
+    storeSet('goal_streak_v1', { count, lastProcessedDate })
+  }
   return count
 }
 
