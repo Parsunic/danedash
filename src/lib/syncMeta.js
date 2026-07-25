@@ -202,10 +202,15 @@ export function stampWrite(key, value, { bumpKeyTs = true, now = Date.now() } = 
     const id = itemId(item, desc)
     seen.add(id)
     const prev = prevById.get(id)
-    if (prev && sameContent(prev, item)) {
-      return { ...item, _ts: prev._ts || baseline }
+    const out = { ...item }
+    out._ts = (prev && sameContent(prev, item)) ? (prev._ts || baseline) : now
+    // Position carries its OWN time. Otherwise a record that was merely re-saved (ticking
+    // a checkbox rewrites the whole list) would drag its stale position along with it and
+    // undo an arrangement made on the other device.
+    if (desc.ordered) {
+      out._rts = (prev && prev._r === item._r) ? (prev._rts || baseline) : now
     }
-    return { ...item, _ts: now }
+    return out
   })
 
   // Only record removals when the previous list was itself fully identified. During the
