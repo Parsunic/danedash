@@ -375,10 +375,7 @@ function GoalList({ goals, goalKey, readOnly, onGoalsChange, onCrossListDrop }) 
     if (!li || dragIdxRef.current === null) return
     const toIdx = parseInt(li.dataset.idx)
     if (toIdx === dragIdxRef.current) return
-    const newGoals = [...goalsRef.current]
-    const [moved] = newGoals.splice(dragIdxRef.current, 1)
-    newGoals.splice(toIdx, 0, moved)
-    storeSet(goalKey, newGoals)
+    reorderFresh(goalKey, goalsRef.current, dragIdxRef.current, toIdx)
     onGoalsChange()
     dragIdxRef.current = null
   }
