@@ -48,15 +48,32 @@ function getLocalPayload() {
   return payload
 }
 
-// Write remote data into localStorage and notify every feature module to re-read.
-// Uses raw setItem (not storeSet) so applying remote data does NOT register as a local
-// edit and does NOT trigger a push back to the server.
-function writeRemotePayload(payload) {
-  if (!payload) return
-  Object.entries(payload).forEach(([k, v]) => {
-    if (k === META_FIELD) return // bookkeeping, not app data — never a localStorage key
-    localStorage.setItem(k, JSON.stringify(v))
-  })
+// Bring remote data in and notify every feature module to re-read.
+//
+// This MERGES rather than overwrites: each key, and each record inside the list keys,
+// resolves to whichever side changed it most recently. That is what stops an edit made
+// on one device from being destroyed by an unrelated edit made on another a second
+// later. Writes go through raw setItem so applying remote data never registers as a
+// local edit or echoes a push back.
+//
+// Returns true when the merged result differs from what the server holds — meaning the
+// server is missing something of ours and we owe it a push.
+function applyRemotePayload(payload, remoteMs) {
+  if (!payload) return false
+  if (mergeDisabled()) {
+    Object.entries(payload).forEach(([k, v]) => {
+      if (k === META_FIELD) return
+      localStorage.setItem(k, JSON.stringify(v))
+    })
+    notifyModules()
+    return false
+  }
+  const { applied, needsPush } = applyRemote(payload, remoteMs)
+  if (applied) notifyModules()
+  return needsPush
+}
+
+function notifyModules() {
   window.dispatchEvent(new CustomEvent('goals-changed'))
   window.dispatchEvent(new CustomEvent('gym-changed'))
   window.dispatchEvent(new CustomEvent('sync-applied'))
