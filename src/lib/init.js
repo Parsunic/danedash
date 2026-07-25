@@ -1,5 +1,50 @@
-import { storeGet, storeSet, storeDelete, storeListKeys } from './storage.js'
+import { storeGet, storeSetSilent, storeDeleteSilent, storeListKeys } from './storage.js'
 import { getActiveDateString, getTomorrowDateString } from './dateHelpers.js'
+
+// ---------------------------------------------------------------------------
+// Item identity — DETERMINISTIC, never crypto.randomUUID().
+//
+// The sync layer merges task lists item-by-item, keyed by `id`. Startup automation
+// (rollover, recurring injection, id back-fill) runs independently on every device
+// against the same data, so a random id would make each device mint a DIFFERENT id for
+// the same logical task — and union-by-id would then show it twice. Deriving the id from
+// the content makes both devices agree without talking to each other.
+// ---------------------------------------------------------------------------
+function normText(text) {
+  return String(text || '').trim().toLowerCase().replace(/\s+/g, ' ')
+}
+
+// Rolled-over task: same text landing on the same day is the same task, on any device.
+const rolloverId = (date, text) => `ro:${date}:${normText(text)}`
+// Recurring-task instance: one per (date, text).
+const recurringId = (date, text) => `rc:${date}:${normText(text)}`
+// Back-filled legacy row: position disambiguates repeated text within one list.
+const backfillId = (index, text) => `bf:${index}:${normText(text)}`
+
+// ---------------------------------------------------------------------------
+// Back-fill `id` on task rows that predate it.
+//
+// Roughly half of the stored `goals:` lists contain rows with no `id` at all, and
+// item-level merge cannot track an item it cannot name. Text alone will not do — editing
+// a task changes its text, which a merge would read as delete + create.
+//
+// Runs before doRollover so everything downstream can assume ids exist. Writes silently:
+// this is a normalization, not a user edit.
+// ---------------------------------------------------------------------------
+export function backfillItemIds() {
+  const keys = [...storeListKeys('goals:'), 'general_tasks']
+  keys.forEach(key => {
+    const items = storeGet(key)
+    if (!Array.isArray(items) || items.length === 0) return
+    let changed = false
+    const next = items.map((item, i) => {
+      if (!item || typeof item !== 'object' || item.id) return item
+      changed = true
+      return { ...item, id: backfillId(i, item.text) }
+    })
+    if (changed) storeSetSilent(key, next)
+  })
+}
 
 export function doRollover() {
   const activeDate = getActiveDateString()
@@ -15,13 +60,15 @@ export function doRollover() {
       const existingTexts = new Set(todayGoals.map(g => g.text))
       undone.forEach(g => {
         if (!existingTexts.has(g.text)) {
-          todayGoals.push({ id: crypto.randomUUID(), text: g.text, done: false })
+          todayGoals.push({ id: rolloverId(activeDate, g.text), text: g.text, done: false })
           existingTexts.add(g.text)
         }
       })
-      localStorage.setItem(todayKey, JSON.stringify(todayGoals))
+      storeSetSilent(todayKey, todayGoals)
     }
-    storeDelete(key)
+    // Silent: retiring a past day is local pruning. A tombstoning delete would push the
+    // pruning to every device and destroy shared history.
+    storeDeleteSilent(key)
   })
 }
 
@@ -43,10 +90,10 @@ export function injectRecurringTasks() {
     else if (task.freq === 'weekly') applies = (task.days || []).includes(dayOfWeek)
     else if (task.freq === 'monthly') applies = (task.days || []).includes(dayOfMonth)
     if (applies) {
-      todayGoals.push({ id: crypto.randomUUID(), text: task.text, done: false })
+      todayGoals.push({ id: recurringId(activeDate, task.text), text: task.text, done: false })
       existingTexts.add(task.text)
       changed = true
     }
   })
-  if (changed) localStorage.setItem('goals:' + activeDate, JSON.stringify(todayGoals))
+  if (changed) storeSetSilent('goals:' + activeDate, todayGoals)
 }
