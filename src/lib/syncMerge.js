@@ -158,7 +158,9 @@ export function applyRemote(payload, remoteMs, { allowTombstones = true } = {}) 
   const localItemTombs = useTombs ? getItemTombs() : {}
 
   let applied = false
-  let needsPush = false
+  // A row written by an older build has lost all the bookkeeping. Push unconditionally to
+  // put it back, otherwise every later merge keeps guessing at times it could have known.
+  let needsPush = legacy
 
   const remoteTsFor = (key) => (legacy ? remoteMs : (remoteKeyTs[key] ?? remoteMs))
 
