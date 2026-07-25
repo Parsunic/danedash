@@ -250,6 +250,60 @@ export function buildSyncMeta() {
 }
 
 // ---------------------------------------------------------------------------
+// Tombstones do not accumulate forever.
+//
+// Every deleted task and event would otherwise stay in the payload permanently, and
+// rollover alone retires a key a day. After this window a deletion is considered settled
+// on every device. The trade: a device left offline longer than this can bring deleted
+// records back — which beats a payload that grows without bound.
+// ---------------------------------------------------------------------------
+const TOMBSTONE_TTL_MS = 60 * 24 * 60 * 60 * 1000 // 60 days
+
+export function pruneTombstones(now = Date.now()) {
+  const cutoff = now - TOMBSTONE_TTL_MS
+
+  const keyTombs = readMap(KEY_TOMBS)
+  let changed = false
+  Object.entries(keyTombs).forEach(([k, ts]) => {
+    if (!(ts > cutoff)) { delete keyTombs[k]; changed = true }
+  })
+  if (changed) writeMap(KEY_TOMBS, keyTombs)
+
+  const itemTombs = readMap(ITEM_TOMBS)
+  changed = false
+  Object.entries(itemTombs).forEach(([key, forKey]) => {
+    Object.entries(forKey).forEach(([id, ts]) => {
+      if (!(ts > cutoff)) { delete forKey[id]; changed = true }
+    })
+    if (!Object.keys(forKey).length) { delete itemTombs[key]; changed = true }
+  })
+  if (changed) writeMap(ITEM_TOMBS, itemTombs)
+}
+
+// ---------------------------------------------------------------------------
+// Restoring a backup is the one operation that must REPLACE rather than merge.
+//
+// Merging a restore against the server would produce the union of the two, quietly
+// resurrecting everything deleted since the backup was taken — the opposite of what
+// "restore this backup" means. This marks every restored key as changed now, and
+// tombstones anything the server still holds that the backup does not, so the restored
+// state is what propagates.
+// ---------------------------------------------------------------------------
+export function claimAuthorityOver(keys, remotePayload = null, now = Date.now()) {
+  const map = readMap(KEY_TS)
+  keys.forEach(k => { map[k] = now })
+  writeMap(KEY_TS, map)
+
+  const restored = new Set(keys)
+  const tombs = readMap(KEY_TOMBS)
+  Object.keys(remotePayload || {}).forEach(k => {
+    if (k === META_FIELD || restored.has(k)) return
+    tombs[k] = now
+  })
+  writeMap(KEY_TOMBS, tombs)
+}
+
+// ---------------------------------------------------------------------------
 // One-time seeding, before any feature module reads or writes.
 //
 // Gives every key already on this device a starting time derived from the old global
