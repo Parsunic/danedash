@@ -41,6 +41,10 @@ function getLocalPayload() {
     }
   }
 
+  // Ride along as one reserved entry — never a change to the payload's shape, because
+  // older builds still in the wild apply it by writing every entry into localStorage.
+  if (!mergeDisabled()) payload[META_FIELD] = buildSyncMeta()
+
   return payload
 }
 
