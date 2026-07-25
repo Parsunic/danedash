@@ -13,7 +13,7 @@
 // The functions here are pure — they take values and times and return values. The
 // localStorage plumbing lives in applyRemote() at the bottom.
 
-import { getCollection } from './syncKeys.js'
+import { getCollection, getMapMerge } from './syncKeys.js'
 import { META_FIELD, itemId, getKeyTs, setKeyTs, getKeyTsMap, getKeyTombs, getItemTombs } from './syncMeta.js'
 
 // A record's own time, falling back to its key's time for records written before
