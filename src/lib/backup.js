@@ -6,6 +6,7 @@
 
 import { storeSet, storeSetSilent } from './storage.js'
 import { STATIC_SYNC_KEYS, DYNAMIC_SYNC_PREFIXES, SYNC_META_KEYS } from './syncKeys.js'
+import { claimAuthorityOver } from './syncMeta.js'
 
 // Key coverage comes from src/lib/syncKeys.js — the same lists the sync layer uses.
 // These were previously duplicated here behind a "KEEP IN SYNC" comment and had drifted:
