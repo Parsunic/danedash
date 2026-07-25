@@ -292,7 +292,7 @@ export function applyRemote(payload, remoteMs, { allowTombstones = true } = {}) 
 
     // Whatever we ended up with, if it isn't what the server sent, the server is stale.
     const settled = next === NO_CHANGE ? localValue : next
-    if (JSON.stringify(settled) !== JSON.stringify(remoteValue)) needsPush = true
+    if (canonical(settled) !== canonical(remoteValue)) needsPush = true
   })
 
   // Keys the server still holds that we deleted.
