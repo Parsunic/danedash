@@ -150,8 +150,17 @@ export function restoreBackup(fileText) {
     throw new Error('That backup file contained no restorable data.')
   }
 
-  // 2. One stamped write → single _lastLocalChange bump → one sync push. Prefer a small,
-  //    stable key; fall back to any restored static key, then any written key.
+  // 2. Claim the restored state as authoritative.
+  //
+  //    Restore is the ONE operation that must replace rather than merge. Sync normally
+  //    combines both sides, which for a restore would quietly resurrect everything
+  //    deleted since the backup was taken — the opposite of what restoring means. So
+  //    every restored key is marked as changed now, and any synced key this device held
+  //    that the backup does not contain is marked deleted, so the restored picture is
+  //    what propagates rather than being merged back into what it was meant to replace.
+  claimAuthorityOver(written, presentBefore)
+
+  // 3. One stamped write so the restored dataset is pushed up exactly once.
   const anchor =
     (written.includes('gym_settings') && 'gym_settings') ||
     STATIC_SYNC_KEYS.find(k => written.includes(k)) ||
@@ -163,8 +172,7 @@ export function restoreBackup(fileText) {
     storeSet(anchor, anchorRaw)
   }
 
-  // 3. Reload so every module boots clean against the restored data. The stamp from the
-  //    anchor storeSet makes local win on init, pushing the restored dataset up once.
+  // 4. Reload so every module boots clean against the restored data.
   location.reload()
 
   return { count: written.length }
