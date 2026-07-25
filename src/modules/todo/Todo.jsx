@@ -623,7 +623,7 @@ function TodayCard({ goals, goalKey, streak, onGoalsChange, onCrossListDrop }) {
     const existingTexts = new Set(tomorrowGoals.map(g => g.text))
     todayFresh.filter(g => !g.done).forEach(g => {
       if (!existingTexts.has(g.text)) {
-        tomorrowGoals.push({ ...g, id: g.id || crypto.randomUUID(), done: false })
+        tomorrowGoals.push({ id: g.id || crypto.randomUUID(), text: g.text, done: false, ...(g.queued ? { queued: true } : {}) })
         existingTexts.add(g.text)
       }
     })
