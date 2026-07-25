@@ -70,7 +70,16 @@ export function mergeLists(localList, remoteList, desc, localTs, remoteTs, tombs
     }
     const lTs = recordTs(local, localTs)
     const rTs = recordTs(remote, remoteTs)
-    const winner = rTs > lTs ? remote : (lTs > rTs ? local : breakTie(local, remote))
+    let winner = rTs > lTs ? remote : (lTs > rTs ? local : breakTie(local, remote))
+
+    // Resolve WHERE separately from WHAT. A record edited on one device while being
+    // dragged on the other should keep both the edit and the new position.
+    if (desc.ordered) {
+      const lr = local._rts || lTs
+      const rr = remote._rts || rTs
+      const pos = rr > lr ? remote : (lr > rr ? local : breakTie(local, remote))
+      if (pos !== winner) winner = { ...winner, _r: pos._r, _rts: pos._rts }
+    }
     if (!dropped(id, winner, Math.max(lTs, rTs))) out.push(winner)
   })
 
