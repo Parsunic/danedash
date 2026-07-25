@@ -189,17 +189,14 @@ export function SyncProvider({ children }) {
             return
           }
         } else if (row?.data) {
-          // Decide against the BOOT snapshot, NOT the live marker. If the server is at least
-          // as new as our last pre-load edit, the server wins (covers the reverted-workout
-          // bug). Only when our pre-load local edits are genuinely newer do we keep local
-          // and push it up.
+          // No boot-time "who wins" decision any more. The old one compared a single
+          // global marker against the row's timestamp and could talk this device into
+          // skipping the pull entirely, then pushing stale data over good remote data.
+          // Merging is symmetric and safe in both directions, so we always take the
+          // server's data in, and push back only what it turns out to be missing.
           const remoteMs = toMs(row.updated_at)
           isSyncingRef.current = true
-          if (remoteMs >= BOOT_LOCAL_CHANGE) {
-            writeRemotePayload(row.data)
-          } else {
-            pushAfterInit = true
-          }
+          pushAfterInit = applyRemotePayload(row.data, remoteMs)
           isSyncingRef.current = false
           setStatus('synced')
         } else {
