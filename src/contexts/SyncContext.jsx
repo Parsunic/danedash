@@ -217,14 +217,15 @@ export function SyncProvider({ children }) {
             if (!change.new?.data) return
             const remoteMs = toMs(change.new.updated_at)
             if (remoteMs === lastPushedMsRef.current) return // ignore echo of our own push
-            // Apply only if the incoming change is newer than our last genuine local edit.
-            const lastLocalChange = parseInt(localStorage.getItem('_lastLocalChange') || '0')
-            if (remoteMs >= lastLocalChange) {
-              isSyncingRef.current = true
-              writeRemotePayload(change.new.data)
-              isSyncingRef.current = false
-              setStatus('synced')
-            }
+            // Incoming changes are ALWAYS merged. Previously a change that looked older
+            // than our last local edit was silently dropped with no reconciliation, so
+            // the two devices simply stayed different until something else broke the
+            // tie — which is why these bugs reproduced so inconsistently.
+            isSyncingRef.current = true
+            const needsPush = applyRemotePayload(change.new.data, remoteMs)
+            isSyncingRef.current = false
+            setStatus('synced')
+            if (needsPush) schedulePush()
           })
           .subscribe()
       } catch (e) {
