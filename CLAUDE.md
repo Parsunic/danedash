@@ -39,15 +39,37 @@ All tables have RLS enabled. App uses the anon/publishable key only — no servi
 - **Supabase** blob sync via `src/contexts/SyncContext.jsx` (`app_state` table, keyed by `key`)
 - Active date: `getActiveDateString()` from `src/lib/dateHelpers.js`
 - Cross-module events: `window.dispatchEvent(new Event('gym-changed'))`, `'goals-changed'`, `'schedule-sync'`, `'sync-applied'`
-- **`storeSet` vs `storeSetSilent` — CRITICAL for sync correctness.** `storeSet` stamps `_lastLocalChange` (= "the user just edited") and schedules a push. Automated/startup writes (migrations, rollovers, back-fills) must use `storeSetSilent` instead — it writes without the stamp. A startup `storeSet` during the async pull window makes a fresh reload look like it holds newer edits than the server, which skips the remote pull and overwrites good cross-device data with stale local data. The initial pull is resolved against a boot-time snapshot of `_lastLocalChange`, and `SyncContext` also re-pulls on tab focus/visibility (realtime sockets die while backgrounded).
+- **Four write functions — pick deliberately.** All in `src/lib/storage.js`.
+  - `storeSet` — a genuine user edit. Records when it happened (per key, and per record for list keys) and schedules a push.
+  - `storeSetSilent` — automated/startup writes (migrations, rollovers, back-fills, device-local caches). Does **not** schedule a push or claim the key, but still versions records inside list keys, so a migration cannot be silently reverted by another device's older copy and re-run forever.
+  - `storeDelete` — a genuine user deletion. Records a tombstone so the deletion propagates instead of the other device pushing the data straight back.
+  - `storeDeleteSilent` — local pruning only (`doRollover` retiring past `goals:` keys, device-local keys). A tombstoning delete there would push the pruning to every device.
 
-## Cross-Device Sync — REQUIRED FOR ALL FEATURES
-**Every new feature that persists data must be wired into Supabase sync.** localStorage alone does not sync across devices.
+## Cross-Device Sync — MERGE, NOT OVERWRITE
+**Every new feature that persists data must be wired into sync.** localStorage alone does not sync across devices.
+
+The sync row is a single JSON blob, but it is no longer applied as one. A pull **merges**: each key — and each record inside the list keys — resolves to whichever device changed it most recently. This is what stops an edit on one device from being destroyed by an unrelated edit on another seconds later, which was the long-standing "my tasks keep reverting" bug. Engine: `src/lib/syncMeta.js` (recording) + `src/lib/syncMerge.js` (resolving), driven by `src/contexts/SyncContext.jsx`.
 
 ### How to add a new key to sync:
-1. **Static key** (fixed name like `'my_feature_data'`): add it to `STATIC_SYNC_KEYS` in `src/contexts/SyncContext.jsx`.
-2. **Dynamic keys** (one per date/week, e.g. `'my_feature:2026-06-17'`): add the prefix to `DYNAMIC_SYNC_PREFIXES` in `src/contexts/SyncContext.jsx`.
-3. **Component refresh**: after remote sync, `sync-applied` is dispatched. Add a `useEffect` listener in the component that re-reads from localStorage via `storeGet` and calls the relevant `setState`. See `HabitsSection.jsx` or `GoalsProjectsSection.jsx` for the pattern.
+1. **Static key** (fixed name like `'my_feature_data'`): add it to `STATIC_SYNC_KEYS` in `src/lib/syncKeys.js` — the single source of truth, imported by both SyncContext and `backup.js`. (These lists used to be duplicated and had silently drifted.)
+2. **Dynamic keys** (one per date/week, e.g. `'my_feature:2026-06-17'`): add the prefix to `DYNAMIC_SYNC_PREFIXES` there.
+3. **Choose how it merges** — also in `syncKeys.js`:
+   - **`COLLECTIONS`** — an array of records with a stable id. Merges record-by-record; two devices editing two different records both win. The id must survive editing (`text` is not an id — renaming would read as delete + create and duplicate). Non-`id` identity is fine (`gym_planned` keys by `date`, `custom_exercises` by `name`); `path` handles an envelope (`body_metrics_v1` wraps its list in `.entries`); `ordered: true` adds drag-order preservation.
+   - **`MAP_MERGES`** — an object whose entries are independently owned. Entries added on each device both survive; an entry that already existed on both and changed on both resolves by key time. Note an entry deleted on one device is restored by the other, so only use it where that is harmless.
+   - **Neither** — whole-key last-write-wins. Correct for settings blobs saved as one gesture and for single values.
+4. **Component refresh**: after remote sync, `sync-applied` is dispatched. Add a `useEffect` listener that re-reads via `storeGet` and calls `setState`. See `HabitsSection.jsx` or `GoalsProjectsSection.jsx`.
+5. **Read fresh before writing.** Callers rewrite a whole array on every mutation, so building it from React state writes back a render-time snapshot and deletes anything that arrived in between. Use the helpers in `src/modules/todo/taskListOps.js` (`writeFresh` / `reorderFresh`) or re-read with `storeGet` first, as `QueueWidget.completeTask` does.
+
+### Invariants that must not be broken
+- **The payload shape is frozen at `{key: value}`.** Sync metadata rides as one reserved entry, `__meta_v2`. This app is an installable PWA, so a phone can be running a build from days ago that applies the payload by writing every entry into localStorage — restructuring it would make that build render an empty app and then push the emptiness back. A row arriving *without* `__meta_v2` was written by such a build: it is accepted, its inability to express deletions is respected (our tombstones are not enforced against it), and we push afterwards to restore the bookkeeping.
+- **Record identity must be stable.** `backfillItemIds` in `init.js` gives every task row an id at boot; rollover and recurring injection use **deterministic** ids (`ro:<date>:<text>`), never `crypto.randomUUID()`, because both devices run them independently and random ids would duplicate every carried-over task.
+- **Ordering lives in `_r`, not array position.** Ranks are derived automatically inside `stampWrite` from the order callers already write, so drag handlers need no changes. `_r` carries its own timestamp (`_rts`) separate from the record's `_ts`, so ticking a checkbox cannot drag a stale position along and undo a reorder made elsewhere.
+- **Compare canonically.** Merging produces the same entries in different key orders on each device; plain `JSON.stringify` equality would make each think the other is stale and push forever. `syncMerge.canonical()` exists for this.
+- **Pushes are compare-and-swap** (`.eq('updated_at', prior)` + retry). `upsert` cannot express the guard, so insert and update are separate paths.
+- **Escape hatch**: `localStorage._sync_v2_off = '1'` drops a device back to plain overwrite without a deploy.
+
+### Currently NOT record-merged (deliberate)
+`layouts_v1` is whole-key. Its per-breakpoint buckets exist on both sides always, so entry-level merging cannot tell which side actually rearranged — it would look protective without being so. Layout changes are one deliberate Settings gesture; last save wins. Same reasoning for `nav_order_v1`, `notif_prefs_v1`, `gym_settings`, `overseer_config_v1`, `finance_budgets`.
 
 ### Currently synced keys:
 - `goals:*` (all date-keyed task lists), `goal_streak_v1`, `goals_projects`, `general_tasks`, `recurring_tasks`
