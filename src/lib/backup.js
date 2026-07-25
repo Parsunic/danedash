@@ -5,37 +5,12 @@
 // stamped write so the sync layer pushes the whole restored dataset up exactly once.
 
 import { storeSet, storeSetSilent } from './storage.js'
+import { STATIC_SYNC_KEYS, DYNAMIC_SYNC_PREFIXES, SYNC_META_KEYS } from './syncKeys.js'
 
-// ---------------------------------------------------------------------------
-// Key coverage — MIRRORED from src/contexts/SyncContext.jsx.
-// SyncContext does not export STATIC_SYNC_KEYS / DYNAMIC_SYNC_PREFIXES, so they are
-// duplicated here. KEEP IN SYNC: when you add a synced key over there, add it here too
-// or backups will silently miss it.
-// ---------------------------------------------------------------------------
-const STATIC_SYNC_KEYS = [
-  // Goals / Tasks
-  'goal_streak_v1',
-  'goals_projects',
-  'general_tasks',
-  'recurring_tasks',
-  // Habits
-  'habits',
-  // Gym
-  'gym_templates', 'gym_planned', 'gym_week_tpls', 'gym_workout_logs', 'gym_exercise_history', 'custom_exercises', 'gym_settings',
-  // Calendar
-  'calendar_events',
-  // Journal
-  'journal_entries',
-  // Layout customization (card grids + nav order)
-  'layouts_v1', 'nav_order_v1',
-]
-
-const DYNAMIC_SYNC_PREFIXES = [
-  'goals:',              // today's and all future/past task lists
-  'habits_log:',         // one key per calendar week
-  'daily_focus:',        // today's thematic focus (one per date)
-  'journal_synthesis:',  // one cached AI synthesis per month
-]
+// Key coverage comes from src/lib/syncKeys.js — the same lists the sync layer uses.
+// These were previously duplicated here behind a "KEEP IN SYNC" comment and had drifted:
+// body_metrics_v1, weekly_reviews_v1, finance_budgets, notif_prefs_v1, overseer_config_v1
+// and the finance: prefix were all missing, so backups silently omitted that data.
 
 // Non-synced app data worth preserving in a backup (not part of cross-device sync).
 const EXTRA_STATIC_KEYS = [
