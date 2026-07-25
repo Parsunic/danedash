@@ -147,7 +147,7 @@ export function mergeMaps(localValue, remoteValue, depth, localTs, remoteTs) {
       out[field] = mergeMaps(l, r, depth - 1, localTs, remoteTs)
       return
     }
-    if (JSON.stringify(l) === JSON.stringify(r)) return
+    if (canonical(l) === canonical(r)) return
     out[field] = remoteTs > localTs ? r : (localTs > remoteTs ? l : breakTie(l, r))
   })
   return out
