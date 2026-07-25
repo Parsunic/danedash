@@ -39,9 +39,10 @@ function breakTie(a, b) {
 // the deletion is NEWER than the surviving copy — so deleting on one device while
 // editing on the other keeps the edit rather than silently losing it.
 //
-// Order follows the local list, with records only the other side has appended. Ordering
-// is handled properly by ranks in a later pass; until then, never reordering what the
-// user is looking at is the least surprising behaviour.
+// Order: hand-arranged lists carry a rank per record, so the merged list is sorted by it
+// and both devices land on the same arrangement. Lists whose order is not a user decision
+// keep the local order with the other side's records appended — their views sort by date
+// anyway, so imposing an order here would only churn.
 // ---------------------------------------------------------------------------
 export function mergeLists(localList, remoteList, desc, localTs, remoteTs, tombs = {}) {
   const remoteById = new Map()
