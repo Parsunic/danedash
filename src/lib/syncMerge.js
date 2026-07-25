@@ -169,12 +169,17 @@ export function applyRemote(payload, remoteMs, { allowTombstones = true } = {}) 
       localStorage.setItem(key, JSON.stringify(next))
       applied = true
     }
+    // The stored content now reflects both sides, so the key's recorded time has to say
+    // so. Leaving it at the older value would advertise fresh content as stale and let a
+    // third device's out-of-date copy win the next comparison.
+    setKeyTs(key, Math.max(localTs, remoteTs))
+
     // Whatever we ended up with, if it isn't what the server sent, the server is stale.
     const settled = next === NO_CHANGE ? localValue : next
     if (JSON.stringify(settled) !== JSON.stringify(remoteValue)) needsPush = true
   })
 
-  // Keys the server has never seen, plus keys the server still holds that we deleted.
+  // Keys the server still holds that we deleted.
   if (useTombs) {
     Object.entries(remoteKeyTombs).forEach(([key, tomb]) => {
       if (tomb > getKeyTs(key) && localStorage.getItem(key) !== null) {
@@ -184,5 +189,19 @@ export function applyRemote(payload, remoteMs, { allowTombstones = true } = {}) 
     })
   }
 
+  // Anything we hold that the server has never seen has to go up, or it lives on exactly
+  // one device forever.
+  const remoteSet = new Set(remoteKeys)
+  if (!needsPush) {
+    for (const key of Object.keys(getKeyTsMapSafe())) {
+      if (!remoteSet.has(key) && localStorage.getItem(key) !== null) { needsPush = true; break }
+    }
+  }
+
   return { applied, needsPush }
+}
+
+// getKeyTs's backing map, tolerant of a corrupt/missing entry.
+function getKeyTsMapSafe() {
+  try { return JSON.parse(localStorage.getItem('_key_ts_v1')) || {} } catch { return {} }
 }
