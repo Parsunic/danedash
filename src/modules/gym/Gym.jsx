@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
-import { storeGet, storeSet, storeDelete } from '../../lib/storage.js'
+import { storeGet, storeSet, storeSetSilent, storeDeleteSilent } from '../../lib/storage.js'
 import BackgroundBlob from '../../components/BackgroundBlob.jsx'
 import { FlipTitle } from '../../components/FlipSwitch.jsx'
 import { getActiveDateString } from '../../lib/dateHelpers.js'
