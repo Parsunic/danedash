@@ -26,9 +26,22 @@ const recordTs = (item, fallback) => (item && item._ts) || fallback
 // themselves is arbitrary, but it is the SAME arbitrary answer on both devices, which is
 // the only property that matters.
 function breakTie(a, b) {
-  const sa = JSON.stringify(a) ?? ''
-  const sb = JSON.stringify(b) ?? ''
+  const sa = canonical(a)
+  const sb = canonical(b)
   return sa >= sb ? a : b
+}
+
+// Compare by MEANING, not by byte order.
+//
+// Merging two objects produces the same entries in different orders depending on which
+// device did the merging, and plain JSON.stringify would call those different. That is
+// not a harmless inaccuracy: it makes each device think the other is missing something,
+// so they push at each other forever.
+function canonical(value) {
+  if (value === null || typeof value !== 'object') return JSON.stringify(value) ?? 'null'
+  if (Array.isArray(value)) return '[' + value.map(canonical).join(',') + ']'
+  return '{' + Object.keys(value).sort()
+    .map(k => JSON.stringify(k) + ':' + canonical(value[k])).join(',') + '}'
 }
 
 // ---------------------------------------------------------------------------
