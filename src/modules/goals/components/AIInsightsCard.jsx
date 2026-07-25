@@ -292,7 +292,7 @@ export default function AIInsightsCard() {
     try {
       const text = await callAPI(apiKey, WEEKLY_SYSTEM, assembleWeeklyContext())
       const result = { summary: text, generated_at: new Date().toISOString() }
-      storeSet(weeklyCacheKey, result)
+      storeSetSilent(weeklyCacheKey, result)
       setWeeklyData(result)
     } catch {
       setWeeklyError(true)
