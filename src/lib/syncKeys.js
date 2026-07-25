@@ -110,18 +110,23 @@ export const COLLECTIONS = {
 // in the same week write the same key, and whole-key resolution throws one away. Merging
 // per entry keeps both.
 //
-//   depth — how far down entries stay independent. `layouts_v1` needs 2 because its
-//           per-breakpoint buckets exist precisely so phone edits never scramble the
-//           desktop arrangement; merging only at the top level would defeat that.
+//   depth — how far down entries stay independent.
 //   merge — a named special case where the values themselves can be combined.
 //
-// Caveat: an entry deleted on one device is restored by the other, because a plain
-// object cannot say "this used to exist". Only keys where that is harmless belong here.
+// Two limits, both from the values carrying no times of their own:
+//   - An entry ADDED on each device survives on both. An entry that already existed on
+//     both and then changed on both still resolves to one of them, by key time.
+//   - An entry deleted on one device is restored by the other, because a plain object
+//     cannot say "this used to exist". Only keys where that is harmless belong here.
+//
+// layouts_v1 is deliberately NOT here. Its per-breakpoint buckets always exist on both
+// sides, so entry-level merging cannot tell which side actually rearranged — it would
+// look like it protected phone-vs-desktop edits without doing so. Whole-key resolution
+// is honest: layout changes are one deliberate Settings gesture, and the last save wins.
 // ---------------------------------------------------------------------------
 export const MAP_MERGES = {
   'habits_log:':        { depth: 1 },  // per habit id, within a week
   weekly_reviews_v1:    { depth: 1 },  // per week; weeks are only ever added
-  layouts_v1:           { depth: 2 },  // per area, then per breakpoint bucket
   gym_exercise_history: { merge: 'exerciseHistory' },
 }
 
