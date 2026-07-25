@@ -198,6 +198,12 @@ export function mergeValue(key, localValue, remoteValue, localTs, remoteTs, item
     }
   }
 
+  const mapDesc = getMapMerge(key)
+  if (mapDesc) {
+    if (mapDesc.merge === 'exerciseHistory') return mergeExerciseHistory(localValue, remoteValue)
+    return mergeMaps(localValue, remoteValue, mapDesc.depth || 1, localTs, remoteTs)
+  }
+
   // Whole-key resolution: settings blobs, single values, or a list we cannot merge safely.
   if (remoteTs > localTs) return remoteValue
   if (localTs > remoteTs) return NO_CHANGE
