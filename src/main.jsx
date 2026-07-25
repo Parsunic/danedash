@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom'
 import App from './App.jsx'
 import './styles/globals.css'
 import { backfillItemIds, doRollover, injectRecurringTasks } from './lib/init.js'
+import { initSyncMeta } from './lib/syncMeta.js'
 import { registerPwa } from './lib/pwa.js'
 import { startNotificationLoop } from './lib/notifications.js'
 
