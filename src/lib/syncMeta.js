@@ -315,6 +315,7 @@ export function claimAuthorityOver(keys, remotePayload = null, now = Date.now())
 export function initSyncMeta() {
   if (mergeDisabled()) return
   try {
+    pruneTombstones()
     if (localStorage.getItem(KEY_TS) !== null) return
   } catch { return }
 
