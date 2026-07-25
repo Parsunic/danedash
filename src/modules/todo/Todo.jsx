@@ -216,9 +216,11 @@ function GoalRow({ goal, index, goals, goalKey, readOnly, hasFinePointer, onGoal
     const newText = el.textContent.trim()
     el.contentEditable = 'false'
     if (newText && newText !== originalTextRef.current) {
-      const newGoals = [...goals]
-      newGoals[index] = { ...newGoals[index], text: newText }
-      storeSet(goalKey, newGoals)
+      writeFresh(goalKey, goal, index, (list, i) => {
+        const next = [...list]
+        next[i] = { ...next[i], text: newText }
+        return next
+      })
       onGoalsChange()
     } else {
       el.textContent = originalTextRef.current || goal.text
