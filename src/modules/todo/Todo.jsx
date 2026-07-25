@@ -237,31 +237,34 @@ function GoalRow({ goal, index, goals, goalKey, readOnly, hasFinePointer, onGoal
 
   function handleCheck(checked) {
     if (checked) { setCbPopping(true); setTimeout(() => setCbPopping(false), 200) }
-    const newGoals = [...goals]
-    newGoals[index] = { ...newGoals[index], done: checked }
-    if (checked) newGoals[index].doneAt = Date.now()
-    else delete newGoals[index].doneAt
-    storeSet(goalKey, newGoals)
+    writeFresh(goalKey, goal, index, (list, i) => {
+      const next = [...list]
+      next[i] = { ...next[i], done: checked }
+      if (checked) next[i].doneAt = Date.now()
+      else delete next[i].doneAt
+      return next
+    })
     onGoalsChange()
   }
 
   function handleQueueToggle() {
-    const newGoals = [...goals]
-    newGoals[index] = { ...newGoals[index], queued: !newGoals[index].queued }
-    storeSet(goalKey, newGoals)
+    writeFresh(goalKey, goal, index, (list, i) => {
+      const next = [...list]
+      next[i] = { ...next[i], queued: !next[i].queued }
+      return next
+    })
+    // Refresh immediately. This used to be deferred to the end of the 480ms flash, which
+    // left the prop stale while storage was already updated — any check/edit/delete in
+    // that window wrote the pre-toggle array back and dropped the queue flag.
+    onGoalsChange()
     if (liRef.current) {
       liRef.current.classList.add('is-queue-flashing')
-      setTimeout(() => {
-        liRef.current?.classList.remove('is-queue-flashing')
-        onGoalsChange()
-      }, 480)
-    } else {
-      onGoalsChange()
+      setTimeout(() => liRef.current?.classList.remove('is-queue-flashing'), 480)
     }
   }
 
   function handleDelete() {
-    storeSet(goalKey, goals.filter((_, i) => i !== index))
+    writeFresh(goalKey, goal, index, (list, i) => list.filter((_, j) => j !== i))
     onGoalsChange()
   }
 
