@@ -92,16 +92,15 @@ export function itemId(item, desc) {
   return desc.ci ? id.toLowerCase() : id
 }
 
-// Content equality ignoring the bookkeeping field, so re-saving an untouched record does
-// not make it look newer than the other device's genuinely newer copy.
+// Content equality ignoring all bookkeeping, so re-saving an untouched record does not
+// make it look newer than the other device's genuinely newer copy.
+//
+// Position is excluded deliberately: WHAT a record says and WHERE it sits are tracked
+// separately (see _rts below), so dragging a task does not compete with editing it.
 function sameContent(a, b) {
   if (a === b) return true
   if (!a || !b) return false
-  const strip = (o) => {
-    if (!('_ts' in o)) return o
-    const { _ts, ...rest } = o
-    return rest
-  }
+  const strip = ({ _ts, _r, _rts, ...rest }) => rest
   return JSON.stringify(strip(a)) === JSON.stringify(strip(b))
 }
 
