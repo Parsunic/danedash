@@ -183,6 +183,30 @@ export function stampWrite(key, value, { bumpKeyTs = true, now = Date.now() } = 
 }
 
 // ---------------------------------------------------------------------------
+// Travelling form of this device's bookkeeping.
+//
+// It rides as ONE reserved entry inside the existing flat payload rather than changing
+// the payload's shape. That matters because the app is an installable PWA: a phone can
+// still be running a build from days ago, and that build applies the payload by writing
+// every entry straight into localStorage. A restructured payload would make it write
+// garbage and render an empty app — and then push that emptiness back over everyone.
+// With this layout, an old build writes every real key correctly and one ignorable extra.
+//
+// An old build also drops this entry when it pushes (it only collects known keys), which
+// is exactly how a newer build detects "an older device wrote this row" — see mergeRemote.
+// ---------------------------------------------------------------------------
+export const META_FIELD = '__meta_v2'
+
+export function buildSyncMeta() {
+  return {
+    w: 2,
+    keyTs: getKeyTsMap(),
+    keyTombs: getKeyTombs(),
+    itemTombs: getItemTombs(),
+  }
+}
+
+// ---------------------------------------------------------------------------
 // One-time seeding, before any feature module reads or writes.
 //
 // Gives every key already on this device a starting time derived from the old global
