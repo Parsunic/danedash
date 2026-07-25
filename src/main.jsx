@@ -8,8 +8,11 @@ import { initSyncMeta } from './lib/syncMeta.js'
 import { registerPwa } from './lib/pwa.js'
 import { startNotificationLoop } from './lib/notifications.js'
 
-// Order matters: every task row needs an `id` before rollover reads and rewrites lists,
-// because item-level sync merge tracks tasks by id.
+// Order matters. Sync bookkeeping is seeded first so the writes below are measured
+// against this device's real last-use time rather than looking brand new; then every
+// task row gets an `id`, because record-level merging tracks tasks by id and rollover is
+// about to read and rewrite those lists.
+initSyncMeta()
 backfillItemIds()
 doRollover()
 injectRecurringTasks()
