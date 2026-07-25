@@ -131,6 +131,17 @@ export function restoreBackup(fileText) {
     throw new Error("This doesn't look like an UltraDash backup (expected app “UltraDash”, version 1).")
   }
 
+  // Snapshot which synced keys this device holds BEFORE restoring, so step 2 can tell
+  // what the backup is dropping.
+  const presentBefore = {}
+  for (const k of STATIC_SYNC_KEYS) {
+    if (localStorage.getItem(k) !== null) presentBefore[k] = true
+  }
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i)
+    if (k && DYNAMIC_SYNC_PREFIXES.some(p => k.startsWith(p))) presentBefore[k] = true
+  }
+
   // 1. Bulk silent restore. Each stored value is a raw JSON string; parse it so
   //    storeSetSilent (which JSON.stringifies) round-trips it exactly instead of
   //    double-encoding. Fall back to a raw write if a value somehow isn't JSON.
