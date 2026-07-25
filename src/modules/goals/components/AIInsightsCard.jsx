@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { storeGet, storeSet } from '../../../lib/storage.js'
+import { storeGet, storeSetSilent } from '../../../lib/storage.js'
 import { getActiveDateString, getActiveWeekKey } from '../../../lib/dateHelpers.js'
 import { getAnthropicKey } from '../../../lib/api/anthropic.js'
 
