@@ -81,7 +81,10 @@ function gymSection(gymDays, logs) {
 function journalSection(journalEntries) {
   if (!journalEntries) return ''
   const entries = (storeGet('journal_entries') || [])
-    .filter(e => e && e.content && !isEntryLocked(e))
+    // Entries store their body in `text` (verified against stored data). This read used
+    // `content`, which no entry has ever had — the Overseer's journal context was
+    // silently always empty. `content` stays as a fallback for any legacy shape.
+    .filter(e => e && (e.text || e.content) && !isEntryLocked(e))
     .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
     .slice(0, journalEntries)
   if (!entries.length) return ''
