@@ -70,7 +70,7 @@ export function mergeLists(localList, remoteList, desc, localTs, remoteTs, tombs
     }
     const lTs = recordTs(local, localTs)
     const rTs = recordTs(remote, remoteTs)
-    const winner = rTs > lTs ? remote : local
+    const winner = rTs > lTs ? remote : (lTs > rTs ? local : breakTie(local, remote))
     if (!dropped(id, winner, Math.max(lTs, rTs))) out.push(winner)
   })
 
@@ -81,7 +81,15 @@ export function mergeLists(localList, remoteList, desc, localTs, remoteTs, tombs
     if (!dropped(id, remote, remoteTs)) out.push(remote)
   })
 
+  if (!desc.ordered) return out
+
+  // Sort by rank so a hand-arranged order survives; records with no rank yet keep their
+  // current position by falling back to it, and identical ranks resolve by id so the
+  // result cannot depend on which device is doing the merging.
   return out
+    .map((item, i) => ({ item, i, r: typeof item._r === 'number' ? item._r : i + 1 }))
+    .sort((a, b) => (a.r - b.r) || String(a.item.id).localeCompare(String(b.item.id)))
+    .map(x => x.item)
 }
 
 // A list key can wrap its records in an envelope (body_metrics_v1 is `{v:1, entries:[…]}`).
