@@ -103,8 +103,24 @@ export function SyncProvider({ children }) {
 
   const schedulePush = useCallback(() => {
     if (isSyncingRef.current || !initializedRef.current) return
+    const now = Date.now()
+    if (!pendingSinceRef.current) pendingSinceRef.current = now
     clearTimeout(debounceRef.current)
-    debounceRef.current = setTimeout(pushToSupabase, 1500)
+    const waited = now - pendingSinceRef.current
+    const delay = Math.max(0, Math.min(PUSH_DEBOUNCE_MS, PUSH_MAX_WAIT_MS - waited))
+    debounceRef.current = setTimeout(() => {
+      pendingSinceRef.current = 0
+      pushToSupabase()
+    }, delay)
+  }, [pushToSupabase])
+
+  // Send anything still pending immediately, without waiting out the debounce.
+  const flushPush = useCallback(() => {
+    if (!debounceRef.current) return
+    clearTimeout(debounceRef.current)
+    debounceRef.current = null
+    pendingSinceRef.current = 0
+    pushToSupabase()
   }, [pushToSupabase])
 
   useEffect(() => {
@@ -112,6 +128,20 @@ export function SyncProvider({ children }) {
     window.addEventListener('schedule-sync', handler)
     return () => window.removeEventListener('schedule-sync', handler)
   }, [schedulePush])
+
+  // Flush when the tab is hidden — switching apps, locking the phone, closing the laptop.
+  // An edit made in the last second used to be lost outright: the push never fired, but
+  // the device still counted itself as having edited, so it would win the next startup
+  // comparison and push its incomplete state over the other device's.
+  //
+  // `hidden` and not `pagehide`: a hidden page stays alive long enough to finish the
+  // request, whereas pagehide gives no time for one. A hard tab-kill can still drop the
+  // last second of edits, which the next launch re-pushes anyway.
+  useEffect(() => {
+    const onHide = () => { if (document.visibilityState === 'hidden') flushPush() }
+    document.addEventListener('visibilitychange', onHide)
+    return () => document.removeEventListener('visibilitychange', onHide)
+  }, [flushPush])
 
   // Re-pull when the tab regains focus/visibility. Realtime websockets are dropped while a
   // tab is backgrounded (e.g. computer left idle while you work out on your phone), so on
