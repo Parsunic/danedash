@@ -614,12 +614,20 @@ function TodayCard({ goals, goalKey, streak, onGoalsChange, onCrossListDrop }) {
 
   function handlePushRemaining() {
     if (!confirm('Push all unchecked tasks to tomorrow?')) return
+    // Re-read today: this DELETES every unchecked row, so working from the render-time
+    // prop would destroy a task that arrived from another device without carrying it
+    // forward. Ids are preserved so the move reads as one task on both devices instead
+    // of a delete plus an unrelated create.
+    const todayFresh = storeGet(goalKey) || []
     const tomorrowGoals = storeGet(tomorrowKey) || []
     const existingTexts = new Set(tomorrowGoals.map(g => g.text))
-    goals.filter(g => !g.done).forEach(g => {
-      if (!existingTexts.has(g.text)) { tomorrowGoals.push({ id: crypto.randomUUID(), text: g.text, done: false }); existingTexts.add(g.text) }
+    todayFresh.filter(g => !g.done).forEach(g => {
+      if (!existingTexts.has(g.text)) {
+        tomorrowGoals.push({ ...g, id: g.id || crypto.randomUUID(), done: false })
+        existingTexts.add(g.text)
+      }
     })
-    storeSet(goalKey, goals.filter(g => g.done))
+    storeSet(goalKey, todayFresh.filter(g => g.done))
     storeSet(tomorrowKey, tomorrowGoals)
     onGoalsChange()
   }
