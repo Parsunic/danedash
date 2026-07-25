@@ -82,6 +82,7 @@ export function SyncProvider({ children }) {
   const [isOffline, setIsOffline] = useState(false)
   const clientRef = useRef(null)
   const debounceRef = useRef(null)
+  const pendingSinceRef = useRef(0)
   const isSyncingRef = useRef(false)
   const initializedRef = useRef(false)
   // Exact updated_at (ms) of the row WE last pushed, so the realtime echo of our own
