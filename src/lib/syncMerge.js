@@ -126,7 +126,9 @@ export function mergeValue(key, localValue, remoteValue, localTs, remoteTs, item
   }
 
   // Whole-key resolution: settings blobs, single values, or a list we cannot merge safely.
-  return remoteTs > localTs ? remoteValue : NO_CHANGE
+  if (remoteTs > localTs) return remoteValue
+  if (localTs > remoteTs) return NO_CHANGE
+  return breakTie(localValue, remoteValue)
 }
 
 // ---------------------------------------------------------------------------
