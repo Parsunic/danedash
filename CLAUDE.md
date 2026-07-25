@@ -256,7 +256,9 @@ src/
 ```
 
 ## Key Data Shapes
-- **Goal/To-Do**: `{ id, text, done, queued?, date }` — stored at `goals:YYYY-MM-DD`
+Records inside a `COLLECTIONS` key also carry sync bookkeeping the merge layer writes and reads: `_ts` (last change), plus `_r`/`_rts` (position) on `ordered` keys. Ignore them in UI code; never hand-write them; strip them in any projection sent to an API.
+
+- **Goal/To-Do**: `{ id, text, done, doneAt?, queued?, date }` — stored at `goals:YYYY-MM-DD`. `id` is guaranteed present (back-filled at boot).
 - **Gym planned**: `{ id, date, name, templateId, exercises[], status }` — stored at `gym_planned`
 - **Gym template**: `{ id, name, exercises[{name, sets, repRange, notes, primary_muscle?}] }` — stored at `gym_templates`
 - **Gym log**: `{ id, date, exercises[{name, primary_muscle, sets[{weight, reps, rpe, e1rm, allHitTop}]}] }` — stored at `gym_workout_logs`
