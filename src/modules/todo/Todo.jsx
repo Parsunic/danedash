@@ -432,12 +432,7 @@ function GoalList({ goals, goalKey, readOnly, onGoalsChange, onCrossListDrop }) 
       li.classList.remove('is-touch-dragging')
       placeholder.remove()
       dragState = null
-      if (toIdx !== idx) {
-        const newGoals = [...goalsRef.current]
-        const [moved] = newGoals.splice(idx, 1)
-        newGoals.splice(toIdx, 0, moved)
-        storeSet(goalKey, newGoals)
-      }
+      if (toIdx !== idx) reorderFresh(goalKey, goalsRef.current, idx, toIdx)
       onGoalsChange()
     }
 
