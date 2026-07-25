@@ -122,6 +122,44 @@ function fullyIdentified(list, desc) {
 }
 
 // ---------------------------------------------------------------------------
+// Ranks: how a hand-arranged order survives merging.
+//
+// Position in an array cannot be merged — two devices each inserting a task would each
+// put it at "index 3" and disagree forever. A rank can: it is a value attached to the
+// record, so it merges by exactly the same rule as any other field.
+//
+// Callers already write the whole list in the order they want, so the order they wrote IS
+// the instruction. Records whose rank no longer matches their position get a new rank
+// midway between their neighbours — which is precisely the set of records a drag moved.
+// Ticking a checkbox moves nothing, so it disturbs no ranks.
+// ---------------------------------------------------------------------------
+function assignRanks(list) {
+  const out = list.map(item => ({ ...item }))
+  let prev = 0
+  let exhausted = false
+
+  for (let i = 0; i < out.length; i++) {
+    const cur = out[i]._r
+    if (typeof cur === 'number' && Number.isFinite(cur) && cur > prev) { prev = cur; continue }
+
+    let nextRank = null
+    for (let j = i + 1; j < out.length; j++) {
+      const r = out[j]._r
+      if (typeof r === 'number' && Number.isFinite(r) && r > prev) { nextRank = r; break }
+    }
+    const rank = nextRank === null ? prev + 1 : (prev + nextRank) / 2
+    // Floating point runs out of room after enough repeated splits of one gap.
+    if (rank <= prev || rank === nextRank) { exhausted = true; break }
+    out[i]._r = rank
+    prev = rank
+  }
+
+  // Renumber from scratch rather than let ranks collide.
+  if (exhausted) out.forEach((item, i) => { item._r = i + 1 })
+  return out
+}
+
+// ---------------------------------------------------------------------------
 // Stamp a value on its way into localStorage.
 //
 // Records that are new or actually changed get `_ts = now`; untouched records keep the
