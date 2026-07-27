@@ -227,7 +227,7 @@ function GoalRow({ goal, index, goals, goalKey, readOnly, hasFinePointer, onGoal
   ].filter(Boolean).join(' ')
 
   return (
-    <li ref={liRef} className={liCls} data-idx={index} draggable={!readOnly && hasFinePointer}>
+    <li className={liCls} data-idx={index} draggable={!readOnly && hasFinePointer}>
       {!readOnly && hasFinePointer && <div className="goal-drag-handle">⋮⋮</div>}
       <label className="goal-cb-wrap">
         <input
