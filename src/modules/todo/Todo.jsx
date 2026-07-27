@@ -209,10 +209,10 @@ function GoalRow({ goal, index, goals, goalKey, readOnly, hasFinePointer, onGoal
     // left the prop stale while storage was already updated — any check/edit/delete in
     // that window wrote the pre-toggle array back and dropped the queue flag.
     onGoalsChange()
-    if (liRef.current) {
-      liRef.current.classList.add('is-queue-flashing')
-      setTimeout(() => liRef.current?.classList.remove('is-queue-flashing'), 480)
-    }
+    // The flash is React state, not a manual classList touch: refreshing above re-renders
+    // this row, and a hand-added class is wiped the moment React reasserts className.
+    setQueueFlashing(true)
+    setTimeout(() => setQueueFlashing(false), 480)
   }
 
   function handleDelete() {
