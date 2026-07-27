@@ -135,7 +135,6 @@ function computeStreak() {
 
 // ── GOAL ROW ──
 function GoalRow({ goal, index, goals, goalKey, readOnly, hasFinePointer, onGoalsChange }) {
-  const liRef = useRef(null)
   const textRef = useRef(null)
   const originalTextRef = useRef('')
   const isEditingRef = useRef(false)
