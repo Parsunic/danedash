@@ -191,11 +191,6 @@ export function stampWrite(key, value, { bumpKeyTs = true, now = Date.now() } = 
   try { prevValue = JSON.parse(localStorage.getItem(key)) } catch {}
   const prevList = listOf(prevValue, desc) || []
 
-  // Baseline for records that predate stamping: the key's own last-change time, not
-  // "now". Treating pre-existing records as brand new would let a device that merely
-  // opened the app outrank another device's genuinely newer edits.
-  const baseline = getKeyTs(key) || now
-
   const prevById = new Map()
   prevList.forEach(item => {
     const id = itemId(item, desc)
