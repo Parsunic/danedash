@@ -149,9 +149,7 @@ export function SyncProvider({ children }) {
     // push adds to the other device's work instead of replacing it.
     const priorIso = new Date(row.updated_at).toISOString()
     if (row.data && toMs(row.updated_at) !== lastPushedMsRef.current) {
-      isSyncingRef.current = true
-      applyRemotePayload(row.data, toMs(row.updated_at))
-      isSyncingRef.current = false
+      applyGuarded(isSyncingRef, row.data, toMs(row.updated_at))
     }
 
     // Always advance the timestamp, even if this device's clock lags the other's —
