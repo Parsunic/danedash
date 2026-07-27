@@ -172,6 +172,12 @@ function assignRanks(list) {
 export function stampWrite(key, value, { bumpKeyTs = true, now = Date.now() } = {}) {
   if (mergeDisabled() || !isSyncedKey(key)) return value
 
+  // Read the key's PRIOR change time before bumping it below. Reading it afterwards
+  // would make the baseline equal "now" on every user edit, which is exactly what the
+  // baseline exists to avoid: records that predate stamping would each look brand new
+  // and outrank another device's genuinely newer copy.
+  const baseline = getKeyTs(key) || now
+
   clearKeyTomb(key) // re-creating a deleted key un-deletes it
   if (bumpKeyTs) setKeyTs(key, now)
 
