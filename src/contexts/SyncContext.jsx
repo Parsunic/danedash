@@ -318,9 +318,7 @@ export function SyncProvider({ children }) {
             // than our last local edit was silently dropped with no reconciliation, so
             // the two devices simply stayed different until something else broke the
             // tie — which is why these bugs reproduced so inconsistently.
-            isSyncingRef.current = true
-            const needsPush = applyRemotePayload(change.new.data, remoteMs)
-            isSyncingRef.current = false
+            const needsPush = applyGuarded(isSyncingRef, change.new.data, remoteMs)
             setStatus('synced')
             if (needsPush) schedulePush()
           })
