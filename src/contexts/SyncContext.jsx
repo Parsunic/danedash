@@ -185,6 +185,10 @@ export function SyncProvider({ children }) {
     const waited = now - pendingSinceRef.current
     const delay = Math.max(0, Math.min(PUSH_DEBOUNCE_MS, PUSH_MAX_WAIT_MS - waited))
     debounceRef.current = setTimeout(() => {
+      // Clear the handle as the timer fires. flushPush treats a non-null handle as
+      // "a push is still pending", so leaving the spent id here made every tab-hide
+      // send a redundant full push long after the real one had already gone out.
+      debounceRef.current = null
       pendingSinceRef.current = 0
       pushToSupabase()
     }, delay)
