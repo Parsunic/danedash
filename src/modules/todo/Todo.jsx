@@ -140,6 +140,7 @@ function GoalRow({ goal, index, goals, goalKey, readOnly, hasFinePointer, onGoal
   const originalTextRef = useRef('')
   const isEditingRef = useRef(false)
   const [cbPopping, setCbPopping] = useState(false)
+  const [queueFlashing, setQueueFlashing] = useState(false)
 
   useEffect(() => {
     const el = textRef.current
