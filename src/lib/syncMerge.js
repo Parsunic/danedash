@@ -166,19 +166,29 @@ export function mergeExerciseHistory(localValue, remoteValue) {
     if (!l) { out[name] = r; return }
     if (!r) return
 
+    // A session edit can change its date, so identity is the whole set of numbers.
+    const sig = (s) => `${s.date}|${s.weight}|${s.reps}|${s.rpe}|${s.e1rm}`
+
     const seen = new Set()
     const sessions = []
     ;[...(l.sessions || []), ...(r.sessions || [])].forEach(s => {
-      // A session edit can change its date, so identity is the whole set of numbers.
-      const sig = `${s.date}|${s.weight}|${s.reps}|${s.rpe}|${s.e1rm}`
-      if (seen.has(sig)) return
-      seen.add(sig)
+      if (seen.has(sig(s))) return
+      seen.add(sig(s))
       sessions.push(s)
     })
-    sessions.sort((a, b) => String(a.date).localeCompare(String(b.date)))
+    // Sort by date, then by identity. Without that second key, two workouts logged on
+    // the SAME day keep whatever order the concatenation gave them — and each device
+    // concatenates itself first, so the two sides produce different arrays for the same
+    // merge and push at each other forever.
+    sessions.sort((a, b) =>
+      String(a.date).localeCompare(String(b.date)) || sig(a).localeCompare(sig(b)))
+
+    // Same reason: each device sees itself as `l`, so a plain `{...l, ...r}` resolves any
+    // other field differently on each side. Order the spread by content instead.
+    const [lo, hi] = canonical(l) <= canonical(r) ? [l, r] : [r, l]
 
     out[name] = {
-      ...l, ...r,
+      ...lo, ...hi,
       allTimePR: Math.max(l.allTimePR || 0, r.allTimePR || 0),
       sessions: sessions.slice(-20), // same cap the writer applies
     }
