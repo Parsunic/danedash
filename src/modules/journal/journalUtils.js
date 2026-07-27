@@ -12,13 +12,16 @@ export const PROMPTS = [
   "What conversation have you been putting off?",
 ]
 
-// 5 models for prompt variety
+// 5 models for prompt variety — picked at random per call, so every entry has to be a
+// model that still exists. The two Claude 3.5 IDs that used to sit here were retired
+// (Oct 2025 and Feb 2026) and returned 404, silently failing ~40% of journal AI calls.
+// Check a model is still current before adding it here.
 export const AI_MODELS = [
+  'claude-opus-5',
   'claude-opus-4-7',
+  'claude-sonnet-5',
   'claude-sonnet-4-6',
-  'claude-haiku-4-5-20251001',
-  'claude-3-5-sonnet-20241022',
-  'claude-3-5-haiku-20241022',
+  'claude-haiku-4-5',
 ]
 
 // Days reset at 5 AM
