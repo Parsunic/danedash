@@ -234,9 +234,7 @@ export function SyncProvider({ children }) {
       if (error || !row?.data) return
       const remoteMs = toMs(row.updated_at)
       if (remoteMs === lastPushedMsRef.current) return // our own write echoed back
-      isSyncingRef.current = true
-      const needsPush = applyRemotePayload(row.data, remoteMs)
-      isSyncingRef.current = false
+      const needsPush = applyGuarded(isSyncingRef, row.data, remoteMs)
       setStatus('synced')
       if (needsPush) schedulePush()
     } catch (e) {
