@@ -224,6 +224,7 @@ function GoalRow({ goal, index, goals, goalKey, readOnly, hasFinePointer, onGoal
     'goal-row',
     goal.done && 'goal-row-done',
     goal.queued && !goal.done && 'goal-row-queued',
+    queueFlashing && 'is-queue-flashing',
   ].filter(Boolean).join(' ')
 
   return (
