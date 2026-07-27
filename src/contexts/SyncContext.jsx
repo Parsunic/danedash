@@ -69,6 +69,25 @@ function applyRemotePayload(payload, remoteMs) {
   return needsPush
 }
 
+// Apply remote data with the "we are syncing" guard held.
+//
+// The try/finally is load-bearing. That guard makes every push and every scheduled push
+// early-return while it is set, so if the merge throws — malformed remote data, a
+// storage quota error — a leaked flag would disable syncing for the rest of the session
+// with nothing surfaced anywhere. Failing a single merge is recoverable; silently
+// failing every future one is not.
+function applyGuarded(ref, payload, remoteMs) {
+  ref.current = true
+  try {
+    return applyRemotePayload(payload, remoteMs)
+  } catch (e) {
+    console.warn('Sync merge failed:', e)
+    return false
+  } finally {
+    ref.current = false
+  }
+}
+
 function notifyModules() {
   window.dispatchEvent(new CustomEvent('goals-changed'))
   window.dispatchEvent(new CustomEvent('gym-changed'))
