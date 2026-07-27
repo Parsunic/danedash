@@ -294,9 +294,7 @@ export function SyncProvider({ children }) {
           // Merging is symmetric and safe in both directions, so we always take the
           // server's data in, and push back only what it turns out to be missing.
           const remoteMs = toMs(row.updated_at)
-          isSyncingRef.current = true
-          pushAfterInit = applyRemotePayload(row.data, remoteMs)
-          isSyncingRef.current = false
+          pushAfterInit = applyGuarded(isSyncingRef, row.data, remoteMs)
           setStatus('synced')
         } else {
           setStatus('synced')
