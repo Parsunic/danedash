@@ -72,7 +72,7 @@ The sync row is a single JSON blob, but it is no longer applied as one. A pull *
 `layouts_v1` is whole-key. Its per-breakpoint buckets exist on both sides always, so entry-level merging cannot tell which side actually rearranged — it would look protective without being so. Layout changes are one deliberate Settings gesture; last save wins. Same reasoning for `nav_order_v1`, `notif_prefs_v1`, `gym_settings`, `overseer_config_v1`, `finance_budgets`.
 
 ### Currently synced keys:
-- `goals:*` (all date-keyed task lists), `goal_streak_v1`, `goals_projects`, `general_tasks`, `recurring_tasks`
+- `goals:*` (all date-keyed task lists), `goal_streak_v1`, `goals_projects`, `general_tasks`, `recurring_tasks`, `rollover_done_v1`
 - `habits`, `habits_log:*` (weekly completion logs)
 - `gym_templates`, `gym_planned`, `gym_week_tpls`, `gym_workout_logs`, `gym_exercise_history`, `custom_exercises`, `gym_settings`
 - `calendar_events`, `journal_entries`
