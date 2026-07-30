@@ -65,7 +65,21 @@ export function doRollover() {
   const activeDate = getActiveDateString()
   const todayKey = 'goals:' + activeDate
 
-  const done = storeGet(ROLLOVER_DONE_KEY) || {}
+  const stored = storeGet(ROLLOVER_DONE_KEY)
+  const done = (stored && typeof stored === 'object' && !Array.isArray(stored)) ? stored : {}
+
+  // One-time catch-up for data that predates this record. Rollover ran on every launch,
+  // so any past day still sitting here has already been carried forward — many times
+  // over, which is precisely the bug. Mark them retired WITHOUT rolling them again,
+  // otherwise every task you have already deleted returns one last time.
+  if (stored === null) {
+    storeListKeys('goals:').forEach(key => {
+      const dateStr = key.slice(6)
+      if (dateStr < activeDate) done[dateStr] = Date.now()
+    })
+    storeSetSilent(ROLLOVER_DONE_KEY, done)
+    return
+  }
   // Tasks you deleted from today must not be re-added by a second rollover pass on the
   // same day (a reload, or a second tab, before the retired-day record has synced).
   const deletedToday = getItemTombs()[todayKey] || {}
