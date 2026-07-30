@@ -1,4 +1,5 @@
-import { storeGet, storeSetSilent, storeDeleteSilent, storeListKeys } from './storage.js'
+import { storeGet, storeSetSilent, storeListKeys } from './storage.js'
+import { getItemTombs } from './syncMeta.js'
 import { getActiveDateString } from './dateHelpers.js'
 
 // ---------------------------------------------------------------------------
