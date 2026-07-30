@@ -130,6 +130,7 @@ export const COLLECTIONS = {
 export const MAP_MERGES = {
   'habits_log:':        { depth: 1 },  // per habit id, within a week
   weekly_reviews_v1:    { depth: 1 },  // per week; weeks are only ever added
+  rollover_done_v1:     { depth: 1 },  // per retired day; days are only ever added
   gym_exercise_history: { merge: 'exerciseHistory' },
 }
 
