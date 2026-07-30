@@ -177,7 +177,7 @@ src/
     syncMeta.js              # per-key + per-record change times, tombstones, ranks, kill switch
     syncMerge.js             # pure merge: records, maps, tombstones, canonical compare
     dateHelpers.js           # getActiveDateString (rolls at 5 AM), getTomorrowDateString, formatDate
-    init.js                  # doRollover / injectRecurringTasks
+    init.js                  # backfillItemIds / doRollover / injectRecurringTasks (boot order matters)
     supabase.js              # Supabase client init
     navOrder.js              # resolveNavOrder / saveNavOrder / useNavModules (nav_order_v1)
     cards/
