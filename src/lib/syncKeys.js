@@ -14,6 +14,9 @@ export const STATIC_SYNC_KEYS = [
   'goals_projects',
   'general_tasks',
   'recurring_tasks',
+  // Which past days have already been carried forward. Must sync, or each device rolls
+  // the same day again and re-adds tasks the other device's user already deleted.
+  'rollover_done_v1',
   // Habits
   'habits',
   // Gym
