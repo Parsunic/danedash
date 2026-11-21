@@ -241,12 +241,19 @@ export function stampWrite(key, value, { bumpKeyTs = true, now = Date.now() } = 
 // ---------------------------------------------------------------------------
 export const META_FIELD = '__meta_v2'
 
-export function buildSyncMeta() {
+// `inScope` limits the bookkeeping to the keys one server row carries (the main row vs
+// the archive row), so neither row's metadata grows with the other's keys.
+export function buildSyncMeta(inScope = () => true) {
+  const pick = (map) => {
+    const out = {}
+    Object.keys(map).forEach(k => { if (inScope(k)) out[k] = map[k] })
+    return out
+  }
   return {
     w: 2,
-    keyTs: getKeyTsMap(),
-    keyTombs: getKeyTombs(),
-    itemTombs: getItemTombs(),
+    keyTs: pick(getKeyTsMap()),
+    keyTombs: pick(getKeyTombs()),
+    itemTombs: pick(getItemTombs()),
   }
 }
 

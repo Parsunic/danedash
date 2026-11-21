@@ -13,7 +13,7 @@
 // The functions here are pure — they take values and times and return values. The
 // localStorage plumbing lives in applyRemote() at the bottom.
 
-import { getCollection, getMapMerge } from './syncKeys.js'
+import { getCollection, getMapMerge, isSyncedKey } from './syncKeys.js'
 import { META_FIELD, itemId, getKeyTs, setKeyTs, getKeyTsMap, getKeyTombs, getItemTombs } from './syncMeta.js'
 
 // A record's own time, falling back to its key's time for records written before
@@ -203,6 +203,41 @@ export function mergeExerciseHistory(localValue, remoteValue) {
 const identifiable = (list, desc) => list.every(item => itemId(item, desc) !== null)
 
 // ---------------------------------------------------------------------------
+// The form a value is COMPARED in when deciding whether the server is missing something.
+//
+// Lists whose order is not a user decision (everything in COLLECTIONS without
+// `ordered`) keep each device's own order, with the other side's new records appended —
+// so two devices that each added a record before seeing the other's end up holding the
+// same records as [a, b] and [b, a]. Compared by position, each called the other stale
+// and pushed, the other merged, kept its own order and pushed back: an endless loop that
+// re-downloaded the entire sync row every second or two for as long as both devices were
+// open. That loop is what exhausted the Supabase egress quota.
+//
+// Comparing these lists as SETS (sorted by id, ties broken by content so the result never
+// depends on which device computes it) makes "same records, different order" equal.
+// Ordered lists are left alone: their order is merged deterministically by rank, and a
+// changed order there is a real edit that must propagate.
+//
+// Plain code-unit comparison, not localeCompare: two devices can have different locales,
+// and a comparison that differs between them would reintroduce the disagreement.
+// ---------------------------------------------------------------------------
+const cmp = (a, b) => (a < b ? -1 : a > b ? 1 : 0)
+
+export function comparable(key, value) {
+  const desc = getCollection(key)
+  if (!desc || desc.ordered) return value
+  const list = listOf(value, desc)
+  if (!list || !identifiable(list, desc)) return value
+  const sorted = list
+    .map(item => ({ item, id: itemId(item, desc), c: canonical(item) }))
+    .sort((a, b) => cmp(a.id, b.id) || cmp(a.c, b.c))
+    .map(x => x.item)
+  return withList(value, desc, sorted)
+}
+
+const sameForSync = (key, a, b) => canonical(comparable(key, a)) === canonical(comparable(key, b))
+
+// ---------------------------------------------------------------------------
 // Merge one key. Returns the value to store, or NO_CHANGE to leave local alone.
 // ---------------------------------------------------------------------------
 export const NO_CHANGE = Symbol('no-change')
@@ -241,8 +276,13 @@ export function mergeValue(key, localValue, remoteValue, localTs, remoteTs, item
 //   needsPush — the merged result differs from what the server holds, so the other
 //               device is missing something and we owe it a push. This is what stops a
 //               disagreement from sitting there unresolved.
+//
+// `inScope` names the keys this server row is responsible for. Keys outside it are still
+// merged if the row carries them, but they never make the row "need a push" — otherwise a
+// key that belongs to the other row would be reported missing from this one on every
+// single pull, and every pull would push.
 // ---------------------------------------------------------------------------
-export function applyRemote(payload, remoteMs, { allowTombstones = true } = {}) {
+export function applyRemote(payload, remoteMs, { allowTombstones = true, inScope = () => true } = {}) {
   if (!payload) return { applied: false, needsPush: false }
 
   const meta = payload[META_FIELD]
@@ -301,8 +341,9 @@ export function applyRemote(payload, remoteMs, { allowTombstones = true } = {}) 
     setKeyTs(key, Math.max(localTs, remoteTs))
 
     // Whatever we ended up with, if it isn't what the server sent, the server is stale.
+    // Compared as sets for unordered lists — see comparable().
     const settled = next === NO_CHANGE ? localValue : next
-    if (canonical(settled) !== canonical(remoteValue)) needsPush = true
+    if (inScope(key) && !sameForSync(key, settled, remoteValue)) needsPush = true
   })
 
   // Keys the server still holds that we deleted.
@@ -317,10 +358,16 @@ export function applyRemote(payload, remoteMs, { allowTombstones = true } = {}) 
 
   // Anything we hold that the server has never seen has to go up, or it lives on exactly
   // one device forever.
+  //
+  // Only keys a push would actually carry count. The time map can hold others — a key an
+  // older build synced and this one no longer does, which applyRemote above dutifully
+  // timestamped — and such a key is "missing" from every row forever, because no push
+  // ever includes it. Counting it made every pull push, on every device, endlessly.
   if (!needsPush) {
     const remoteSet = new Set(remoteKeys)
     needsPush = Object.keys(getKeyTsMap())
-      .some(key => !remoteSet.has(key) && localStorage.getItem(key) !== null)
+      .some(key => isSyncedKey(key) && inScope(key) && !remoteSet.has(key)
+        && localStorage.getItem(key) !== null)
   }
 
   return { applied, needsPush }

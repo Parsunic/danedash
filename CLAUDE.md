@@ -22,7 +22,7 @@ Note: only single SQL statements per request reliably work (multi-statement with
 ### Current Schema (public schema)
 All tables have RLS enabled. App uses the anon/publishable key only — no service role in the browser.
 
-- **`app_state`**: `key (text, PK-ish)`, `data (jsonb)`, `updated_at`. Generic localStorage-mirror blob sync (`SyncContext.jsx`). RLS: anon SELECT/INSERT/UPDATE, `qual: true` (fully open).
+- **`app_state`**: `key (text, PK-ish)`, `data (jsonb)`, `updated_at`. Generic localStorage-mirror blob sync (`syncEngine.js`). Two rows: `dane` (main) and `dane_archive` (dated history — see Egress below). RLS: anon SELECT/INSERT/UPDATE, `qual: true` (fully open).
 - **`exercises`**: `id (uuid)`, `name`, `primary_muscle`, `secondary_muscles (array)`, `primary_sub_muscles (text[])`, `secondary_sub_muscles (text[])`, `created_at`. Exercise → muscle lookup (`muscleUtils.js`); sub-muscles power the body map (see Muscle Map). RLS: public read (`true`), insert/update open (`true`).
 - **`health_metrics`**: `id`, `user_id`, `date`, `sleep_score`, `sleep_stages (jsonb)`, `hrv`, `resting_hr`, `steps`, `active_minutes`, `raw_fitbit_data (jsonb)`, `created_at`. Google Fit daily sync (`googleFitSync.js`), unique on `(user_id, date)`. RLS: anon ALL where `user_id = 'dane'`.
 - **`user_integrations`**: `id`, `user_id`, `provider`, `access_token`, `refresh_token`, `expires_at`, `scopes`. Cross-device OAuth token storage (currently used by Google Fit, `provider='googlefit'`), unique on `(user_id, provider)`. RLS: anon ALL, `qual: true` (fully open).
@@ -36,7 +36,7 @@ All tables have RLS enabled. App uses the anon/publishable key only — no servi
 
 ## Data Layer
 - **localStorage** is primary — `storeGet`/`storeSet` from `src/lib/storage.js`
-- **Supabase** blob sync via `src/contexts/SyncContext.jsx` (`app_state` table, keyed by `key`)
+- **Supabase** blob sync via `src/lib/syncEngine.js`, wired up by `src/contexts/SyncContext.jsx` (`app_state` table, keyed by `key`)
 - Active date: `getActiveDateString()` from `src/lib/dateHelpers.js`
 - Cross-module events: `window.dispatchEvent(new Event('gym-changed'))`, `'goals-changed'`, `'schedule-sync'`, `'sync-applied'`
 - **Four write functions — pick deliberately.** All in `src/lib/storage.js`.
@@ -48,7 +48,7 @@ All tables have RLS enabled. App uses the anon/publishable key only — no servi
 ## Cross-Device Sync — MERGE, NOT OVERWRITE
 **Every new feature that persists data must be wired into sync.** localStorage alone does not sync across devices.
 
-The sync row is a single JSON blob, but it is no longer applied as one. A pull **merges**: each key — and each record inside the list keys — resolves to whichever device changed it most recently. This is what stops an edit on one device from being destroyed by an unrelated edit on another seconds later, which was the long-standing "my tasks keep reverting" bug. Engine: `src/lib/syncMeta.js` (recording) + `src/lib/syncMerge.js` (resolving), driven by `src/contexts/SyncContext.jsx`.
+The sync row is a single JSON blob, but it is no longer applied as one. A pull **merges**: each key — and each record inside the list keys — resolves to whichever device changed it most recently. This is what stops an edit on one device from being destroyed by an unrelated edit on another seconds later, which was the long-standing "my tasks keep reverting" bug. Engine: `src/lib/syncMeta.js` (recording) + `src/lib/syncMerge.js` (resolving) + `src/lib/syncEngine.js` (network protocol), wired to the page by `src/contexts/SyncContext.jsx`.
 
 ### How to add a new key to sync:
 1. **Static key** (fixed name like `'my_feature_data'`): add it to `STATIC_SYNC_KEYS` in `src/lib/syncKeys.js` — the single source of truth, imported by both SyncContext and `backup.js`. (These lists used to be duplicated and had silently drifted.)
@@ -67,7 +67,19 @@ The sync row is a single JSON blob, but it is no longer applied as one. A pull *
 - **Ordering lives in `_r`, not array position.** Ranks are derived automatically inside `stampWrite` from the order callers already write, so drag handlers need no changes. `_r` carries its own timestamp (`_rts`) separate from the record's `_ts`, so ticking a checkbox cannot drag a stale position along and undo a reorder made elsewhere.
 - **Compare canonically.** Merging produces the same entries in different key orders on each device; plain `JSON.stringify` equality would make each think the other is stale and push forever. `syncMerge.canonical()` exists for this.
 - **Pushes are compare-and-swap** (`.eq('updated_at', prior)` + retry). `upsert` cannot express the guard, so insert and update are separate paths.
-- **Escape hatch**: `localStorage._sync_v2_off = '1'` drops a device back to plain overwrite without a deploy.
+- **Unordered lists compare as SETS** when deciding whether to push (`syncMerge.comparable()`). Lists without `ordered` keep each device's own order, so two devices that each added a record hold `[a,b]` vs `[b,a]`; comparing by position made them push at each other forever, which is what blew through the Supabase egress quota (Nov 2026). Any new "does the server need this?" comparison must go through `comparable()`.
+- **"Server never saw this key" counts only keys a push carries** (`isSyncedKey` + the row's scope). A stale key in the time map that no push includes would otherwise make every pull push, endlessly.
+- **Escape hatch**: `localStorage._sync_v2_off = '1'` drops a device back to plain overwrite (single row) without a deploy.
+
+### Egress — Supabase free plan is 5 GB/month; every byte the server SENDS counts
+`syncEngine.js` is built around not downloading the blob. Rules that must hold:
+- **Never download a row without checking its timestamp first.** Focus, visibility, polling, signals and boot all run `select key, updated_at` (a few hundred bytes) and fetch `data` only for a row whose `updated_at` moved past the one recorded in `_sync_rows_v1` (device-local, in `SYNC_META_KEYS`). An unchanged reload downloads nothing.
+- **Pushes do not read first.** They CAS straight against the last `updated_at` seen (the server's exact string), and only read + merge + retry when the swap misses. A row whose local signature (`localSignature`, a hash of the stored strings) is unchanged since it was last in sync is not pushed at all.
+- **No `postgres_changes` on `app_state`.** It ships the whole row to every client — the writer included — on every write. Devices announce writes with a tiny Realtime **broadcast** (`ultradash-sync-signal-v1`, `{row, at}`); hidden tabs ignore it and catch up when shown. A 2-minute visible-only timestamp poll is the backstop.
+- **Two rows.** `dane_archive` holds dated history (`goals:`/`daily_focus:` days, `habits_log:` weeks, `finance:`/`journal_synthesis:` months) older than `archiveCutoff()` (active date − 14 days, snapped to a Monday — keys move in weekly batches). It still syncs fully; it is just rarely downloaded. Each row's `__meta_v2` carries only its own keys. The archive is pushed first; if it fails, the main row carries everything that round. Older builds don't know the archive row: they keep their local history and push it into `dane`, which merges harmlessly.
+- **All sync network calls are serialised** (one at a time), so focus + visibilitychange cannot double-download.
+- **Circuit breaker**: 6 engine-initiated pushes in 5 minutes with no local edit → automatic pushes pause (console warning) until the next edit or reload. A future convergence bug must not silently burn the quota again.
+- If you change the engine, verify with a multi-device simulation (fake Supabase with CAS + byte counting) that concurrent edits converge and that an idle pair of devices goes quiet — the loop that caused the overage looked fine on a single device.
 
 ### Currently NOT record-merged (deliberate)
 `layouts_v1` is whole-key. Its per-breakpoint buckets exist on both sides always, so entry-level merging cannot tell which side actually rearranged — it would look protective without being so. Layout changes are one deliberate Settings gesture; last save wins. Same reasoning for `nav_order_v1`, `notif_prefs_v1`, `gym_settings`, `overseer_config_v1`, `finance_budgets`.
@@ -167,15 +179,16 @@ src/
       useCardDrag.js         # Pointer/touch drag engine
       useFlipReflow.js       # FLIP glide on order/size/cols change
   contexts/
-    SyncContext.jsx          # Supabase sync provider (debounced)
+    SyncContext.jsx          # Wires syncEngine to the page (edits, focus/visibility, status)
     UIEditContext.jsx        # Global card-edit state (editing/layoutMode) — never persisted
   hooks/
     useViewport.js           # Container-measured grid tiers {cols, bp, rowUnit, vhTier}
   lib/
     storage.js               # storeGet / storeSet / storeSetSilent / storeDelete / storeDeleteSilent
-    syncKeys.js              # WHICH keys sync + how each merges (COLLECTIONS / MAP_MERGES)
+    syncKeys.js              # WHICH keys sync + how each merges (COLLECTIONS / MAP_MERGES) + archive cutoff
     syncMeta.js              # per-key + per-record change times, tombstones, ranks, kill switch
-    syncMerge.js             # pure merge: records, maps, tombstones, canonical compare
+    syncMerge.js             # pure merge: records, maps, tombstones, canonical + set-wise compare
+    syncEngine.js            # network protocol: rows, timestamp checks, CAS pushes, signal, breaker
     dateHelpers.js           # getActiveDateString (rolls at 5 AM), getTomorrowDateString, formatDate
     init.js                  # backfillItemIds / doRollover / injectRecurringTasks (boot order matters)
     supabase.js              # Supabase client init
