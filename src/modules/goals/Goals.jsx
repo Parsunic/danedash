@@ -29,7 +29,9 @@ function TasksIcon() {
 
 export default function Goals() {
   const location = useLocation()
-  const initialTasks = new URLSearchParams(location.search).get('view') === 'tasks'
+  // Opens on Tasks by default; links that mean the Goals face (habits, long-term goals)
+  // ask for it with ?view=goals.
+  const initialTasks = new URLSearchParams(location.search).get('view') !== 'goals'
   const { flipped, animState, isFlipping, flip } = useFlip(initialTasks)
   const view = flipped ? 'tasks' : 'goals'
 

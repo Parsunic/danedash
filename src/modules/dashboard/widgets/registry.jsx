@@ -10,7 +10,6 @@ import HabitsWeekWidget from './HabitsWeekWidget.jsx'
 import JournalWidget from './JournalWidget.jsx'
 import StreakWidget from './StreakWidget.jsx'
 import WeightWidget from './WeightWidget.jsx'
-import SpendWidget from './SpendWidget.jsx'
 
 // Dashboard widget registry. Entry contract:
 // { title, icon, component({size,bp}), sizes[], defaultSize, chromeless?,
@@ -87,13 +86,6 @@ const ICONS = {
       <rect x="3" y="3" width="18" height="18" rx="4" opacity="0.4" />
       <path d="M12 8l2.5 3.5" />
       <circle cx="12" cy="12" r="0.6" />
-    </svg>
-  ),
-  spend: (
-    <svg {...ICON_PROPS}>
-      <circle cx="12" cy="12" r="9" opacity="0.4" />
-      <path d="M15 9.2c-.7-1-1.8-1.5-3-1.5-1.6 0-2.8 1-2.8 2.3 0 3.2 6 1.6 6 4.8 0 1.4-1.3 2.4-3.2 2.4-1.3 0-2.5-.6-3.2-1.6" />
-      <path d="M12 5.5v13" />
     </svg>
   ),
 }
@@ -208,17 +200,8 @@ export const DASH_WIDGETS = {
     autoPriority: 12,
     autoSize: { 2: 'S', 3: 'S', 4: 'S' },
   },
-  spend: {
-    title: 'Spend',
-    icon: ICONS.spend,
-    component: SpendWidget,
-    sizes: ['S', 'M'],
-    defaultSize: 'S',
-    autoPriority: 13,
-    autoSize: { 2: 'S', 3: 'S', 4: 'S' },
-  },
 }
 
 // Seed order mirrors today's dashboard, then the five new widgets appended,
 // then readiness (F2) — appended so existing stored layouts sanitize-append it.
-export const DEFAULT_DASH_ORDER = ['dayring', 'schedule', 'queue', 'pulse', 'overseer', 'gymnext', 'sleep', 'habits', 'journal', 'streak', 'readiness', 'weight', 'spend']
+export const DEFAULT_DASH_ORDER = ['dayring', 'schedule', 'queue', 'pulse', 'overseer', 'gymnext', 'sleep', 'habits', 'journal', 'streak', 'readiness', 'weight']

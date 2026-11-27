@@ -7,7 +7,6 @@ import Journal from './modules/journal/index.jsx'
 import Gym from './modules/gym/index.jsx'
 import Calendar from './modules/calendar/index.jsx'
 import Health from './modules/health/index.jsx'
-import Finances from './modules/finances/index.jsx'
 import Overseer from './modules/overseer/index.jsx'
 import { SyncProvider } from './contexts/SyncContext.jsx'
 import { handleOAuthCallback, syncOnLoad } from './modules/calendar/googleSync.js'
@@ -113,18 +112,6 @@ export const modules = [
     component: Health,
   },
   {
-    path: '/finances',
-    label: 'Finances',
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-        <circle cx="9" cy="9" r="7" stroke="currentColor" strokeWidth="1.5" />
-        <path d="M11 6.2c-.5-.8-1.3-1.1-2-1.1-1.1 0-2 .7-2 1.7 0 2.4 4.2 1.2 4.2 3.6 0 1-.9 1.8-2.2 1.8-.9 0-1.7-.4-2.2-1.1" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
-        <path d="M9 3.6v10.8" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
-      </svg>
-    ),
-    component: Finances,
-  },
-  {
     path: '/overseer',
     label: 'Overseer',
     icon: (
@@ -152,6 +139,8 @@ export default function App() {
               <Route key={path} path={path} element={<Component />} />
             ))}
             <Route path="/todo" element={<Navigate to="/goals" replace />} />
+            {/* Finances was removed; old bookmarks and home-screen shortcuts land on the dashboard. */}
+            <Route path="/finances" element={<Navigate to="/" replace />} />
           </Routes>
         </Layout>
       </UIEditProvider>

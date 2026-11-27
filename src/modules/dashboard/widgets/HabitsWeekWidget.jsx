@@ -76,7 +76,7 @@ export default function HabitsWeekWidget({ size, bp }) {
         <div className="dash-widget-label">Habits</div>
         <div style={{ ...HERO, fontSize: 19, lineHeight: 1.15, marginTop: 8 }}>No habits set</div>
         <div className="dash-widget-empty" style={{ marginTop: 'auto', padding: 0 }}>Non-negotiables first.</div>
-        <Link to="/goals" className="dash-widget-link" style={{ marginTop: 6 }}>Add habits →</Link>
+        <Link to="/goals?view=goals" className="dash-widget-link" style={{ marginTop: 6 }}>Add habits →</Link>
       </div>
     )
   }
@@ -150,7 +150,7 @@ export default function HabitsWeekWidget({ size, bp }) {
     <div style={ROOT_STYLE}>
       <div className="dash-widget-header">
         <span className="dash-widget-label">This Week</span>
-        <Link to="/goals" className="dash-widget-link">Goals →</Link>
+        <Link to="/goals?view=goals" className="dash-widget-link">Goals →</Link>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: gridCols, gap: '4px 3px', alignItems: 'center' }}>
         <div />
