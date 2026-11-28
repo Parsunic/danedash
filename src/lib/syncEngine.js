@@ -27,7 +27,7 @@
 //   - Realtime carries a tiny broadcast ("row X changed at T") instead of the row. Hidden
 //     tabs ignore it and catch up when they are next shown, so a laptop left open in the
 //     background is not downloading every set logged on the phone.
-//   - History (past task days, habit weeks, finance months) lives in a second row that is
+//   - History (past task days, habit weeks, monthly AI summaries) lives in a second row that is
 //     downloaded only when it changes — roughly once a week (see ARCHIVE in syncKeys.js).
 //   - A circuit breaker stops automatic pushes if this device keeps pushing without the
 //     user editing anything, so a future convergence bug cannot quietly burn the quota.

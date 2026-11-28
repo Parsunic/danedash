@@ -216,7 +216,7 @@ export default function PulseWidget({ size, bp }) {
 
       {isL && (
         <div className="pulse-footer" style={{ marginTop: 'auto' }}>
-          <Link to="/goals" className="pulse-footer-link">View Goals →</Link>
+          <Link to="/goals?view=goals" className="pulse-footer-link">View Goals →</Link>
         </div>
       )}
     </div>

@@ -29,8 +29,6 @@ export const STATIC_SYNC_KEYS = [
   'body_metrics_v1',
   // Weekly review ritual (marks a week reviewed)
   'weekly_reviews_v1',
-  // Finances (per-category monthly budgets)
-  'finance_budgets',
   // Notifications & reminders (per-type prefs; permission + dedupe marks stay device-local)
   'notif_prefs_v1',
   // Layout customization (card grids + nav order)
@@ -45,7 +43,6 @@ export const DYNAMIC_SYNC_PREFIXES = [
   'habits_log:',        // one key per calendar week
   'daily_focus:',       // today's thematic focus (one per date)
   'journal_synthesis:', // one cached AI synthesis per month
-  'finance:',           // one transaction array per month (finance:YYYY-MM)
 ]
 
 // Sync-layer bookkeeping. Never synced, never backed up, never exported — these describe
@@ -89,7 +86,6 @@ export function isSyncedKey(key) {
 //             whatever order it is given, because its views sort by date anyway.
 export const COLLECTIONS = {
   'goals:':           { idField: 'id', ordered: true },  // prefix — one list per date
-  'finance:':         { idField: 'id' },                 // prefix — one list per month
   general_tasks:      { idField: 'id', ordered: true },
   goals_projects:     { idField: 'id' },  // nested milestones/checkpoints merge with their goal
   habits:             { idField: 'id' },
@@ -147,7 +143,7 @@ export function getMapMerge(key) {
 // Whole-key last-write-wins, deliberately:
 //   goal_streak_v1, daily_focus:*, journal_synthesis:*  — single derived/cached values
 //   nav_order_v1, notif_prefs_v1, gym_settings,
-//   overseer_config_v1, finance_budgets                 — saved as one Settings gesture,
+//   overseer_config_v1                                  — saved as one Settings gesture,
 //                                                         where "the last save wins" is
 //                                                         what a user actually expects
 //   recurring_tasks                                     — no id field, edited as a unit
@@ -156,7 +152,7 @@ export function getMapMerge(key) {
 // ARCHIVE — which keys live in the second server row.
 //
 // Every sync download moves a whole row, and the main row used to hold every day's task
-// list since the app began. Past days, past habit weeks and past finance months are
+// list since the app began. Past days, past habit weeks and past AI summaries are
 // history: they still sync, but they almost never change. Keeping them in their own row
 // (`dane_archive`) means the main row — downloaded on every remote edit — stays small,
 // and the archive is downloaded only on the rare occasions it actually changes.
@@ -189,7 +185,7 @@ export function archiveCutoff(activeDate) {
 function periodEnd(key) {
   let m = /^(?:goals|daily_focus):(\d{4}-\d{2}-\d{2})$/.exec(key)
   if (m) return m[1]
-  m = /^(?:finance|journal_synthesis):(\d{4})-(\d{2})$/.exec(key)
+  m = /^journal_synthesis:(\d{4})-(\d{2})$/.exec(key)
   if (m) return isoDay(utcDay(+m[1], +m[2] + 1, 1) - DAY_MS) // last day of the month
   m = /^habits_log:(\d{4})-W(\d{2})$/.exec(key)
   if (m) {

@@ -1,7 +1,7 @@
 # UltraDash — Claude Context
 
 ## Project Goal
-Personal life management PWA: Dashboard, To-Do, Gym, Calendar, Journal, and Health (all implemented; Finances planned). High priority on sleek UI with nice graphs and data. Works on **mobile** (primary use) and **desktop** (enhanced multi-column layouts, with more in depth planning and statistic features on desktop). Deployed to Netlify and Vercel, auto-synced from GitHub.
+Personal life management PWA: Dashboard, To-Do, Gym, Calendar, Journal, and Health (all implemented). A Finances module existed and was removed (Nov 2026) — `/finances` redirects to the dashboard; don't reintroduce it unasked. High priority on sleek UI with nice graphs and data. Works on **mobile** (primary use) and **desktop** (enhanced multi-column layouts, with more in depth planning and statistic features on desktop). Deployed to Netlify and Vercel, auto-synced from GitHub.
 
 ## Auto-Deploy — CRITICAL
 A PostToolUse hook **automatically commits and pushes** after every `Write` or `Edit` tool call. **Never run git commands manually** in this project. The hook handles all version control.
@@ -63,7 +63,7 @@ The sync row is a single JSON blob, but it is no longer applied as one. A pull *
 ### Invariants that must not be broken
 - **The payload shape is frozen at `{key: value}`.** Sync metadata rides as one reserved entry, `__meta_v2`. This app is an installable PWA, so a phone can be running a build from days ago that applies the payload by writing every entry into localStorage — restructuring it would make that build render an empty app and then push the emptiness back. A row arriving *without* `__meta_v2` was written by such a build: it is accepted, its inability to express deletions is respected (our tombstones are not enforced against it), and we push afterwards to restore the bookkeeping.
 - **Record identity must be stable.** `backfillItemIds` in `init.js` gives every task row an id at boot; rollover and recurring injection use **deterministic** ids (`ro:<date>:<text>`), never `crypto.randomUUID()`, because both devices run them independently and random ids would duplicate every carried-over task.
-- **Rollover retires a day by RECORDING it, never by deleting it** (`rollover_done_v1`, a synced map of retired dates). Deleting the past `goals:` key locally does not work: the server keeps its copy, the next pull restores it, and the next launch rolls it again — so a task the user deleted came back on every single reload, forever. Past days are therefore kept as history (the weekly review reads them). Rollover also skips any task already tombstoned in today's key, so a second pass on the same day cannot undo a deletion.
+- **Rollover retires a day by RECORDING it, never by deleting it** (`rollover_done_v1`, a synced map of retired dates). Deleting the past `goals:` key locally does not work: the server keeps its copy, the next pull restores it, and the next launch rolls it again — so a task the user deleted came back on every single reload, forever. Past days are therefore kept as history (the weekly review reads them). Rollover also skips any task already tombstoned in today's key, so a second pass on the same day cannot undo a deletion. It carries only from the **most recent** unretired day, and only tasks first planned at most `CARRY_MAX_DAYS` (7) days ago — carried rows record that day as `since` (legacy rows are traced back through their `ro:` ids to the day they were created). The old rule carried every unfinished task from every unretired day forever, and a day arriving late from another device dumped months of backlog into today (Nov 2026). `pruneStaleCarried` strips over-age legacy `ro:<today>:` rows once, as tracked deletions.
 - **Ordering lives in `_r`, not array position.** Ranks are derived automatically inside `stampWrite` from the order callers already write, so drag handlers need no changes. `_r` carries its own timestamp (`_rts`) separate from the record's `_ts`, so ticking a checkbox cannot drag a stale position along and undo a reorder made elsewhere.
 - **Compare canonically.** Merging produces the same entries in different key orders on each device; plain `JSON.stringify` equality would make each think the other is stale and push forever. `syncMerge.canonical()` exists for this.
 - **Pushes are compare-and-swap** (`.eq('updated_at', prior)` + retry). `upsert` cannot express the guard, so insert and update are separate paths.
@@ -76,13 +76,13 @@ The sync row is a single JSON blob, but it is no longer applied as one. A pull *
 - **Never download a row without checking its timestamp first.** Focus, visibility, polling, signals and boot all run `select key, updated_at` (a few hundred bytes) and fetch `data` only for a row whose `updated_at` moved past the one recorded in `_sync_rows_v1` (device-local, in `SYNC_META_KEYS`). An unchanged reload downloads nothing.
 - **Pushes do not read first.** They CAS straight against the last `updated_at` seen (the server's exact string), and only read + merge + retry when the swap misses. A row whose local signature (`localSignature`, a hash of the stored strings) is unchanged since it was last in sync is not pushed at all.
 - **No `postgres_changes` on `app_state`.** It ships the whole row to every client — the writer included — on every write. Devices announce writes with a tiny Realtime **broadcast** (`ultradash-sync-signal-v1`, `{row, at}`); hidden tabs ignore it and catch up when shown. A 2-minute visible-only timestamp poll is the backstop.
-- **Two rows.** `dane_archive` holds dated history (`goals:`/`daily_focus:` days, `habits_log:` weeks, `finance:`/`journal_synthesis:` months) older than `archiveCutoff()` (active date − 14 days, snapped to a Monday — keys move in weekly batches). It still syncs fully; it is just rarely downloaded. Each row's `__meta_v2` carries only its own keys. The archive is pushed first; if it fails, the main row carries everything that round. Older builds don't know the archive row: they keep their local history and push it into `dane`, which merges harmlessly.
+- **Two rows.** `dane_archive` holds dated history (`goals:`/`daily_focus:` days, `habits_log:` weeks, `journal_synthesis:` months) older than `archiveCutoff()` (active date − 14 days, snapped to a Monday — keys move in weekly batches). It still syncs fully; it is just rarely downloaded. Each row's `__meta_v2` carries only its own keys. The archive is pushed first; if it fails, the main row carries everything that round. Older builds don't know the archive row: they keep their local history and push it into `dane`, which merges harmlessly.
 - **All sync network calls are serialised** (one at a time), so focus + visibilitychange cannot double-download.
 - **Circuit breaker**: 6 engine-initiated pushes in 5 minutes with no local edit → automatic pushes pause (console warning) until the next edit or reload. A future convergence bug must not silently burn the quota again.
 - If you change the engine, verify with a multi-device simulation (fake Supabase with CAS + byte counting) that concurrent edits converge and that an idle pair of devices goes quiet — the loop that caused the overage looked fine on a single device.
 
 ### Currently NOT record-merged (deliberate)
-`layouts_v1` is whole-key. Its per-breakpoint buckets exist on both sides always, so entry-level merging cannot tell which side actually rearranged — it would look protective without being so. Layout changes are one deliberate Settings gesture; last save wins. Same reasoning for `nav_order_v1`, `notif_prefs_v1`, `gym_settings`, `overseer_config_v1`, `finance_budgets`.
+`layouts_v1` is whole-key. Its per-breakpoint buckets exist on both sides always, so entry-level merging cannot tell which side actually rearranged — it would look protective without being so. Layout changes are one deliberate Settings gesture; last save wins. Same reasoning for `nav_order_v1`, `notif_prefs_v1`, `gym_settings`, `overseer_config_v1`.
 
 ### Currently synced keys:
 - `goals:*` (all date-keyed task lists), `goal_streak_v1`, `goals_projects`, `general_tasks`, `recurring_tasks`, `rollover_done_v1`
@@ -90,7 +90,6 @@ The sync row is a single JSON blob, but it is no longer applied as one. A pull *
 - `gym_templates`, `gym_planned`, `gym_week_tpls`, `gym_workout_logs`, `gym_exercise_history`, `custom_exercises`, `gym_settings`
 - `calendar_events`, `journal_entries`
 - `body_metrics_v1` (weigh-in log — `src/lib/bodyMetrics.js`; Health Body Weight card + dashboard `weight` widget + Weight Trend)
-- `finance:*` (one transaction array per month, `finance:YYYY-MM`), `finance_budgets` (per-category monthly budgets — Finances module + dashboard `spend` widget)
 - `layouts_v1`, `nav_order_v1` (card-grid layouts + nav order — see Dynamic Card System)
 
 ### Events dispatched after remote sync applies:
@@ -214,7 +213,7 @@ src/
         registry.jsx         # DASH_WIDGETS (10) + DEFAULT_DASH_ORDER
         GoalTickerStrip.jsx  # Fixed ticker strip above the grid (NOT a registry widget)
         *Widget.jsx          # DayRing/Schedule/Queue/Pulse/Overseer + GymNext/Sleep/HabitsWeek/Journal/Streak
-    goals/                   # /goals route — Goals ⇄ Tasks flip (FlipTitle)
+    goals/                   # /goals route — Goals ⇄ Tasks flip (FlipTitle); opens on Tasks, ?view=goals for Goals
       Goals.jsx              # Shell: Goals face = CardGrid (area 'goals'); Tasks face = <Todo embedded>
       goalsCardRegistry.jsx  # GOALS_REGISTRY (insights/habits/projects) — static self-contained widgets
       components/AIInsightsCard.jsx  # AI "how you're doing" read
@@ -263,16 +262,12 @@ src/
                              # SleepStages, WeeklyActivity)
       googleFitSync.js       # Google Fit OAuth + data fetching
       fitbitSync.js          # Fitbit sync (exists, unused)
-    finances/
-      Finances.jsx           # FlipTitle Log ⇄ Budgets: month nav, quick-add, tx list, budgets + category chart
-      financeUtils.js        # finance:YYYY-MM tx + finance_budgets; getMonthTx/addTx/deleteTx/monthSummary/getBudgets
-      index.jsx              # re-export
 ```
 
 ## Key Data Shapes
 Records inside a `COLLECTIONS` key also carry sync bookkeeping the merge layer writes and reads: `_ts` (last change), plus `_r`/`_rts` (position) on `ordered` keys. Ignore them in UI code; never hand-write them; strip them in any projection sent to an API.
 
-- **Goal/To-Do**: `{ id, text, done, doneAt?, queued?, date }` — stored at `goals:YYYY-MM-DD`. `id` is guaranteed present (back-filled at boot).
+- **Goal/To-Do**: `{ id, text, done, doneAt?, queued?, date, since? }` — stored at `goals:YYYY-MM-DD`. `id` is guaranteed present (back-filled at boot). `since` (YYYY-MM-DD) is set on rolled-over tasks: the day the task was first planned, which bounds how long rollover keeps carrying it.
 - **Gym planned**: `{ id, date, name, templateId, exercises[], status }` — stored at `gym_planned`
 - **Gym template**: `{ id, name, exercises[{name, sets, repRange, notes, primary_muscle?}] }` — stored at `gym_templates`
 - **Gym log**: `{ id, date, exercises[{name, primary_muscle, sets[{weight, reps, rpe, e1rm, allHitTop}]}] }` — stored at `gym_workout_logs`

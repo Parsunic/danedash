@@ -312,7 +312,10 @@ export function applyRemote(payload, remoteMs, { allowTombstones = true, inScope
     try { return JSON.parse(raw) } catch { return undefined }
   }
 
-  const remoteKeys = Object.keys(payload).filter(k => k !== META_FIELD)
+  // Keys this build does not sync (a removed feature, say — an older build still pushes
+  // them) are ignored outright: not written, and never a reason to push. Merging them
+  // would make every pull of such a row report the server as stale, and push again.
+  const remoteKeys = Object.keys(payload).filter(k => k !== META_FIELD && isSyncedKey(k))
 
   remoteKeys.forEach(key => {
     const remoteValue = payload[key]
@@ -349,7 +352,7 @@ export function applyRemote(payload, remoteMs, { allowTombstones = true, inScope
   // Keys the server still holds that we deleted.
   if (useTombs) {
     Object.entries(remoteKeyTombs).forEach(([key, tomb]) => {
-      if (tomb > getKeyTs(key) && localStorage.getItem(key) !== null) {
+      if (isSyncedKey(key) && tomb > getKeyTs(key) && localStorage.getItem(key) !== null) {
         localStorage.removeItem(key)
         applied = true
       }
