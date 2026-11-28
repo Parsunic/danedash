@@ -13,7 +13,7 @@
 // The functions here are pure — they take values and times and return values. The
 // localStorage plumbing lives in applyRemote() at the bottom.
 
-import { getCollection, getMapMerge, isSyncedKey } from './syncKeys.js'
+import { getCollection, getMapMerge, isSyncedKey, isSplitKey } from './syncKeys.js'
 import { META_FIELD, itemId, getKeyTs, setKeyTs, getKeyTsMap, getKeyTombs, getItemTombs } from './syncMeta.js'
 
 // A record's own time, falling back to its key's time for records written before
@@ -254,6 +254,10 @@ export function mergeValue(key, localValue, remoteValue, localTs, remoteTs, item
       const merged = mergeLists(localList, remoteList, desc, localTs, remoteTs, itemTombs)
       return withList(remoteTs > localTs ? remoteValue : localValue, desc, merged)
     }
+    // A split key arrives as one row's PART of the list. Resolving it as a whole would
+    // replace the full local list with that part and drop every record on the other
+    // side of the cutoff — so when records cannot be merged one by one, keep local.
+    if (isSplitKey(key)) return NO_CHANGE
   }
 
   const mapDesc = getMapMerge(key)
@@ -281,8 +285,17 @@ export function mergeValue(key, localValue, remoteValue, localTs, remoteTs, item
 // merged if the row carries them, but they never make the row "need a push" — otherwise a
 // key that belongs to the other row would be reported missing from this one on every
 // single pull, and every pull would push.
+//
+// `project` cuts a value down to the part this row carries. It matters for split keys
+// (SPLIT_COLLECTIONS), where each row holds only the records on its side of the archive
+// cutoff: local holds the whole list, so comparing it whole against one row's part would
+// always differ, and again every pull would push.
 // ---------------------------------------------------------------------------
-export function applyRemote(payload, remoteMs, { allowTombstones = true, inScope = () => true } = {}) {
+export function applyRemote(payload, remoteMs, {
+  allowTombstones = true,
+  inScope = () => true,
+  project = (key, value) => value,
+} = {}) {
   if (!payload) return { applied: false, needsPush: false }
 
   const meta = payload[META_FIELD]
@@ -346,7 +359,7 @@ export function applyRemote(payload, remoteMs, { allowTombstones = true, inScope
     // Whatever we ended up with, if it isn't what the server sent, the server is stale.
     // Compared as sets for unordered lists — see comparable().
     const settled = next === NO_CHANGE ? localValue : next
-    if (inScope(key) && !sameForSync(key, settled, remoteValue)) needsPush = true
+    if (inScope(key) && !sameForSync(key, project(key, settled), project(key, remoteValue))) needsPush = true
   })
 
   // Keys the server still holds that we deleted.

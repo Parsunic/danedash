@@ -39,7 +39,9 @@
 // merged like any other data. That costs egress until every device has updated, but it
 // is bounded — nothing pushes in response to it.
 
-import { STATIC_SYNC_KEYS, DYNAMIC_SYNC_PREFIXES, isArchivedKey, archiveCutoff } from './syncKeys.js'
+import {
+  STATIC_SYNC_KEYS, DYNAMIC_SYNC_PREFIXES, isArchivedKey, archiveCutoff, isSplitKey, isArchivedRecord,
+} from './syncKeys.js'
 import { META_FIELD, buildSyncMeta, mergeDisabled } from './syncMeta.js'
 import { applyRemote } from './syncMerge.js'
 import { getActiveDateString } from './dateHelpers.js'
@@ -102,11 +104,19 @@ function activeRows() {
   return mergeDisabled() ? [MAIN_ROW] : [ARCHIVE_ROW, MAIN_ROW] // archive first: see pushAll
 }
 
-function scopeFor(id, cutoff) {
-  if (mergeDisabled()) return () => id === MAIN_ROW
-  return id === ARCHIVE_ROW
-    ? (k) => isArchivedKey(k, cutoff)
-    : (k) => !isArchivedKey(k, cutoff)
+// What one server row carries: which keys (`inScope`), and — for split keys, whose
+// records are divided between the rows — which part of the list (`project`).
+const ALL_VIEW = { inScope: () => true, project: (k, v) => v }
+
+function viewFor(id, cutoff) {
+  if (mergeDisabled()) return id === MAIN_ROW ? ALL_VIEW : { inScope: () => false, project: (k, v) => v }
+  const archive = id === ARCHIVE_ROW
+  return {
+    inScope: (k) => isSplitKey(k) || (archive ? isArchivedKey(k, cutoff) : !isArchivedKey(k, cutoff)),
+    project: (k, v) => (isSplitKey(k) && Array.isArray(v)
+      ? v.filter(rec => isArchivedRecord(k, rec, cutoff) === archive)
+      : v),
+  }
 }
 
 function syncedKeysIn(inScope) {
@@ -118,15 +128,15 @@ function syncedKeysIn(inScope) {
   return keys
 }
 
-function collectPayload(inScope) {
+function collectPayload(view) {
   const payload = {}
-  syncedKeysIn(inScope).forEach(k => {
+  syncedKeysIn(view.inScope).forEach(k => {
     const v = localStorage.getItem(k)
-    if (v !== null) { try { payload[k] = JSON.parse(v) } catch {} }
+    if (v !== null) { try { payload[k] = view.project(k, JSON.parse(v)) } catch {} }
   })
   // Rides along as one reserved entry — never a change to the payload's shape, because
   // older builds still in the wild apply it by writing every entry into localStorage.
-  if (!mergeDisabled()) payload[META_FIELD] = buildSyncMeta(inScope)
+  if (!mergeDisabled()) payload[META_FIELD] = buildSyncMeta(view.inScope)
   return payload
 }
 
@@ -134,8 +144,10 @@ function collectPayload(inScope) {
 // (no parsing), so checking whether a large, rarely-changing row needs a push costs almost
 // nothing. It only has to answer "has local data changed since we were last in sync?" —
 // merges write a key only when its content really changed, so the strings are stable.
-function localSignature(inScope) {
-  const keys = syncedKeysIn(inScope).sort()
+// Split keys are the exception: only this row's part of the list counts, so that adding
+// today's event does not make the archive look changed.
+function localSignature(view) {
+  const keys = syncedKeysIn(view.inScope).sort()
   let h = 0x811c9dc5
   let len = 0
   const feed = (s) => {
@@ -146,9 +158,12 @@ function localSignature(inScope) {
     len += s.length
   }
   keys.forEach(k => {
+    const raw = localStorage.getItem(k) ?? ''
+    let text = raw
+    if (isSplitKey(k)) { try { text = JSON.stringify(view.project(k, JSON.parse(raw))) } catch {} }
     feed(k)
     feed('\u0000')
-    feed(localStorage.getItem(k) ?? '')
+    feed(text)
     feed('\u0001')
   })
   if (mergeDisabled()) feed('\u0002plain') // flipping the kill switch changes what a push sends
@@ -253,7 +268,7 @@ export function createSyncEngine({
   // edits — and the try/finally is load-bearing: a merge that throws (malformed remote
   // data, a storage quota error) must not leave it set, or every later push is ignored
   // for the rest of the session with nothing surfaced anywhere.
-  function applyRow(data, remoteMs, inScope) {
+  function applyRow(data, remoteMs, view) {
     applying = true
     try {
       if (mergeDisabled()) {
@@ -264,7 +279,7 @@ export function createSyncEngine({
         notify()
         return false
       }
-      const { applied, needsPush } = applyRemote(data, remoteMs, { inScope })
+      const { applied, needsPush } = applyRemote(data, remoteMs, { inScope: view.inScope, project: view.project })
       if (applied) notify()
       return needsPush
     } catch (e) {
@@ -276,15 +291,15 @@ export function createSyncEngine({
   }
 
   // Download one row and merge it in.
-  async function pullRow(id, inScope) {
+  async function pullRow(id, view) {
     const row = await fetchRow(id)
     if (!row) return { missing: true }
     const remoteMs = toMs(row.updated_at)
-    const needsPush = row.data ? applyRow(row.data, remoteMs, inScope) : false
+    const needsPush = row.data ? applyRow(row.data, remoteMs, view) : false
     if (needsPush === null) return { failed: true } // leave state alone so the next check retries
     // Local now holds everything the row held. If it also holds nothing the row lacks,
     // what we have IS what the server has; otherwise mark the row as owed a push.
-    recordRowState(id, row.updated_at, needsPush ? null : localSignature(inScope))
+    recordRowState(id, row.updated_at, needsPush ? null : localSignature(view))
     appliedMs[id] = remoteMs
     return { needsPush }
   }
@@ -299,14 +314,14 @@ export function createSyncEngine({
     for (const id of ids) {
       // While the archive row is unavailable the main row carries everything — judge it
       // by the same scope its pushes use.
-      const inScope = (id === MAIN_ROW && archiveBlocked()) ? () => true : scopeFor(id, cutoff)
+      const view = (id === MAIN_ROW && archiveBlocked()) ? ALL_VIEW : viewFor(id, cutoff)
       const head = heads[id]
       if (!head) {
         // Row does not exist (yet, or any more). Forget what we knew about it so the push
         // recreates it — but only if we have something to put in it, so an empty device can
         // never create a blank row over data living elsewhere.
         resetRowState(id)
-        if (syncedKeysIn(inScope).length && !(id === ARCHIVE_ROW && archiveBlocked())) owePush = true
+        if (syncedKeysIn(view.inScope).length && !(id === ARCHIVE_ROW && archiveBlocked())) owePush = true
         continue
       }
       const ms = toMs(head.updated_at)
@@ -317,7 +332,7 @@ export function createSyncEngine({
         appliedMs[id] = ms
         continue
       }
-      const r = await pullRow(id, inScope)
+      const r = await pullRow(id, view)
       if (r.needsPush || r.missing) owePush = true
     }
     return owePush
@@ -341,13 +356,13 @@ export function createSyncEngine({
 
   // ── pushing ─────────────────────────────────────────────────────────────────────────
   // Returns 'sent' | 'skip' | 'error'.
-  async function pushRow(id, inScope) {
+  async function pushRow(id, view) {
     for (let attempt = 0; attempt < 4; attempt++) {
-      let sig = localSignature(inScope)
+      let sig = localSignature(view)
       const state = getRowState(id)
       if (attempt === 0 && sig === state.sig) return 'skip' // nothing changed since last in sync
       setStatus('syncing')
-      let payload = collectPayload(inScope)
+      let payload = collectPayload(view)
 
       // First attempt: swap straight against the version we last saw — no read at all.
       // Later attempts (the swap failed: someone else wrote) read the timestamp, merge
@@ -376,14 +391,14 @@ export function createSyncEngine({
         // Guard with the server's own string for the version we are building on.
         prior = head.updated_at
         if (toMs(head.updated_at) !== getRowState(id).seenMs) {
-          const r = await pullRow(id, inScope)
+          const r = await pullRow(id, view)
           if (r.failed) return 'error'
           if (r.missing) continue
           if (!r.needsPush) return 'skip' // after merging, the server already holds all of ours
           prior = getRowState(id).seenRaw || head.updated_at // the version just merged
         }
-        sig = localSignature(inScope)
-        payload = collectPayload(inScope)
+        sig = localSignature(view)
+        payload = collectPayload(view)
       }
 
       // Always advance the timestamp, even if this device's clock lags the other's —
@@ -420,10 +435,10 @@ export function createSyncEngine({
     // lost, so an archive failure alone is not shown as a sync error.
     for (const id of activeRows()) {
       if (id === ARCHIVE_ROW && archiveBlocked()) { archiveOk = false; continue }
-      const inScope = (id === MAIN_ROW && !archiveOk) ? () => true : scopeFor(id, cutoff)
+      const view = (id === MAIN_ROW && !archiveOk) ? ALL_VIEW : viewFor(id, cutoff)
       let result
       try {
-        result = await pushRow(id, inScope)
+        result = await pushRow(id, view)
       } catch (e) {
         log.warn?.('Sync push failed:', e)
         result = 'error'

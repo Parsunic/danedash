@@ -203,6 +203,29 @@ export function isArchivedKey(key, cutoff) {
   return end !== null && end < cutoff
 }
 
+// ---------------------------------------------------------------------------
+// SPLIT — collection keys whose RECORDS are divided between the two rows.
+//
+// `calendar_events` is one key holding every event ever made (~630 events, ~255 KB of
+// past ones): three quarters of the main row, re-downloaded on every remote change. Past
+// events are history just like past task days, but they live in a single list, so the key
+// cannot move rows as a whole. Instead each row carries the part of the list on its side
+// of the cutoff, under the same key name. Locally the key stays one complete list, so no
+// reader changes. The value is the record's end (or start) time; records without a
+// parseable date stay in the main row.
+// ---------------------------------------------------------------------------
+export const SPLIT_COLLECTIONS = {
+  calendar_events: (rec) => rec?.end_time || rec?.start_time,
+}
+
+export const isSplitKey = (key) => Object.prototype.hasOwnProperty.call(SPLIT_COLLECTIONS, key)
+
+export function isArchivedRecord(key, rec, cutoff) {
+  const when = SPLIT_COLLECTIONS[key]?.(rec)
+  const day = typeof when === 'string' ? when.slice(0, 10) : ''
+  return /^\d{4}-\d{2}-\d{2}$/.test(day) && day < cutoff
+}
+
 export function getCollection(key) {
   if (!key) return null
   if (Object.prototype.hasOwnProperty.call(COLLECTIONS, key)) return COLLECTIONS[key]
